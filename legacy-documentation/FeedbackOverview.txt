@@ -1,0 +1,37 @@
+List of things to redesign/fix: 
+
+F1. The Current Match button needs to be redesigned to make it more obviously clickable and intuitive
+F2. Bottom navigational menu in player profile to navigate the pages instead of the dots
+F3. Pending sets drag & drop functionality has to  be redesigned for when there is many pending sets to assign.
+	> scrollable pending set xone
+	> scrollbar in pending set zone
+	> tapping empty slot brings up scrollable list of pending sets to chose from
+	> auto-assign te each station separately
+	> highlighting pending set zone when tapping empty slot
+F4. Login page is confusing, needs a redesing, terminology needs to be clear
+F5. Most pages should include "Back" button
+F6. Score confirmation should take into account the current round and adapt the available score options accordingly (BO3 vs BO5 ...)
+F7. Redesign the check in process (already done kinda...)
+
+
+List of design aspects to possibly consider adding:
+
+S1. The bracket view should be accessible through the side-menu
+S2. The bracket view should be accessible through the tourney profile page
+S3. The bracket view should be visually similar to the smash.gg/challonge format
+
+S4. The tourney history should be accessible through slide-in menu (possibly replace the recent tourneys)
+S5. Remove the Recent Tourneys tiles in the slide-in menu, not a useful feature.
+S6. Add links to previous tourney profiles (assuming the pages still exist whithin the client site) in tourney history 
+
+S7. Use highly saturated colors for clickable components and pastel low saturated colors for unclickable components
+S8. App should have a default dark theme
+
+S9. In TO version, have Manage Ressources accessible from slide-in menu
+S10. Station lists in tourney profile should have interactability (like showing status)
+S11. Search bars should be present on every list
+S12. Edit player profile button should be made more obvious
+S13. Add cancel check-in button when trying to check-in
+
+
+
