@@ -14,6 +14,11 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-35.0.0.tar.gz",
     "react-native-web": "^0.11.7"
   },
+  "rnpm": {
+    "assets": [
+	    "./assets/fonts/"
+    ]
+  },
   "devDependencies": {
     "babel-preset-expo": "^7.1.0"
   },
