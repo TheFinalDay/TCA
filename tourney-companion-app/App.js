@@ -1,24 +1,12 @@
 import React from 'react';
-import { StyleSheet, Text, View, StatusBar, ActivityIndicator } from 'react-native';
-import Header from './components/misc/Header';
+import { StyleSheet, View, StatusBar, ActivityIndicator } from 'react-native';
+import { Provider } from 'react-redux';
 import * as Font from 'expo-font';
 
-/*
-export default function App() {
+import MainNavigator from './navigation/drawers/MainNavigator';
+import store from './store/store';
 
-  return (
-    <View style={styles.screen}>
-      <Header title="Dashboard"></Header>
-    </View>
-  );
-}
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1
-  },
-});
-*/
 
 export default class App extends React.Component {
 
@@ -40,15 +28,15 @@ export default class App extends React.Component {
 
     if( assetsLoaded ) {
       return (
-        <View style={styles.screen}>
-          <Header title="Dashboard"></Header>
-        </View>
+        <Provider store={store}>
+          <MainNavigator/>
+        </Provider>
       );
     }
     else {
       return (
-        <View style={styles.container}>
-          <ActivityIndicator />
+        <View style={styles.screenLoading}>
+          <ActivityIndicator/>
           <StatusBar barStyle="default" />
         </View>
       );
@@ -57,8 +45,12 @@ export default class App extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1
+  screenLoading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
 });
+
+
 
