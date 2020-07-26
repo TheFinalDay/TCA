@@ -1,10 +1,10 @@
 /* eslint react/display-name:0 */
 
 import * as React from 'react';
-import DrawerRouter from '../DrawerRouter';
-
 import { NavigationActions, SwitchRouter, StackRouter } from 'react-navigation';
-import * as DrawerActions from '../../routers/DrawerActions';
+
+import DrawerRouter from '../DrawerRouter';
+import * as DrawerActions from '../DrawerActions';
 
 const INIT_ACTION = { type: NavigationActions.INIT };
 
@@ -18,7 +18,7 @@ it('handles basic drawer logic and fires close on switch', () => {
   const state = router.getStateForAction(INIT_ACTION);
   const expectedState = {
     index: 0,
-    isTransitioning: false,
+
     routes: [
       { key: 'Foo', routeName: 'Foo', params: undefined },
       { key: 'Bar', routeName: 'Bar', params: undefined },
@@ -32,7 +32,7 @@ it('handles basic drawer logic and fires close on switch', () => {
   );
   const expectedState2 = {
     index: 1,
-    isTransitioning: false,
+
     routes: [
       { key: 'Foo', routeName: 'Foo', params: undefined },
       { key: 'Bar', routeName: 'Bar', params: undefined },
@@ -65,7 +65,7 @@ it('handles initial route navigation', () => {
   expect(state).toEqual({
     index: 0,
     isDrawerOpen: false,
-    isTransitioning: false,
+
     routes: [
       {
         key: 'Foo',

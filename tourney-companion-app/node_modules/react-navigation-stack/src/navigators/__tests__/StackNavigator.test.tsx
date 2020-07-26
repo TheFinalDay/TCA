@@ -5,12 +5,11 @@ import { withNavigation } from 'react-navigation';
 
 import createStackNavigator from '../createStackNavigator';
 
-// eslint-disable-next-line import/no-extraneous-dependencies
 import createAppContainer, {
   _TESTING_ONLY_reset_container_count,
   // @ts-ignore
-} from '@react-navigation/native/src/createAppContainer';
-import { StackNavigationProp } from '../../vendor/types';
+} from '../../../../native/src/createAppContainer';
+import type { StackNavigationProp } from '../../vendor/types';
 
 const NavigationTestUtils = {
   resetInternalState: _TESTING_ONLY_reset_container_count,

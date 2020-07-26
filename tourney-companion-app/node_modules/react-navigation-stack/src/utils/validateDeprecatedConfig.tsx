@@ -1,5 +1,8 @@
-import { StyleProp, ViewStyle } from 'react-native';
-import { StackNavigationOptions, StackNavigationConfig } from '../vendor/types';
+import type { StyleProp, ViewStyle } from 'react-native';
+import type {
+  StackNavigationOptions,
+  StackNavigationConfig,
+} from '../vendor/types';
 
 type Validation = {
   message: string;
@@ -58,7 +61,7 @@ export default function validateDeprecatedConfig(
 ) {
   let result = options;
 
-  Object.keys(validations).forEach(name => {
+  Object.keys(validations).forEach((name) => {
     if (name in config) {
       const { compat, message } = validations[name];
 
