@@ -1,20 +1,17 @@
 import React from 'react';
-import { Platform } from 'react-native';
-import { createBottomTabNavigator } from 'react-navigation-tabs';
+import { createAppContainer } from 'react-navigation';
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import DashboardScreen from '../../components/screens/DashboardScreen';
-import store from '../../store/store';
-
-const state = store.getState();
+import { DeepBlue } from '../../constants/Colors';
 
 const tabScreenConfig = {
     Dashboard: {screen: DashboardScreen, navigationOptions: {
         tabBarIcon: tabInfo => {
             return (<MaterialCommunityIcons name='bulletin-board' size={25} color='white' />);
         },
-        tabBarColor: state.settings.theme.bg_secondary
+        tabBarColor: DeepBlue.bg_secondary
         
     }}
     /**  TODO: add the rest of my content (in this order) 
@@ -38,10 +35,9 @@ const TourneyTabNavigator = createMaterialBottomTabNavigator(
         labeled: false,
         shifting: false,
         barStyle:{
-            backgroundColor: state.settings.theme.bg_secondary
+            backgroundColor: DeepBlue.bg_secondary
         }
     }
 );
 
-
-export default TourneyTabNavigator;
+export default createAppContainer(TourneyTabNavigator);

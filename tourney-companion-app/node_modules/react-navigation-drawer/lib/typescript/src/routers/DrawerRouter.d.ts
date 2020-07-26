@@ -1,10 +1,10 @@
 import { NavigationAction, NavigationRoute, NavigationRouteConfigMap } from 'react-navigation';
 declare const _default: (routeConfigs: NavigationRouteConfigMap<any, any>, config?: {
-    unmountInactiveRoutes?: boolean | undefined;
-    resetOnBlur?: boolean | undefined;
-    initialRouteName?: string | undefined;
+    unmountInactiveRoutes?: boolean;
+    resetOnBlur?: boolean;
+    initialRouteName?: string;
 }) => {
-    getActionCreators(route: NavigationRoute<import("react-navigation").NavigationParams>, navStateKey: string): {
+    getActionCreators(route: NavigationRoute, navStateKey: string): {
         openDrawer: () => any;
         closeDrawer: () => any;
         toggleDrawer: () => any;
