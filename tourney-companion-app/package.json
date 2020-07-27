@@ -29,6 +29,7 @@
     "react-navigation-tabs": "^2.9.0",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0",
     "styled-components": "^5.0.1"
   },
   "rnpm": {
@@ -37,7 +38,8 @@
     ]
   },
   "devDependencies": {
-    "babel-preset-expo": "^7.1.0"
+    "babel-preset-expo": "^7.1.0",
+    "redux-devtools-extension": "^2.13.8"
   },
   "private": true
 }
