@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, StyleSheet, View } from 'react-native';
+import { Text, StyleSheet, View, Button, Flatlist, TextInput} from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 
 import * as tourneyActions from '../../store/actions/tournaments';
@@ -18,19 +18,31 @@ const ImportTourneyScreen = props => {
     // use in onClick function as: 
     //// dispatch(tourneyActions.createTourney(the url entered by the user...))
 
+    const [value, onChangeText] = React.useState('Enter URL here...');
+
     return(
         <View>
-            <Text>Import Tourney Screen</Text>
+            <Text>Enter a Challonge URL:</Text>
+            <View>
+                <TextInput
+                    style={styles.textinput}
+                    onChangeText={text => onChangeText(text)}
+                    value={value}
+                />
+                <Button title="Join Tourney"/>
+            </View>
         </View>
     );
 }
 
-ImportTourneyScreen.navigationOptions = {
-    headerTitle: "New Tourney"
-}
+ImportTourneyScreen.navigationOptions = { }
 
 const styles = StyleSheet.create({
-
+    textinput: {
+        height: 40, 
+        borderColor: 'black',
+        borderWidth: 1
+    }
 });
 
 export default ImportTourneyScreen;

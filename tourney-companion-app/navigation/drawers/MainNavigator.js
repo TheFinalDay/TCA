@@ -5,11 +5,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { Platform } from 'react-native';
 
 import TourneyTabNavigator from '../tabs/TourneyTabNavigator';
-import ImportTourneyScreen from '../../components/screens/ImportTourneyScreen';
+import ImportTourneyStackNavigator from '../stacks/ImportTourneyStackNavigator';
 
 const MainNavigator = createDrawerNavigator({
     Import: {
-        screen: ImportTourneyScreen,
+        screen: ImportTourneyStackNavigator,
         navigationOptions: {
             drawerLabel: 'Join New Tourney'
         }
@@ -35,15 +35,6 @@ const MainNavigator = createDrawerNavigator({
     }
 
     */
-}, 
-    {
-        contentOptions: {
-            labelStyle: {
-                fontFamily: 'prototype'
-            }
-        }
-    }
-
-)
+});
 
 export default createAppContainer(MainNavigator);
