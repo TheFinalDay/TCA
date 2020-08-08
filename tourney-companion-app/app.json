@@ -2,7 +2,7 @@
   "expo": {
     "name": "TCA",
     "slug": "tourney-companion-app",
-    "privacy": "public",
+    "privacy": "unlisted",
     "sdkVersion": "35.0.0",
     "platforms": [
       "ios",
@@ -25,6 +25,8 @@
     ],
     "ios": {
       "supportsTablet": true
-    }
+    },
+    "description": "A quality of life & tournament management app for players and TOs respectively",
+    "githubUrl": "https://github.com/TheFinalDay/TCA"
   }
 }

@@ -8,7 +8,10 @@ const ImportTourneyStackNavigator = createStackNavigator({
     ImportTourneyScreen: ImportTourneyScreen
 }, {
     defaultNavigationOptions: {
-        title: 'Join New Tourney',
+        title: 'Join as Player',
+        headerTitleStyle: {
+            fontFamily: 'prototype'
+        },
         headerStyle: {
             backgroundColor: DeepBlue.bg_secondary
         },

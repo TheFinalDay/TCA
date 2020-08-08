@@ -2,7 +2,7 @@
 export const DeepBlue = {
     bg_primary: '#181740',
     bg_secondary: '#2a2869',
-    primary: '#3e5fb8',
+    primary: '#6383db',
     accent: '#48b892',
     text_primary: '#ffffff',
     text_secondary: '#91919c'
