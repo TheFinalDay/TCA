@@ -2,11 +2,12 @@ import CHALLONGE_API_KEY from '../../data/dataAPI';
 import { SET_TOURNAMENTURLNOTFOUND } from '../actions/errors';
 
 export const CREATE_TOURNEY = 'CREATE_TOURNEY';
+export const REGISTER_TOURNEY = 'CREATE_TOURNEY';
+export const DELETE_TOURNEY = 'DELETE_TOURNEY';
+export const DELETE_UNREGISTERED_TOURNEYS = 'DELETE_UNREGISTERED_TOURNEYS';
 
 export const createTourney = (url) => {
     return async dispatch => {
-
-        // any async code you want here
 
         let resData = null;
 
@@ -15,7 +16,6 @@ export const createTourney = (url) => {
         }
 
         try {
-            // tweak this according to challonge API...
             const response = await fetch(
                 `https://api.challonge.com/v1/tournaments/${url}/participants.json?api_key=${CHALLONGE_API_KEY}`, 
                     {
@@ -48,7 +48,6 @@ export const createTourney = (url) => {
 
             
         } catch (e) { throw e; }
-        // todo: need to better handle exceptions...
 
         dispatch({
             type: CREATE_TOURNEY,
@@ -60,3 +59,15 @@ export const createTourney = (url) => {
         });
     };
 };
+
+export const registerTourney = (tourneyId) => {
+    return { type: REGISTER_TOURNEY, tid: tourneyId}
+}
+
+export const deleteTourney = (tourneyId) => {
+    return { type: DELETE_TOURNEY, tid: tourneyId}
+}
+
+export const deleteUnregisteredTourneys = () => {
+    return { type: DELETE_UNREGISTERED_TOURNEYS }
+}

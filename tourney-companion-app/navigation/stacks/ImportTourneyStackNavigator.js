@@ -4,6 +4,8 @@ import { createStackNavigator } from 'react-navigation-stack';
 import ImportTourneyScreen from '../../components/screens/ImportTourneyScreen';
 import { DeepBlue } from '../../constants/Colors';
 
+// This is unused
+
 const ImportTourneyStackNavigator = createStackNavigator({
     ImportTourneyScreen: ImportTourneyScreen
 }, {

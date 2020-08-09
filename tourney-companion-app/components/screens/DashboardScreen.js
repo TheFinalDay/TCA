@@ -7,6 +7,7 @@ import { Text, StyleSheet, View } from 'react-native';
 const DashboardScreen = props => {
 
     const theme = useSelector(state => state.settings.theme);
+    
 
     return(
         <View style={{...styles.screen, backgroundColor: theme.bg_primary}}>

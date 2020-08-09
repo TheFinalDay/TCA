@@ -5,6 +5,7 @@ import * as Font from 'expo-font';
 
 import MainNavigator from './navigation/drawers/MainNavigator';
 import store from './store/store';
+import { DeepBlue } from './constants/Colors';
 
 
 
@@ -15,10 +16,11 @@ export default class App extends React.Component {
   };
 
   async componentDidMount() {
+    
     await Font.loadAsync({
       'prototype': require('./assets/fonts/Prototype.ttf')
     });
-
+    
     this.setState({ assetsLoaded: true });
   }
 

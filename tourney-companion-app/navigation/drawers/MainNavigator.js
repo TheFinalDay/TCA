@@ -6,10 +6,11 @@ import { Platform } from 'react-native';
 
 import TourneyTabNavigator from '../tabs/TourneyTabNavigator';
 import ImportTourneyStackNavigator from '../stacks/ImportTourneyStackNavigator';
+import ImportTourneyScreen from '../../components/screens/ImportTourneyScreen';
 
 const MainNavigator = createDrawerNavigator({
     Import: {
-        screen: ImportTourneyStackNavigator,
+        screen: ImportTourneyScreen,
         navigationOptions: {
             drawerLabel: 'Join New Tourney'
         }
