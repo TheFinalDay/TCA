@@ -2,7 +2,7 @@ import CHALLONGE_API_KEY from '../../data/dataAPI';
 import { SET_TOURNAMENTURLNOTFOUND } from '../actions/errors';
 
 export const CREATE_TOURNEY = 'CREATE_TOURNEY';
-export const REGISTER_TOURNEY = 'CREATE_TOURNEY';
+export const REGISTER_TOURNEY = 'REGISTER_TOURNEY';
 export const DELETE_TOURNEY = 'DELETE_TOURNEY';
 export const DELETE_UNREGISTERED_TOURNEYS = 'DELETE_UNREGISTERED_TOURNEYS';
 
@@ -52,7 +52,7 @@ export const createTourney = (url) => {
         dispatch({
             type: CREATE_TOURNEY,
             tourneyData: {
-                id: resData[0].participant.tournament_id,
+                tid: resData[0].participant.tournament_id,
                 url,
                 players: resData
             }
@@ -60,14 +60,17 @@ export const createTourney = (url) => {
     };
 };
 
-export const registerTourney = (tourneyId) => {
-    return { type: REGISTER_TOURNEY, tid: tourneyId}
+export const registerTourney = (tourneyId, player) => {
+    console.log("HELLo ?")
+    return { type: REGISTER_TOURNEY, tid: tourneyId, userPlayer: player}
 }
 
 export const deleteTourney = (tourneyId) => {
+    console.log('whaddup')
     return { type: DELETE_TOURNEY, tid: tourneyId}
 }
 
 export const deleteUnregisteredTourneys = () => {
+    console.log('heyyyyyyy')
     return { type: DELETE_UNREGISTERED_TOURNEYS }
 }

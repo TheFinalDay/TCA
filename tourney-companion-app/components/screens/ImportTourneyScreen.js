@@ -31,10 +31,15 @@ const ImportTourneyScreen = props => {
     useEffect(() => {
         
         // make sure the tourney was really added:
-        let tourneysArray = Object.keys(tourneys).map((key) => [Number(key), tourneys[key]]);
-        let tIndex = tourneysArray.findIndex(x => x[1].url == mostRecentTourneyUrl);
-        if(tIndex >= 0){
-            setPlayers(tourneysArray[tIndex][1].players);
+        //let tourneysArray = Object.keys(tourneys).map((key) => [Number(key), tourneys[key]]);
+        //let tIndex = tourneysArray.findIndex(x => x[1].url == mostRecentTourneyUrl);
+
+        console.log("### useEffect log:")
+        console.log(tourneys);
+
+        let addedTourney = tourneys.find(x => x.url == mostRecentTourneyUrl);
+        if(addedTourney){
+            setPlayers(addedTourney.players);
             setShowPlayers(true);
         }
     },[tourneys]);
@@ -64,10 +69,11 @@ const ImportTourneyScreen = props => {
                     style={styles.loadTourneyButton}
                     backgroundColor={DeepBlue.primary}
                     onPress={() => {
-                        dispatch(tourneyActions.createTourney(urlText));
-                        setSelectedPlayer(null);
-                        if (mostRecentTourneyUrl != urlText) {
-                            setShowPlayers(false);}
+                            dispatch(tourneyActions.createTourney(urlText));
+                            setSelectedPlayer(null);
+                            if (mostRecentTourneyUrl != urlText) {
+                                setShowPlayers(false);
+                            }
                         }
                     }>
                     Load Tourney
@@ -85,6 +91,7 @@ const ImportTourneyScreen = props => {
                             <TouchableOpacity 
                                 onPress={() => {
                                     setSelectedPlayer(itemData.item);
+                                    console.log(tourneys);
                                 }}
                                 style={itemData.item === selectedPlayer ? styles.selectedItem : null}>
                                 <View style={styles.listItem}>
@@ -107,9 +114,15 @@ const ImportTourneyScreen = props => {
                     borderColor={DeepBlue.text_primary}
                     onPress={() => {
                         // navigation params dont seem to work, use reducers and actions instead
-                        // register the selected tourney
+                        dispatch(tourneyActions.registerTourney(selectedPlayer.participant.tournament_id, selectedPlayer));
+                        dispatch(tourneyActions.deleteUnregisteredTourneys());
+                        onChangeUrlText('');
+                        setPlayers([]);
+                        setShowPlayers(false);
+                        setSelectedPlayer(null);
+
                         // clear the import tourney page related states
-                        // navigate to 
+                        // TODO navigate to most recently registered Tourney
                     }}>
                     Join Tourney as <Text style={styles.buttonPlayerName}>{selectedPlayer ? selectedPlayer.participant.name : '     '}</Text>
                 </SimpleButton>

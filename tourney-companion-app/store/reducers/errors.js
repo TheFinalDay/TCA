@@ -6,7 +6,7 @@ const initialState = {
 
 const errorsReducer = (state = initialState, action) => {
     switch (action.type) {
-        case "SET_TOURNAMENTURLNOTFOUND":
+        case SET_TOURNAMENTURLNOTFOUND:
             const newState = action.isTournamentUrlNotFound;
             return {...state, isTournamentUrlNotFound: newState};
         default:
