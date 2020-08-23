@@ -7,6 +7,7 @@
  * @format
  * @emails oncall+react_native
  */
+
 'use strict';
 
 describe('checkVersion', () => {
@@ -127,9 +128,14 @@ function _mockNativeVersion(
   patch = 0,
   prerelease = null,
 ) {
-  jest.doMock('../../BatchedBridge/NativeModules', () => ({
-    PlatformConstants: {
+  jest.doMock('../../Utilities/NativePlatformConstantsAndroid', () => ({
+    getConstants: () => ({
       reactNativeVersion: {major, minor, patch, prerelease},
-    },
+    }),
+  }));
+  jest.doMock('../../Utilities/NativePlatformConstantsIOS', () => ({
+    getConstants: () => ({
+      reactNativeVersion: {major, minor, patch, prerelease},
+    }),
   }));
 }

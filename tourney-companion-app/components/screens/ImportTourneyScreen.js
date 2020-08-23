@@ -12,8 +12,6 @@ const dims = Dimensions.get('window');
 
 const ImportTourneyScreen = props => {
 
-    console.log(props);
-
     const dispatch = useDispatch();
 
     const [urlText, onChangeUrlText] = useState('');

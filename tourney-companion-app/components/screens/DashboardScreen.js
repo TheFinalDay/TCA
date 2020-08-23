@@ -1,5 +1,4 @@
-import React from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import React, { useEffect } from 'react';
 import { useSelector } from "react-redux";
 import { Text, StyleSheet, View, BackHandler } from 'react-native';
 
@@ -12,21 +11,7 @@ const DashboardScreen = props => {
     // TODO
     // Screen needs to update if switching between multiple tourneys
     // Screen needs to display a "nothing here!" message if no tourney has been selected (not necessary if not accessible from drawer)
-    // Go Back button needs to navigate to tourney list
     // Calculate opponents and previsions...
-
-    useFocusEffect(
-        React.useCallback(() => {
-            const onBackPress = () => {
-                props.navigation.navigate('TourneyList');
-            };
-    
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    
-            return () =>
-                BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-        }, [])
-    );
 
     const { tid, url, players, tourneyData, userPlayer } = props.navigation.dangerouslyGetParent().getParam('tourneyInfo');
 

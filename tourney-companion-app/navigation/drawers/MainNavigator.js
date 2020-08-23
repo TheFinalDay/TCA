@@ -9,6 +9,12 @@ import ImportTourneyScreen from '../../components/screens/ImportTourneyScreen';
 import TourneyListScreen from '../../components/screens/TourneyListScreen';
 
 const MainNavigator = createDrawerNavigator({
+    TourneyList: {
+        screen: TourneyListScreen,
+        navigationOptions: {
+            drawerLabel: 'My Tourneys'
+        }
+    },
     Import: {
         screen: ImportTourneyScreen,
         navigationOptions: {
@@ -20,15 +26,7 @@ const MainNavigator = createDrawerNavigator({
         navigationOptions: {
             drawerLabel: 'Active Dashboard'
         }
-    },
-    TourneyList: {
-        screen: TourneyListScreen,
-        navigationOptions: {
-            drawerLabel: 'Registered Tourneys'
-        }
     }
-    
-    
     
     
     

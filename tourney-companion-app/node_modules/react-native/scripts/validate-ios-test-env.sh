@@ -3,7 +3,7 @@
 #
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
-#
+
 # This script validates that iOS is set up correctly for the
 # testing environment.
 #
@@ -11,7 +11,7 @@
 # It also checks that the correct Node version is installed. Node 10 is not fully
 # supported at the time and Node 6 is no longer supported.
 
-# Function used to compare dot seperated version numbers
+# Function used to compare dot separated version numbers
 function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
 
 # Check that node is installed.
