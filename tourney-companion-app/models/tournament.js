@@ -1,9 +1,9 @@
 class Tournament {
-    constructor(tid, url, players, isRegistered, userPlayer){
+    constructor(tid, url, players, tourneyData, userPlayer){
         this.tid = tid;
         this.url = url;
         this.players = players;
-        this.isRegistered = isRegistered;
+        this.tourneyData = tourneyData;
         this.userPlayer = userPlayer;
     }
 }

@@ -5,8 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Platform } from 'react-native';
 
 import TourneyTabNavigator from '../tabs/TourneyTabNavigator';
-import ImportTourneyStackNavigator from '../stacks/ImportTourneyStackNavigator';
 import ImportTourneyScreen from '../../components/screens/ImportTourneyScreen';
+import TourneyListScreen from '../../components/screens/TourneyListScreen';
 
 const MainNavigator = createDrawerNavigator({
     Import: {
@@ -21,6 +21,12 @@ const MainNavigator = createDrawerNavigator({
             drawerLabel: 'Active Dashboard'
         }
     },
+    TourneyList: {
+        screen: TourneyListScreen,
+        navigationOptions: {
+            drawerLabel: 'Registered Tourneys'
+        }
+    }
     
     
     

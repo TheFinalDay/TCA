@@ -2,18 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, View, Dimensions, TouchableOpacity, FlatList, TextInput, Platform} from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 
+import { API } from '../../misc/apiCalls';
 import { DeepBlue } from '../../constants/Colors';
-import SimpleButton from '../UI/simpleButton';
+import SimpleButton from '../UI/SimpleButton';
 import * as tourneyActions from '../../store/actions/tournaments';
-
-// test bracket url: https://challonge.com/picfs9jq
 
 const dims = Dimensions.get('window');
 
 const ImportTourneyScreen = props => {
-
-    // TODO - IN ORDER:
-    // - switch to dashboard and do all the GET requests for the bracket there...
 
     const dispatch = useDispatch();
 
@@ -23,33 +19,21 @@ const ImportTourneyScreen = props => {
     const [showErrorMessage, setShowErrorMessage] = useState(false);
     const [selectedPlayer, setSelectedPlayer] = useState(null);
 
-
     const tourneys = useSelector(state => state.tournaments.userTournaments);
-    const mostRecentTourneyUrl = useSelector(state => state.tournaments.mostRecentUrl);
-    const is404 = useSelector(state => state.errors.isTournamentUrlNotFound);
 
     useEffect(() => {
         
-        // make sure the tourney was really added:
-        //let tourneysArray = Object.keys(tourneys).map((key) => [Number(key), tourneys[key]]);
-        //let tIndex = tourneysArray.findIndex(x => x[1].url == mostRecentTourneyUrl);
-
-        console.log("### useEffect log:")
-        console.log(tourneys);
-
-        let addedTourney = tourneys.find(x => x.url == mostRecentTourneyUrl);
-        if(addedTourney){
-            setPlayers(addedTourney.players);
-            setShowPlayers(true);
+        if(selectedPlayer){
+            props.navigation.navigate('TourneyList');
+            onChangeUrlText('');
+            setPlayers([]);
+            setShowPlayers(false);
+            setSelectedPlayer(null);
         }
+
     },[tourneys]);
 
-    useEffect(() => {
-        setShowErrorMessage(false);
-        if(is404){
-            setShowErrorMessage(is404);
-        }
-    });
+    
 
     return(
         <View style={styles.screen}>
@@ -68,11 +52,16 @@ const ImportTourneyScreen = props => {
                 <SimpleButton 
                     style={styles.loadTourneyButton}
                     backgroundColor={DeepBlue.primary}
-                    onPress={() => {
-                            dispatch(tourneyActions.createTourney(urlText));
-                            setSelectedPlayer(null);
-                            if (mostRecentTourneyUrl != urlText) {
-                                setShowPlayers(false);
+                    onPress={async () => {
+                            setShowPlayers(false)
+                            let result = await API._getPlayerList(urlText);
+                            if(result){
+                                setSelectedPlayer(null);
+                                setShowErrorMessage(false);
+                                setPlayers(result.payloadData.players);
+                                setShowPlayers(true);
+                            }else{
+                                setShowErrorMessage(true);
                             }
                         }
                     }>
@@ -91,7 +80,6 @@ const ImportTourneyScreen = props => {
                             <TouchableOpacity 
                                 onPress={() => {
                                     setSelectedPlayer(itemData.item);
-                                    console.log(tourneys);
                                 }}
                                 style={itemData.item === selectedPlayer ? styles.selectedItem : null}>
                                 <View style={styles.listItem}>
@@ -112,17 +100,8 @@ const ImportTourneyScreen = props => {
                     fontSize={14}
                     borderWidth={5}
                     borderColor={DeepBlue.text_primary}
-                    onPress={() => {
-                        // navigation params dont seem to work, use reducers and actions instead
-                        dispatch(tourneyActions.registerTourney(selectedPlayer.participant.tournament_id, selectedPlayer));
-                        dispatch(tourneyActions.deleteUnregisteredTourneys());
-                        onChangeUrlText('');
-                        setPlayers([]);
-                        setShowPlayers(false);
-                        setSelectedPlayer(null);
-
-                        // clear the import tourney page related states
-                        // TODO navigate to most recently registered Tourney
+                    onPress={async () => {
+                        dispatch(tourneyActions.createTourney(urlText, players, selectedPlayer));
                     }}>
                     Join Tourney as <Text style={styles.buttonPlayerName}>{selectedPlayer ? selectedPlayer.participant.name : '     '}</Text>
                 </SimpleButton>
