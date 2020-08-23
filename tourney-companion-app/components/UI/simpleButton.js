@@ -18,16 +18,6 @@ const styles = StyleSheet.create({
     button: {
         padding: 10,
         borderRadius: 10
-        /* fuck shadows
-        elevation: 7,
-        shadowOffset: {
-            width: 5,
-            height: 5
-        },
-        shadowOpacity: 1,
-        shadowRadius: 4,
-        shadowColor: 'black'
-        */
     },
     buttonText: {
         fontFamily: 'prototype',

@@ -5,11 +5,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import { API } from '../../misc/apiCalls';
 import { DeepBlue } from '../../constants/Colors';
 import SimpleButton from '../UI/SimpleButton';
+import Header from '../UI/Header';
 import * as tourneyActions from '../../store/actions/tournaments';
 
 const dims = Dimensions.get('window');
 
 const ImportTourneyScreen = props => {
+
+    console.log(props);
 
     const dispatch = useDispatch();
 
@@ -37,9 +40,7 @@ const ImportTourneyScreen = props => {
 
     return(
         <View style={styles.screen}>
-            <View style={styles.header}>
-                <Text style={styles.headerText}>Join as Player</Text>
-            </View>
+            <Header openDrawer={props.navigation.openDrawer}>Join as Player</Header>
             <Text style={styles.enterUrlText}>Enter a Challonge URL :</Text>
             <View style={styles.textInputView}>
                 <TextInput
@@ -118,18 +119,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'flex-start'
-    },
-    header: {
-        width: '100%',
-        backgroundColor: DeepBlue.bg_secondary,
-        height:  dims.height * 0.07,
-    },
-    headerText: {
-        fontFamily: 'prototype',
-        color: DeepBlue.text_primary,
-        fontSize: 22,
-        marginLeft: 15,
-        marginVertical: 15
     },
     textInputView: {
         width: "100%",
