@@ -19,22 +19,7 @@ const Header = props => {
 
 
 const styles = StyleSheet.create({
-    /*
-    header: {
-        height: '10%',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-evenly',
-        paddingHorizontal: 5,
-        paddingTop: '13%',
-        backgroundColor: '#00ffbb'
-    },
-    headertitle: {
-        fontSize: 30,
-        fontFamily: 'prototype'
-    }
-    */
-
+    
     header: {
         width: '100%',
         backgroundColor: DeepBlue.bg_secondary,

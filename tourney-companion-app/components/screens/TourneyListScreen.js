@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
         backgroundColor: DeepBlue.bg_primary
     },
     tourneyListView: {
-        height: dims.height * 0.85,
+        height: dims.height * 0.92,
         width: '100%'
     },
     emptySection: {
