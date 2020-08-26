@@ -1,10 +1,12 @@
 import Tournament from '../../models/tournament';
 import { CREATE_TOURNEY } from '../actions/tournaments';
 import { DELETE_TOURNEY } from '../actions/tournaments';
+import { ACTIVATE_TOURNEY } from '../actions/tournaments';
 
 const initialState = {
 
-    userTournaments: []
+    userTournaments: [],
+    activeTournament: null
 };
 
 export default (state = initialState, action) => {
@@ -48,10 +50,30 @@ export default (state = initialState, action) => {
 
         case DELETE_TOURNEY:
 
+            let toDelete = state.userTournaments.find(tourney => tourney.tid == action.tid);
+
+            if (state.activeTournament == toDelete) {
+                return {
+                    ...state,
+                    userTournaments: state.userTournaments.filter(tourney => tourney.tid !== action.tid),
+                    activeTournament: null
+                };
+            }
+
             return {
                 ...state,
                 userTournaments: state.userTournaments.filter(tourney => tourney.tid !== action.tid)
             };
+
+        case ACTIVATE_TOURNEY:
+
+            let toActivate = state.userTournaments.find(tourney => tourney.tid == action.tid);
+
+            return {
+                ...state,
+                activeTournament: toActivate
+            };
+
         default:
             return state;
     }

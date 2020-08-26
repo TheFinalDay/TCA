@@ -12,9 +12,6 @@ const dims = Dimensions.get('window');
 
 const TourneyListScreen = props => {
 
-    //TODO
-    // styling
-
     const dispatch = useDispatch();
 
     const [showTourneys, setShowTourneys] = useState(false);

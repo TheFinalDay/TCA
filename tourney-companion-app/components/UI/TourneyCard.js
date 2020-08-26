@@ -1,13 +1,17 @@
 import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import { useDispatch } from 'react-redux';
 
 import { DeepBlue } from '../../constants/Colors';
 import RectangleIconButton from '../UI/RectangleIconButton';
+import * as tourneyActions from '../../store/actions/tournaments';
 
 const TourneyCard = props => {
 
     // trash-can-outline
     // arrow-right-drop-circle-outline
+
+    const dispatch = useDispatch();
 
     const { tournament } = props.tourney.tourneyData;
     const { participant } = props.tourney.userPlayer;
@@ -37,7 +41,10 @@ const TourneyCard = props => {
                     backgroundColor={DeepBlue.red}
                 />
                 <RectangleIconButton
-                    onPress={() => {props.navigation.navigate('CurrentTourney', { tourneyInfo: props.tourney })}}
+                    onPress={() => {
+                        dispatch(tourneyActions.activateTourney(props.tourney.tid));
+                        props.navigation.navigate('CurrentTourney'/*, { tourneyInfo: props.tourney }*/);
+                    }}
                     style={styles.dashboardButton}
                     iconName='arrow-right-drop-circle-outline'
                     iconSize={25}

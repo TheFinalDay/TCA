@@ -2,6 +2,7 @@ import { API } from '../../misc/apiCalls';
 
 export const CREATE_TOURNEY = 'CREATE_TOURNEY';
 export const DELETE_TOURNEY = 'DELETE_TOURNEY';
+export const ACTIVATE_TOURNEY = 'ACTIVATE_TOURNEY';
 
 export const createTourney = (url, players, userPlayer) => {
     return async dispatch => {
@@ -22,6 +23,11 @@ export const createTourney = (url, players, userPlayer) => {
 };
 
 export const deleteTourney = (tourneyId) => {
-    console.log('deleting: ' + tourneyId)
+    console.log('deleting: ' + tourneyId);
     return { type: DELETE_TOURNEY, tid: tourneyId}
-}
+};
+
+export const activateTourney = (tourneyId) => {
+    console.log('activating: ' + tourneyId);
+    return { type: ACTIVATE_TOURNEY, tid: tourneyId}
+};

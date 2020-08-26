@@ -13,16 +13,21 @@ const DashboardScreen = props => {
     // Screen needs to display a "nothing here!" message if no tourney has been selected (not necessary if not accessible from drawer)
     // Calculate opponents and previsions...
 
-    const { tid, url, players, tourneyData, userPlayer } = props.navigation.dangerouslyGetParent().getParam('tourneyInfo');
+    //const { tid, url, players, tourneyData, userPlayer } = props.navigation.dangerouslyGetParent().getParam('tourneyInfo');
+
+    const tourney = useSelector(state => state.tournaments.activeTournament);
 
     return(
         <View style={styles.screen}>
-            <Text style={{...styles.text, color: DeepBlue.text_primary}}>{tourneyData.tournament.name}</Text>
-            <Text style={{...styles.text3, color: DeepBlue.text_secondary}}>Player: {userPlayer.participant.name}</Text>
-            <Text style={{...styles.text1, color: DeepBlue.primary}}>{players.length} players</Text>
-            <Text style={{...styles.text1, color: DeepBlue.primary}}>URL: {url}</Text>
-            <Text style={{...styles.text2, color: DeepBlue.accent}}>{tid}</Text>
+            {tourney && <View>
+                <Text style={{...styles.text, color: DeepBlue.text_primary}}>{tourney.tourneyData.tournament.name}</Text>
+                <Text style={{...styles.text3, color: DeepBlue.text_secondary}}>Player: {tourney.userPlayer.participant.name}</Text>
+                <Text style={{...styles.text1, color: DeepBlue.primary}}>{tourney.players.length} players</Text>
+                <Text style={{...styles.text1, color: DeepBlue.primary}}>URL: {tourney.url}</Text>
+                <Text style={{...styles.text2, color: DeepBlue.accent}}>{tourney.tid}</Text>
+            </View>}
         </View>
+        
     );
 }
 
