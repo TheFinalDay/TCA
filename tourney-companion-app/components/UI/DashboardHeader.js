@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { DeepBlue } from '../../constants/Colors';
 
+
 const dims = Dimensions.get('window');
 
 const DashboardHeader = props => {
@@ -70,8 +71,7 @@ const styles = StyleSheet.create({
         color: DeepBlue.text_primary,
         fontSize: 16,
         marginLeft: 12,
-        marginVertical: 15,
-        flex: 8
+        marginVertical: 15
     },
     bannerIcons: {
 

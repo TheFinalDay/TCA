@@ -6,6 +6,7 @@ import { DeepBlue } from '../../constants/Colors';
 import RectangleIconButton from '../UI/RectangleIconButton';
 import * as tourneyActions from '../../store/actions/tournaments';
 
+
 const TourneyCard = props => {
 
     // trash-can-outline
@@ -43,7 +44,7 @@ const TourneyCard = props => {
                 <RectangleIconButton
                     onPress={() => {
                         dispatch(tourneyActions.activateTourney(props.tourney.tid));
-                        props.navigation.navigate('CurrentTourney'/*, { tourneyInfo: props.tourney }*/);
+                        props.navigation.navigate('CurrentTourney');
                     }}
                     style={styles.dashboardButton}
                     iconName='arrow-right-drop-circle-outline'
