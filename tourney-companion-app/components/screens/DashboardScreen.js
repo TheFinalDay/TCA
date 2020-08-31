@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from "react-redux";
-import { Text, StyleSheet, View, BackHandler } from 'react-native';
+import { Text, StyleSheet, View, Dimensions, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { DeepBlue } from '../../constants/Colors';
 import DashboardHeader from '../UI/DashboardHeader';
 import Banner from '../UI/Banner';
 import { API } from '../../misc/apiCalls';
 
-
+const dims = Dimensions.get('window');
+const fRatio = dims.width / 1000;
 
 const DashboardScreen = props => {
 
@@ -126,41 +128,69 @@ const DashboardScreen = props => {
     // Displays current opponent data
     const OpponentText = props => {
 
+        const { style } = props;
+
         if(opponent){
 
             const { names, state } = opponent.data;
 
             if(state == "open"){// just display opponent name
                 return(
-                    <Text style={{...styles.text, color: DeepBlue.text_primary}}>Versus {names[0]}</Text>
+                    <View style={{...style, flexDirection: 'row', alignItems: 'flex-start', padding: 5}}>
+                        <Text style={{...styles.text, color: DeepBlue.text_primary}}>VS  </Text>
+                        <Text numberOfLines={1} style={styles.opponent_text}>{names[0]}</Text>
+                    </View>
                 );
             } else {
                 switch(names.length){
                     case 2:// display pending set with both names
                         return(
-                            <Text style={{...styles.text, color: DeepBlue.text_primary}}>Waiting on {names[0]} and {names[1]}</Text>
+                            <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                    <Text style={{...styles.text, color: DeepBlue.text_primary}}>Waiting on </Text>
+                                    <Text style={styles.pending_opponent_text}>{names[0]}</Text>
+                                    <Text style={{...styles.text, color: DeepBlue.text_primary}}> and </Text>
+                                    <Text style={styles.pending_opponent_text}>{names[1]}</Text>
+                                </View>
+                            </View>
                         );
                     case 1:// display pending set opponent 'and winner of earlier rounds...'
                         return(
-                            <Text style={{...styles.text, color: DeepBlue.text_primary}}>Waiting on {names[0]} and earlier rounds...</Text>
+                            <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                    <Text style={{...styles.text, color: DeepBlue.text_primary}}>Waiting on  </Text>
+                                    <Text numberOfLines={1} style={styles.pending_opponent_text}>{names[0]}</Text>
+                                </View>
+                                <Text style={{...styles.text, color: DeepBlue.text_primary}}>and earlier rounds...</Text>
+                            </View>
                         );
                     default:// display 'waiting for more than one pending round...'
                         return(
-                            <Text style={{...styles.text, color: DeepBlue.text_primary}}>Waiting on several earlier rounds...</Text>
+                            <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                <Text style={{...styles.text, color: DeepBlue.text_primary}}>Waiting on  </Text>
+                                <Text style={styles.pending_rounds_text}>multiple earlier rounds...</Text>
+                            </View>
                         );
                 }
             }
         }
-        return <Text style={styles.loadingtext}>No more opponents</Text>
+        return <Text style={{...style, ...styles.loadingtext}}>No more opponents</Text>
     }
 
     // Displays current match's state
     const MatchStateText = props => {
         if(currentMatchState){
             if(currentMatchState != 'completed'){
-                return(
-                    <Text style={{...styles.text, color: DeepBlue.text_primary}}>State: {currentMatchState}</Text>
-                );
+                if(currentMatchState == 'open'){
+                    return(
+                        <Text style={{...styles.text, color: DeepBlue.text_primary, padding: 5}}>Status: <Text style={{color: DeepBlue.accent}}>Ready</Text></Text>
+                    );
+                } else {
+                    return(
+                        <Text style={{...styles.text, color: DeepBlue.text_primary, padding: 5}}>Status: <Text style={{color: DeepBlue.text_secondary}}>Pending</Text></Text>
+                    );
+                }
+                
             } else {
                 return(
                     <Text style={styles.loadingtext}>State: N/A</Text>
@@ -360,55 +390,71 @@ const DashboardScreen = props => {
     return(
 
         <View style={styles.screen}>
-            <DashboardHeader openDrawer={props.navigation.openDrawer}>{tourney?.tourneyData.tournament.name || "Nothing here!"}</DashboardHeader>
+            <DashboardHeader openDrawer={props.navigation.openDrawer} iconSize={85 * fRatio}>{tourney?.tourneyData.tournament.name || "Nothing here!"}</DashboardHeader>
             {tourney && <View style={styles.dashboard}>
 
                 <View style={styles.currentmatch}>
 
-                    {!isLoading ? 
+                    <View style={styles.round_and_scores}>
+                        {!isLoading ? 
 
-                        <MatchRoundText/>
-                        : 
-                        <Banner color={DeepBlue.bg_secondary} textColor={DeepBlue.text_secondary}>loading...</Banner>
-                    }
+                            <MatchRoundText/>
+                            : 
+                            <Banner color={DeepBlue.bg_secondary} textColor={DeepBlue.text_secondary}>loading...</Banner>
+                        }
 
-                    {!isLoading ? 
+                        {!isLoading ? 
 
-                        <ScoreText/>
-                        : 
-                        <Text style={styles.loadingtext}>loading...</Text>
-                    }
+                            <ScoreText/>
+                            : 
+                            <Text style={styles.loadingtext}>loading...</Text>
+                        }
+                    </View>
 
-                    {!isLoading ? 
-
-                        <OpponentText/>
-                        : 
-                        <Text style={styles.loadingtext}>loading...</Text>
-                    }
-
-                    {!isLoading ? 
-
-                        <MatchStateText/>
-                        : 
-                        <Text style={styles.loadingtext}>loading...</Text>
-                    }
-
-                    {!isLoading ? 
-
-                        <Text style={{...styles.text, color: DeepBlue.text_primary}}>Size: {matches.length} sets</Text>
-                        : 
-                        <Text style={styles.loadingtext}>loading...</Text>
-                    }
                     
-                    
+
+                    <View style={styles.cm_card}>
+                        
+                            {!isLoading ? 
+
+                                <View style={{flexDirection: 'row', flex: 1}}>
+                                    <OpponentText style={{flex: 8}}/>
+                                    <View style={{justifyContent: 'space-around', flex: 1}}>
+                                        <TouchableOpacity style={styles.send_scores} onPress={() => {/* TODO */}}>
+                                            <MaterialCommunityIcons name={'square-edit-outline'} size={85 * fRatio} color={DeepBlue.bg_secondary}/>
+                                        </TouchableOpacity>
+                                    </View>
+                                    
+                                </View>
+                                : 
+                                <Text style={styles.loadingtext}>loading...</Text>
+                            }
+                       
+                        
+                        <View style={{backgroundColor: DeepBlue.bg_secondary}}>
+                            {!isLoading ? 
+
+                                <MatchStateText/>
+                                : 
+                                <Text style={styles.loadingtext}>loading...</Text>
+                            }
+                        </View>
+                        
+                    </View>
+
                 </View>
                 
 
-                <View>
+                <View style={styles.tempinfo}>
                     <Text style={{...styles.text, color: DeepBlue.text_secondary}}>Player: {tourney.userPlayer.participant.name}</Text>
                     <Text style={{...styles.text, color: DeepBlue.primary}}>{tourney.players.length} players</Text>
                     <Text style={{...styles.text, color: DeepBlue.primary}}>URL: {tourney.url}</Text>
                     <Text style={{...styles.text, color: DeepBlue.accent}}>{tourney.tid}</Text>
+                    {!isLoading ? 
+                        <Text style={{...styles.text, color: DeepBlue.text_primary}}>Size: {matches.length} sets</Text>
+                        : 
+                        <Text style={styles.loadingtext}>loading...</Text>
+                    }
                 </View>
                 
             </View>}
@@ -430,6 +476,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
+    tempinfo: {
+        flex: 2
+    },
     text: {
         fontFamily: 'prototype'
     },
@@ -438,7 +487,44 @@ const styles = StyleSheet.create({
         color: DeepBlue.text_secondary
     },
     currentmatch: {
-        margin: 10
+        flex: 1,
+        alignItems: 'stretch',
+        width: '100%'
+    },
+    round_and_scores: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginHorizontal: 12,
+        marginTop: 15
+    },
+    cm_card:{
+        marginHorizontal: 12,
+        marginTop: 10,
+        borderRadius: 10,
+        borderWidth: 3,
+        minHeight: dims.height * 0.08,
+        borderColor: DeepBlue.primary,
+        overflow: 'hidden',
+        backgroundColor: DeepBlue.primary,
+        justifyContent: 'space-between'
+    },
+    opponent_text: {
+        fontFamily: 'prototype',
+        fontSize: 80 * fRatio,
+        color: 'white'
+    },
+    pending_opponent_text: {
+        fontFamily: 'prototype',
+        fontSize: 49 * fRatio,
+        color: 'white'
+    },
+    send_scores: {
+    },
+    pending_rounds_text: {
+        fontFamily: 'prototype',
+        fontSize: 44 * fRatio,
+        color: 'white'
     }
 });
 

@@ -30,8 +30,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row', 
         alignItems: 'center',
         borderBottomLeftRadius: 10,
-        borderTopRightRadius: 10,
-        margin: 4
+        borderTopRightRadius: 10
     },
     bannerText: {
         fontFamily: 'prototype',
