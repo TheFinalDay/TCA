@@ -41,18 +41,19 @@ const TourneyCard = props => {
                     iconSize={25}
                     backgroundColor={DeepBlue.red}
                 />
-                <RectangleIconButton
+                <View style={{...styles.dashboardButton, borderLeftWidth: 3, borderColor: DeepBlue.primary}}>
+                    <RectangleIconButton
                     onPress={() => {
                         dispatch(tourneyActions.activateTourney(props.tourney.tid));
                         props.navigation.navigate('CurrentTourney');
                     }}
-                    style={styles.dashboardButton}
                     iconName='arrow-right-drop-circle-outline'
                     iconSize={25}
                     fontSize={18}
                     backgroundColor={DeepBlue.accent}>
                     View Dashboard
                 </RectangleIconButton>
+                </View>
             </View>
         </View>
 
@@ -61,7 +62,9 @@ const TourneyCard = props => {
 
 const styles = StyleSheet.create({
     buttons: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        borderTopWidth: 3,
+        borderColor: DeepBlue.primary
     },
     removeButton: {
         flex: 1

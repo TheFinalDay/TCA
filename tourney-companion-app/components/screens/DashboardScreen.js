@@ -9,7 +9,7 @@ import Banner from '../UI/Banner';
 import { API } from '../../misc/apiCalls';
 
 const dims = Dimensions.get('window');
-const fRatio = dims.width / 1000;
+const ratio = dims.width / 1000;
 
 const DashboardScreen = props => {
 
@@ -59,7 +59,6 @@ const DashboardScreen = props => {
     // runs only the first time the dashboard is loaded, and when switching dashboards
     useEffect(() => {
         
-        console.log("tourney useEffect:");
         if(tourney){
             setIsLoading(true);
             setPlayerId(tourney.userPlayer.participant.id);
@@ -132,7 +131,7 @@ const DashboardScreen = props => {
 
         if(opponent){
 
-            const { names, state } = opponent.data;
+            const { names, state, isWinner } = opponent.data;
 
             if(state == "open"){// just display opponent name
                 return(
@@ -147,8 +146,10 @@ const DashboardScreen = props => {
                         return(
                             <View style={{...style, alignItems: 'flex-start', padding: 5}}>
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <Text style={{...styles.text, color: DeepBlue.text_primary}}>Waiting on </Text>
+                                    <Text style={{...styles.text, color: DeepBlue.text_primary}}>{isWinner ? "Winner" : "Loser"} of </Text>
                                     <Text style={styles.pending_opponent_text}>{names[0]}</Text>
+                                </View>
+                                <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: (isWinner ? 88 : 75) * ratio}}>
                                     <Text style={{...styles.text, color: DeepBlue.text_primary}}> and </Text>
                                     <Text style={styles.pending_opponent_text}>{names[1]}</Text>
                                 </View>
@@ -158,7 +159,7 @@ const DashboardScreen = props => {
                         return(
                             <View style={{...style, alignItems: 'flex-start', padding: 5}}>
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <Text style={{...styles.text, color: DeepBlue.text_primary}}>Waiting on  </Text>
+                                    <Text style={{...styles.text, color: DeepBlue.text_primary}}>Waiting for  </Text>
                                     <Text numberOfLines={1} style={styles.pending_opponent_text}>{names[0]}</Text>
                                 </View>
                                 <Text style={{...styles.text, color: DeepBlue.text_primary}}>and earlier rounds...</Text>
@@ -167,7 +168,7 @@ const DashboardScreen = props => {
                     default:// display 'waiting for more than one pending round...'
                         return(
                             <View style={{...style, alignItems: 'flex-start', padding: 5}}>
-                                <Text style={{...styles.text, color: DeepBlue.text_primary}}>Waiting on  </Text>
+                                <Text style={{...styles.text, color: DeepBlue.text_primary}}>Waiting for  </Text>
                                 <Text style={styles.pending_rounds_text}>multiple earlier rounds...</Text>
                             </View>
                         );
@@ -316,17 +317,21 @@ const DashboardScreen = props => {
                         let opponentId = (current.match.player1_id == playerId) ? current.match.player2_id : current.match.player1_id;
                         let opponent = tourney.players.find(player => (player.participant.id == opponentId));
                         setOpponent(opponent);
-                        //TODO gonna have to return a custom component later
                         return {
                             data: {
                                 names: [opponent.participant.name],
-                                state: "open"
+                                state: "open",
+                                isWinner: true
                             }
                         };
 
                     } else { // player 2 not decided yet
                         let pendingMatchId = (current.match.player1_id) ? current.match.player2_prereq_match_id : current.match.player1_prereq_match_id;
                         let pending = matches.find(match => (match.match.id == pendingMatchId));
+
+                        // true = winners, false = losers
+                        let currentSide = current.match.round > 0;
+                        let pendingSide = pending.match.round > 0;
 
                         let opponent1Id = pending.match.player1_id;
                         let opponent2Id = pending.match.player2_id;
@@ -341,39 +346,42 @@ const DashboardScreen = props => {
                         }
                         if(opponent1 || opponent2){
                             if(opponent1 && opponent2){
-                                //TODO gonna have to return a custom component later
-                                return {
-                                    data: {
-                                        names: [opponent1.participant.name, opponent2.participant.name],
-                                        state: "pending"
-                                    }
-                                };
+                                if(currentSide && pendingSide){
+                                    return {
+                                        data: {
+                                            names: [opponent1.participant.name, opponent2.participant.name],
+                                            state: "pending",
+                                            isWinner: true
+                                        }
+                                    };
+                                } else {
+                                    return {
+                                        data: {
+                                            names: [opponent1.participant.name, opponent2.participant.name],
+                                            state: "pending",
+                                            isWinner: false
+                                        }
+                                    };
+                                }
+                                
                             } else {
-                                //TODO gonna have to return a custom component later
                                 return {
                                     data: {
                                         names: [(opponent1 ? opponent1 : opponent2).participant.name],
-                                        state: "pending"
+                                        state: "pending",
+                                        isWinner: true
                                     }
                                 };
                             }
                         }
-                        //TODO gonna have to return a custom component later
                         return {
                             data: {
                                 names: [],
-                                state: "pending"
+                                state: "pending",
+                                isWinner: true
                             }
                         };
                     }
-
-                    /*
-                    API._getPlayer(tourney.url, opponentId).then(result => {
-                        setMatches(result.payloadData.matches);
-                        setIsLoading(false);
-                    });
-                    */
-                    
                 }
                 // current undefined
                 return;
@@ -381,7 +389,6 @@ const DashboardScreen = props => {
             // matches not loaded yet
             return;
         }
-        //TODO remove this
         return;
     }
 
@@ -390,38 +397,31 @@ const DashboardScreen = props => {
     return(
 
         <View style={styles.screen}>
-            <DashboardHeader openDrawer={props.navigation.openDrawer} iconSize={85 * fRatio}>{tourney?.tourneyData.tournament.name || "Nothing here!"}</DashboardHeader>
+            <DashboardHeader openDrawer={props.navigation.openDrawer} iconSize={85 * ratio} playerName={tourney?.userPlayer.participant.name || "No one"}>{tourney?.tourneyData.tournament.name || "Nothing here!"}</DashboardHeader>
             {tourney && <View style={styles.dashboard}>
 
                 <View style={styles.currentmatch}>
 
                     <View style={styles.round_and_scores}>
                         {!isLoading ? 
-
                             <MatchRoundText/>
                             : 
                             <Banner color={DeepBlue.bg_secondary} textColor={DeepBlue.text_secondary}>loading...</Banner>
                         }
-
                         {!isLoading ? 
-
                             <ScoreText/>
                             : 
                             <Text style={styles.loadingtext}>loading...</Text>
                         }
                     </View>
 
-                    
-
                     <View style={styles.cm_card}>
-                        
                             {!isLoading ? 
-
                                 <View style={{flexDirection: 'row', flex: 1}}>
-                                    <OpponentText style={{flex: 8}}/>
+                                    <OpponentText style={{flex: 6}}/>
                                     <View style={{justifyContent: 'space-around', flex: 1}}>
                                         <TouchableOpacity style={styles.send_scores} onPress={() => {/* TODO */}}>
-                                            <MaterialCommunityIcons name={'square-edit-outline'} size={85 * fRatio} color={DeepBlue.bg_secondary}/>
+                                            <MaterialCommunityIcons name={'square-edit-outline'} size={85 * ratio} color={DeepBlue.bg_secondary}/>
                                         </TouchableOpacity>
                                     </View>
                                     
@@ -429,21 +429,15 @@ const DashboardScreen = props => {
                                 : 
                                 <Text style={styles.loadingtext}>loading...</Text>
                             }
-                       
-                        
                         <View style={{backgroundColor: DeepBlue.bg_secondary}}>
                             {!isLoading ? 
-
                                 <MatchStateText/>
                                 : 
                                 <Text style={styles.loadingtext}>loading...</Text>
                             }
                         </View>
-                        
                     </View>
-
                 </View>
-                
 
                 <View style={styles.tempinfo}>
                     <Text style={{...styles.text, color: DeepBlue.text_secondary}}>Player: {tourney.userPlayer.participant.name}</Text>
@@ -503,7 +497,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         borderRadius: 10,
         borderWidth: 3,
-        minHeight: dims.height * 0.08,
+        minHeight: 170 * ratio ,
         borderColor: DeepBlue.primary,
         overflow: 'hidden',
         backgroundColor: DeepBlue.primary,
@@ -511,19 +505,24 @@ const styles = StyleSheet.create({
     },
     opponent_text: {
         fontFamily: 'prototype',
-        fontSize: 80 * fRatio,
+        fontSize: 80 * ratio,
         color: 'white'
     },
     pending_opponent_text: {
         fontFamily: 'prototype',
-        fontSize: 49 * fRatio,
+        fontSize: 49 * ratio,
         color: 'white'
     },
     send_scores: {
+        backgroundColor: DeepBlue.primary_light,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginRight: 8,
+        padding: 3
     },
     pending_rounds_text: {
         fontFamily: 'prototype',
-        fontSize: 44 * fRatio,
+        fontSize: 44 * ratio,
         color: 'white'
     }
 });

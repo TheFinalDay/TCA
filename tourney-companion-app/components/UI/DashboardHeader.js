@@ -13,14 +13,13 @@ const DashboardHeader = props => {
     // Refresh functionnality onPress
     // Add more icons (trusted icon & TO registered icon) on banner
 
-
     return(
         <View style={styles.dashboardHeader}>
             <View style={styles.header}>
                 <TouchableOpacity style={{...styles.drawericonButton, flex: 2}} onPress={props.openDrawer}>
                     <MaterialCommunityIcons name={props.iconName || 'forwardburger'} size={props.iconSize || 35} color={props.iconColor || 'white'} />
                 </TouchableOpacity>
-                    <Text style={{...styles.headerText, flex: 17}}>Dashboard</Text>
+                    <Text numberOfLines={1} style={{...styles.headerText, flex: 17}}>{props.playerName} ~ Dashboard</Text>
                 <TouchableOpacity style={{...styles.refreshIconButton, flex: 2}} onPress={() => {/* TODO */}}>
                     <MaterialCommunityIcons name={'refresh'} size={props.iconSize || 35} color={props.iconColor || 'white'} />
                 </TouchableOpacity>
@@ -33,7 +32,6 @@ const DashboardHeader = props => {
         </View>
     );
 }
-
 
 const styles = StyleSheet.create({
     dashboardHeader: {
