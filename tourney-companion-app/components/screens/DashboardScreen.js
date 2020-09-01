@@ -27,6 +27,7 @@ const DashboardScreen = props => {
     [cumulativeScores, setCumulativeScores] = useState([]);
     [currentMatchState, setCurrentMatchState] = useState(null);
     [currentMatchRound, setCurrentMatchRound] = useState(null);
+    [forecasts, setForecasts] = useState([]);
 
     [isLoading, setIsLoading] = useState(true);
     [isTourneyComplete, setIsTourneyComplete] = useState(false);
@@ -50,6 +51,7 @@ const DashboardScreen = props => {
           setCumulativeScores([]);
           setCurrentMatchState(null);
           setCurrentMatchRound(null);
+          setForecasts([]);
           setIsLoading(true);
           setIsTourneyComplete(false);
           setPlayerId(null);
@@ -69,6 +71,7 @@ const DashboardScreen = props => {
                 setCumulativeScores([getWinsLosses(true), getWinsLosses(false)]);
                 setCurrentMatchState(getMatchState());
                 setCurrentMatchRound(getMatchRound());
+                setForecasts(getForecastData());
                 setIsLoading(false);
             });
         }
@@ -214,6 +217,11 @@ const DashboardScreen = props => {
                 );
             }
         }
+        return;
+    }
+
+    // TODO
+    const ForecastInfoSection = props => {
         return;
     }
 
@@ -392,12 +400,54 @@ const DashboardScreen = props => {
         return;
     }
 
+    // return the forecast if winning current match data
+    const getForecastData = () => {
+        if(!isTourneyComplete){
+            if(matches){
+                let current = getCurrentMatch();
+                if(current){
+                    let currentMatchId = current.match.id;
+                    let prereqs = matches.filter(match => (match.match.prerequisite_match_ids_csv.includes(currentMatchId)));
+
+                    let winForecast = null;
+                    let lossForecast = null;
+
+                    if(prereqs.length > 1){ // we're in winners side
+                        prereqs.forEach(prereq => {
+                            if(prereq.match.round > current.match.round){
+                                winForecast = prereq;
+                            } else {
+                                lossForecast = prereq;
+                            }
+                        });
+                    } else if(current.match.round < 0){ // we're in losers side
+                        winForecast = prereqs[0];
+                    } else if(prereqs.length > 0){ // we're in grand finals winners side
+                        if(cumulativeScores[1] == 0){ // player is champion of winners bracket
+                            lossForecast = prereqs[0];
+                        } else { // player is champion of losers bracket
+                            winForecast = prereqs[0];
+                        }
+                    } else { // we're in grand finals losers side
+                        //both forecasts are null (champion or #2)
+                    }
+
+                    return [winForecast, lossForecast];
+
+                }
+                return;
+            }
+            return;
+        }
+        return;
+    }
+
     //#endregion
 
     return(
 
         <View style={styles.screen}>
-            <DashboardHeader openDrawer={props.navigation.openDrawer} iconSize={85 * ratio} playerName={tourney?.userPlayer.participant.name || "No one"}>{tourney?.tourneyData.tournament.name || "Nothing here!"}</DashboardHeader>
+            <DashboardHeader openDrawer={props.navigation.openDrawer} iconSize={85 * ratio} playerName={tourney?.userPlayer.participant.name || "Empty"}>{tourney?.tourneyData.tournament.name || "Nothing here!"}</DashboardHeader>
             {tourney && <View style={styles.dashboard}>
 
                 <View style={styles.currentmatch}>
@@ -446,6 +496,16 @@ const DashboardScreen = props => {
                     <Text style={{...styles.text, color: DeepBlue.accent}}>{tourney.tid}</Text>
                     {!isLoading ? 
                         <Text style={{...styles.text, color: DeepBlue.text_primary}}>Size: {matches.length} sets</Text>
+                        : 
+                        <Text style={styles.loadingtext}>loading...</Text>
+                    }
+                    {!isLoading ? 
+                        <Text style={{...styles.text, color: DeepBlue.text_primary}}>if loss: {forecasts[1].match.round}</Text>
+                        : 
+                        <Text style={styles.loadingtext}>loading...</Text>
+                    }
+                    {!isLoading ? 
+                        <Text style={{...styles.text, color: DeepBlue.text_primary}}>if win: {forecasts[0].match.round}</Text>
                         : 
                         <Text style={styles.loadingtext}>loading...</Text>
                     }
