@@ -10,13 +10,14 @@ const Banner = props => {
     return(
         
         <View style={{
+            ...props.style,
             ...styles.banner, 
             backgroundColor: props.color || DeepBlue.accent, 
             maxWidth: props.maxWidth || dims.width, 
             borderColor: props.textColor || DeepBlue.text_primary,
             borderWidth: props.borderWidth || 0
             }}>
-            <Text numberOfLines={1} style={{...styles.bannerText, color: props.textColor || DeepBlue.text_primary}}>{props.children}</Text>
+            <Text numberOfLines={1} style={{...styles.bannerText, color: props.textColor || DeepBlue.text_primary, fontSize: props.fontSize || 14}}>{props.children}</Text>
         </View>
             
     );
@@ -35,7 +36,6 @@ const styles = StyleSheet.create({
     bannerText: {
         fontFamily: 'prototype',
         color: DeepBlue.text_primary,
-        fontSize: 14,
         marginHorizontal: 12,
         marginVertical: 12
     }

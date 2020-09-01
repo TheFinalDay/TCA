@@ -1,5 +1,6 @@
 import Tournament from '../../models/tournament';
 import { CREATE_TOURNEY } from '../actions/tournaments';
+import { REFRESH_TOURNEY } from '../actions/tournaments';
 import { DELETE_TOURNEY } from '../actions/tournaments';
 import { ACTIVATE_TOURNEY } from '../actions/tournaments';
 
@@ -14,7 +15,7 @@ export default (state = initialState, action) => {
     console.log(action.type);
 
     switch (action.type) {
-        case CREATE_TOURNEY: 
+        case CREATE_TOURNEY: case REFRESH_TOURNEY:
 
             const addedTourney = action.tourneyData;
 
@@ -34,13 +35,22 @@ export default (state = initialState, action) => {
 
             if(state.userTournaments.find(tourney => tourney.tid === createTourneyId)){
                 // tourney already exists in array
+                console.log("tourney update...")
                 let filteredArray = state.userTournaments.filter(tourney => tourney.tid != createTourneyId);
+                if(action.type == REFRESH_TOURNEY){
+                    return {
+                        ...state,
+                        userTournaments: [ ...filteredArray, newOrUpdatedTourney],
+                        activeTournament: newOrUpdatedTourney
+                    };
+                }
                 return {
                     ...state,
                     userTournaments: [ ...filteredArray, newOrUpdatedTourney]
                 };
 
             } else {
+                console.log("new tourney added...")
                 // first time tourney is added
                 return {
                     ...state,

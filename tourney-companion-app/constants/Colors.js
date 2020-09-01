@@ -5,11 +5,14 @@ export const DeepBlue = {
     bg_tertiary: '#4734b3',
     primary: '#6383db',
     primary_light: '#b4c4f4',
-    accent: '#48b892',
+    accent: '#19a877',
+    accent_light: '#99dec7',
     red: '#a30000',
+    red_light: '#d67474',
     text_primary: '#ffffff',
     text_secondary: '#91919c'
 }
+
 
 // MGC Theme
 export const MGC = {
@@ -19,7 +22,9 @@ export const MGC = {
     primary: '#eb1f28',
     primary_light: '#e9858a',
     accent: '#2fc3ec',
-    red: '#78001e',
+    accent_light: '#8fd7eb',
+    red: '#6e1896',
+    red_light: '#975bb3',
     text_primary: '#000000',
     text_secondary: '#965052'
 }

@@ -10,7 +10,6 @@ const dims = Dimensions.get('window');
 const DashboardHeader = props => {
     
     //TODO 
-    // Refresh functionnality onPress
     // Add more icons (trusted icon & TO registered icon) on banner
 
     return(
@@ -20,9 +19,9 @@ const DashboardHeader = props => {
                     <MaterialCommunityIcons name={props.iconName || 'forwardburger'} size={props.iconSize || 35} color={props.iconColor || 'white'} />
                 </TouchableOpacity>
                     <Text numberOfLines={1} style={{...styles.headerText, flex: 17}}>{props.playerName} ~ Dashboard</Text>
-                <TouchableOpacity style={{...styles.refreshIconButton, flex: 2}} onPress={() => {/* TODO */}}>
+                {props.refresh &&<TouchableOpacity style={{...styles.refreshIconButton, flex: 2}} onPress={props.refresh}>
                     <MaterialCommunityIcons name={'refresh'} size={props.iconSize || 35} color={props.iconColor || 'white'} />
-                </TouchableOpacity>
+                </TouchableOpacity>}
             </View>
             <View style={styles.banner}>
                 <Text numberOfLines={1} style={{...styles.bannerText, flex: 7}}>{props.children}</Text>

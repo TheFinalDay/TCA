@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Text, StyleSheet, View, Dimensions, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -7,6 +7,7 @@ import { DeepBlue } from '../../constants/Colors';
 import DashboardHeader from '../UI/DashboardHeader';
 import Banner from '../UI/Banner';
 import { API } from '../../misc/apiCalls';
+import * as tourneyActions from '../../store/actions/tournaments';
 
 const dims = Dimensions.get('window');
 const ratio = dims.width / 1000;
@@ -20,12 +21,15 @@ const DashboardScreen = props => {
 
     //#region states/redux
 
+    const dispatch = useDispatch();
+
     [matches, setMatches] = useState(null);
 
     // Current match related states
     [opponent, setOpponent] = useState(null);
     [cumulativeScores, setCumulativeScores] = useState([]);
     [currentMatchState, setCurrentMatchState] = useState(null);
+    [numberOfRounds, setNumberOfRounds] = useState([]);
     [currentMatchRound, setCurrentMatchRound] = useState(null);
     [forecasts, setForecasts] = useState([]);
 
@@ -47,6 +51,7 @@ const DashboardScreen = props => {
         return () => {
           // cleaning up states...
           setMatches(null);
+          setNumberOfRounds([]);
           setOpponent(null);
           setCumulativeScores([]);
           setCurrentMatchState(null);
@@ -60,13 +65,14 @@ const DashboardScreen = props => {
     
     // runs only the first time the dashboard is loaded, and when switching dashboards
     useEffect(() => {
-        
+
         if(tourney){
             setIsLoading(true);
             setPlayerId(tourney.userPlayer.participant.id);
             setIsTourneyComplete(tourney.tourneyData.tournament.state == 'complete');
             API._getMatchList(tourney.url).then(result => {
                 setMatches(result.payloadData.matches);
+                setNumberOfRounds(getNumberOfRounds());
                 setOpponent(getOpponentData());
                 setCumulativeScores([getWinsLosses(true), getWinsLosses(false)]);
                 setCurrentMatchState(getMatchState());
@@ -130,51 +136,97 @@ const DashboardScreen = props => {
     // Displays current opponent data
     const OpponentText = props => {
 
-        const { style } = props;
+        const { style, isForecast, textColor } = props;
 
         if(opponent){
 
-            const { names, state, isWinner } = opponent.data;
+            const { names, state, isWinner } = isForecast ? props.opponent.data : opponent.data;
 
             if(state == "open"){// just display opponent name
-                return(
-                    <View style={{...style, flexDirection: 'row', alignItems: 'flex-start', padding: 5}}>
-                        <Text style={{...styles.text, color: DeepBlue.text_primary}}>VS  </Text>
-                        <Text numberOfLines={1} style={styles.opponent_text}>{names[0]}</Text>
-                    </View>
-                );
+
+                if(!isForecast){
+                    return(
+                        <View style={{...style, flexDirection: 'row', alignItems: 'flex-start', padding: 5}}>
+                            <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS  </Text>
+                            <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_text}}>{names[0]}</Text>
+                        </View>
+                    );
+                } else {
+                    return(
+                        <View style={{...style, alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
+                            <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS</Text>
+                            <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_forecast_text}}>{names[0]}</Text>
+                        </View>
+                    );
+                }
             } else {
                 switch(names.length){
                     case 2:// display pending set with both names
-                        return(
-                            <View style={{...style, alignItems: 'flex-start', padding: 5}}>
-                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <Text style={{...styles.text, color: DeepBlue.text_primary}}>{isWinner ? "Winner" : "Loser"} of </Text>
-                                    <Text style={styles.pending_opponent_text}>{names[0]}</Text>
+                        if(!isForecast){
+                            return(
+                                <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>{isWinner ? "Winner" : "Loser"} of </Text>
+                                        <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
+                                    </View>
+                                    <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: (isWinner ? 88 : 75) * ratio}}>
+                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}> and </Text>
+                                        <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[1]}</Text>
+                                    </View>
                                 </View>
-                                <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: (isWinner ? 88 : 75) * ratio}}>
-                                    <Text style={{...styles.text, color: DeepBlue.text_primary}}> and </Text>
-                                    <Text style={styles.pending_opponent_text}>{names[1]}</Text>
+                            );
+                        } else {
+                            return(
+                                <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
+                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS {isWinner ? "winner" : "loser"} of</Text>
+                                    <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
+                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>and</Text>
+                                    <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[1]}</Text>
                                 </View>
-                            </View>
-                        );
+                            );
+                        }
+                        
                     case 1:// display pending set opponent 'and winner of earlier rounds...'
-                        return(
-                            <View style={{...style, alignItems: 'flex-start', padding: 5}}>
-                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <Text style={{...styles.text, color: DeepBlue.text_primary}}>Waiting for  </Text>
-                                    <Text numberOfLines={1} style={styles.pending_opponent_text}>{names[0]}</Text>
+                        if(!isForecast){
+                            return(
+                                <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for  </Text>
+                                        <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
+                                    </View>
+                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>and earlier rounds...</Text>
                                 </View>
-                                <Text style={{...styles.text, color: DeepBlue.text_primary}}>and earlier rounds...</Text>
-                            </View>
-                        );
+                            );
+                        } else {
+                            return(
+                                <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
+                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for</Text>
+                                    <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
+                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>and earlier</Text>
+                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>rounds...</Text>
+                                </View>
+                            );
+                        }
+                        
                     default:// display 'waiting for more than one pending round...'
-                        return(
-                            <View style={{...style, alignItems: 'flex-start', padding: 5}}>
-                                <Text style={{...styles.text, color: DeepBlue.text_primary}}>Waiting for  </Text>
-                                <Text style={styles.pending_rounds_text}>multiple earlier rounds...</Text>
-                            </View>
-                        );
+                        if(!isForecast){
+                            return(
+                                <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for  </Text>
+                                    <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>multiple earlier rounds...</Text>
+                                </View>
+                            );
+                        } else {
+                            return(
+                                <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
+                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for</Text>
+                                    <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>multiple earlier</Text>
+                                    <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>rounds</Text>
+                                    <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>...</Text>
+                                </View>
+                            );
+                        }
+                        
                 }
             }
         }
@@ -201,7 +253,9 @@ const DashboardScreen = props => {
                 );
             }
         }
-        return;
+        return(
+            <Text style={styles.loadingtext}>State: N/A</Text>
+        );
     }
 
     // Displays current match's round
@@ -213,16 +267,54 @@ const DashboardScreen = props => {
                 );
             } else {
                 return(
-                    <Banner color={DeepBlue.bg_secondary}>Tourney Completed</Banner>
+                    <Banner color={DeepBlue.bg_secondary}>Tourney Ended</Banner>
                 );
             }
         }
-        return;
+        return(
+            <Banner color={DeepBlue.bg_secondary}>Eliminated</Banner>
+        );
     }
 
-    // TODO
+    // Displays both forecasts informations
     const ForecastInfoSection = props => {
-        return;
+        if(forecasts){
+            if(currentMatchRound){
+                if(currentMatchRound != 'completed'){
+                    let winOpponent = getOpponentData(forecasts[0]);
+                    let lossOpponent = getOpponentData(forecasts[1]);
+                    return(
+                        <View style={{flexDirection: 'row'}}>
+                            <View style={{alignItems: 'stretch', flex: 1, width: '100%'}}>
+                                <Text style={{fontFamily: 'prototype', color: DeepBlue.text_primary, textAlign: 'center'}}>If winning...</Text>
+                                <View style={{backgroundColor: DeepBlue.accent_light, ...styles.winlose_forecast}}>
+                                    <Banner style={{marginTop: 20 * ratio}} fontSize={31 * ratio} textColor={DeepBlue.text_primary} color={DeepBlue.accent}>{getMatchRound(forecasts[0]) || "Champion"}</Banner>
+                                    <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={winOpponent}/>
+                                </View>
+                            </View>
+                            <View style={{alignItems: 'stretch', flex: 1, width: '100%'}}>
+                            <Text style={{fontFamily: 'prototype', color: DeepBlue.text_primary, textAlign: 'center'}}>If losing...</Text>
+                                <View style={{backgroundColor: DeepBlue.red_light, ...styles.winlose_forecast}}>
+                                    <Banner style={{marginTop: 20 * ratio}} fontSize={31 * ratio} textColor={DeepBlue.text_primary} color={DeepBlue.red}>{getMatchRound(forecasts[1]) || "Eliminated"}</Banner>
+                                    <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={lossOpponent}/>
+                                </View>
+                            </View>
+                        </View>
+                    );
+                } else {
+                    return (
+                        <Text style={styles.loadingtext}>N/A - Tourney Ended</Text>
+                    );
+                }
+            }
+            return (
+                <Text style={styles.loadingtext}>N/A - Current Match Round is null</Text>
+            );
+        }
+        return (
+            <Text style={styles.loadingtext}>N/A - Eliminated</Text>
+        );
+        
     }
 
     //#endregion
@@ -235,13 +327,6 @@ const DashboardScreen = props => {
         return matches.find(o => 
             (o.match.state == 'open' || o.match.state == 'pending')
             && (o.match.player1_id == playerId || o.match.player2_id == playerId)
-        );
-    }
-
-    // finding the player's matches (any state)
-    function getPlayerMatches() {
-        return matches.filter(o =>
-            (o.match.player1_id == playerId || o.match.player2_id == playerId)
         );
     }
 
@@ -264,44 +349,21 @@ const DashboardScreen = props => {
     }
 
     // returns the current match round
-    const getMatchRound = () => {
+    const getMatchRound = (currentMatch) => {
         if(!isTourneyComplete){
             if(matches){
-                let current = getCurrentMatch();
+                let current = currentMatch || getCurrentMatch();
                 if(current){
                     let round = current.match.round;
-                    return (round < 0) ? "Losers Round " + Math.abs(round) : "Winners Round " + round;
-                }
-                // current undefined
-                return;
-            }
-            // matches not loaded yet
-            return;
-        }
-        //TODO remove this
-        return "completed";
-    }
-
-    // returns the current win or lose scores
-    const getWinsLosses = (isWins) => {
-        if(!isTourneyComplete){
-            if(matches){
-                let numberOfMatches = getPlayerMatches().length;
-                let current = getCurrentMatch();
-                if(current){
-                    let round = current.match.round;
-                    if(round > 0){
-                        if(isWins){
-                            return (numberOfMatches - 1);
-                        } else {
-                            return "0";
-                        }
-                    } else {
-                        if(isWins){
-                            return (numberOfMatches - 2);
-                        } else {
-                            return "1";
-                        }
+                    if((round < 0 && round > numberOfRounds[1] + 1) 
+                    || (round > 0 && round < numberOfRounds[0] - 2)){ // round is not losers/winners semis/finals
+                        return (round < 0) ? "Losers Round " + Math.abs(round) : "Winners Round " + round;
+                    } else if(round == numberOfRounds[1] + 1 || round == numberOfRounds[0] - 2){ // semis
+                        return (round < 0) ? "Losers Semifinals" : "Winners Semifinals";
+                    } else if(round == numberOfRounds[1] || round == numberOfRounds[0] - 1){ // finals
+                        return (round < 0) ? "Losers Finals" : "Winners Finals";
+                    } else if(round == numberOfRounds[0]){
+                        return "Grand Finals";
                     }
                 }
                 // current undefined
@@ -314,17 +376,51 @@ const DashboardScreen = props => {
         return;
     }
 
-    // returns the current opponent(s) data
-    const getOpponentData = () => {
+    // returns the current win or lose scores
+    const getWinsLosses = (isWins) => {
+        if(matches){
+
+            let wins = matches.filter(o => (o.match.winner_id == playerId)).length;
+            let losses = matches.filter(o => (o.match.loser_id == playerId)).length;
+
+            if(isWins){
+                return wins;
+            }
+            return losses;
+        }
+        // matches not loaded yet
+        return;
+    }
+
+    // returns the current opponent(s) data OR the forecast opponent data
+    const getOpponentData = (current) => {
         if(!isTourneyComplete){
             if(matches){
-                let current = getCurrentMatch();
+                let forecastMode = current ? true : false; // algorithm changes only slightly when true
+                current = current || getCurrentMatch();
                 if(current){
 
-                    if(current.match.state == 'open'){ // player 2 already decided
-                        let opponentId = (current.match.player1_id == playerId) ? current.match.player2_id : current.match.player1_id;
+                    /**
+                     * normal behavior          : the current match state is open, therefore player 2 has been decided
+                     * forecastMode behavior    : at least one player in the prereq match is decided
+                     */
+                    if(forecastMode ? (current.match.player1_id || current.match.player2_id) : current.match.state == 'open'){ // player 2 already decided
+                        
+                        /**
+                         * Yeah? Imbricated ternary operators? What of it?
+                         * 
+                         * normal behavior          : we return the playerId that is not the user's Id
+                         * forecastMode behavior    : we return whichever playerId is not the null one
+                         */
+                        let opponentId = forecastMode ? 
+                            (current.match.player1_id ? current.match.player1_id : current.match.player2_id) : 
+                            (current.match.player1_id == playerId ? current.match.player2_id : current.match.player1_id);
+
+                            console.log("opponentId" + opponentId)
+
                         let opponent = tourney.players.find(player => (player.participant.id == opponentId));
-                        setOpponent(opponent);
+                        if(!forecastMode){ setOpponent(opponent); }
+
                         return {
                             data: {
                                 names: [opponent.participant.name],
@@ -334,7 +430,21 @@ const DashboardScreen = props => {
                         };
 
                     } else { // player 2 not decided yet
-                        let pendingMatchId = (current.match.player1_id) ? current.match.player2_prereq_match_id : current.match.player1_prereq_match_id;
+
+                        /**
+                         * normal behavior          : we return the match Id of the player2 opponent's pending match (whichever is null)
+                         * forecastMode behavior    : we return the prereq match Id that is'nt the current match Id
+                         */
+                        let pendingMatchId = "";
+                        if(forecastMode){
+                            let currentForecastMode = getCurrentMatch();
+                            pendingMatchId = (current.match.player1_prereq_match_id != currentForecastMode.match.id) ?
+                                current.match.player1_prereq_match_id :
+                                current.match.player2_prereq_match_id;
+                        } else {
+                            pendingMatchId = current.match.player1_id ? current.match.player2_prereq_match_id : current.match.player1_prereq_match_id;
+                        }
+
                         let pending = matches.find(match => (match.match.id == pendingMatchId));
 
                         // true = winners, false = losers
@@ -354,7 +464,11 @@ const DashboardScreen = props => {
                         }
                         if(opponent1 || opponent2){
                             if(opponent1 && opponent2){
-                                if(currentSide && pendingSide){
+                                /**
+                                 * XNOR logic: 
+                                 * if both sides are winners or both sides are losers
+                                 */
+                                if(!((!currentSide && pendingSide) || (!pendingSide && currentSide))){
                                     return {
                                         data: {
                                             names: [opponent1.participant.name, opponent2.participant.name],
@@ -400,6 +514,25 @@ const DashboardScreen = props => {
         return;
     }
 
+    // get the number of rounds for each side(ex: 5 rounds in winners and 6 rounds in losers)
+    const getNumberOfRounds = () => {
+        if(!isTourneyComplete){
+            if(matches){
+                let highest = 1;
+                let lowest = -1;
+
+                for (let i = 0; i < matches.length; i++) {
+                    let value = matches[i].match.round;
+                    lowest = (value < lowest) ? value : lowest;
+                    highest = (value > highest) ? value : highest;
+                }
+                return [highest, lowest];
+            }
+            return;
+        }
+        return;
+    }
+
     // return the forecast if winning current match data
     const getForecastData = () => {
         if(!isTourneyComplete){
@@ -431,9 +564,7 @@ const DashboardScreen = props => {
                     } else { // we're in grand finals losers side
                         //both forecasts are null (champion or #2)
                     }
-
                     return [winForecast, lossForecast];
-
                 }
                 return;
             }
@@ -447,7 +578,15 @@ const DashboardScreen = props => {
     return(
 
         <View style={styles.screen}>
-            <DashboardHeader openDrawer={props.navigation.openDrawer} iconSize={85 * ratio} playerName={tourney?.userPlayer.participant.name || "Empty"}>{tourney?.tourneyData.tournament.name || "Nothing here!"}</DashboardHeader>
+            <DashboardHeader 
+                refresh={tourney ? () => { 
+                        dispatch(tourneyActions.refreshTourney(tourney.url, tourney.players, tourney.userPlayer));
+                    } : null} 
+                openDrawer={props.navigation.openDrawer} 
+                iconSize={85 * ratio} 
+                playerName={tourney?.userPlayer.participant.name || "Empty"}>
+                    {tourney?.tourneyData.tournament.name || "Nothing here!"}
+            </DashboardHeader>
             {tourney && <View style={styles.dashboard}>
 
                 <View style={styles.currentmatch}>
@@ -468,7 +607,7 @@ const DashboardScreen = props => {
                     <View style={styles.cm_card}>
                             {!isLoading ? 
                                 <View style={{flexDirection: 'row', flex: 1}}>
-                                    <OpponentText style={{flex: 6}}/>
+                                    <OpponentText style={{flex: 6}} isForecast={false}/>
                                     <View style={{justifyContent: 'space-around', flex: 1}}>
                                         <TouchableOpacity style={styles.send_scores} onPress={() => {/* TODO */}}>
                                             <MaterialCommunityIcons name={'square-edit-outline'} size={85 * ratio} color={DeepBlue.bg_secondary}/>
@@ -489,26 +628,18 @@ const DashboardScreen = props => {
                     </View>
                 </View>
 
-                <View style={styles.tempinfo}>
-                    <Text style={{...styles.text, color: DeepBlue.text_secondary}}>Player: {tourney.userPlayer.participant.name}</Text>
-                    <Text style={{...styles.text, color: DeepBlue.primary}}>{tourney.players.length} players</Text>
-                    <Text style={{...styles.text, color: DeepBlue.primary}}>URL: {tourney.url}</Text>
-                    <Text style={{...styles.text, color: DeepBlue.accent}}>{tourney.tid}</Text>
-                    {!isLoading ? 
-                        <Text style={{...styles.text, color: DeepBlue.text_primary}}>Size: {matches.length} sets</Text>
-                        : 
-                        <Text style={styles.loadingtext}>loading...</Text>
-                    }
-                    {!isLoading ? 
-                        <Text style={{...styles.text, color: DeepBlue.text_primary}}>if loss: {forecasts[1].match.round}</Text>
-                        : 
-                        <Text style={styles.loadingtext}>loading...</Text>
-                    }
-                    {!isLoading ? 
-                        <Text style={{...styles.text, color: DeepBlue.text_primary}}>if win: {forecasts[0].match.round}</Text>
-                        : 
-                        <Text style={styles.loadingtext}>loading...</Text>
-                    }
+                <View style={styles.forecast_section}>
+                    <View style={styles.forecast_border}/>
+                    <View style={styles.forecast_inner}>
+                        <Text style={styles.forecast_text}>Forecast</Text>
+                        {!isLoading ? 
+                            <ForecastInfoSection/>
+                            : 
+                            <Text style={styles.loadingtext}>loading...</Text>
+                        }
+                    </View>
+                    
+                    
                 </View>
                 
             </View>}
@@ -516,6 +647,22 @@ const DashboardScreen = props => {
         
     );
 }
+
+/* temp info stuff
+
+<View style={styles.tempinfo}>
+    <Text style={{...styles.text, color: DeepBlue.text_secondary}}>Player: {tourney.userPlayer.participant.name}</Text>
+    <Text style={{...styles.text, color: DeepBlue.primary}}>{tourney.players.length} players</Text>
+    <Text style={{...styles.text, color: DeepBlue.primary}}>URL: {tourney.url}</Text>
+    <Text style={{...styles.text, color: DeepBlue.accent}}>{tourney.tid}</Text>
+    {!isLoading ? 
+        <Text style={{...styles.text, color: DeepBlue.text_primary}}>Size: {matches.length} sets</Text>
+        : 
+        <Text style={styles.loadingtext}>loading...</Text>
+    }
+</View>
+
+*/
 
 const styles = StyleSheet.create({
     screen: {
@@ -530,18 +677,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
-    tempinfo: {
-        flex: 2
-    },
     text: {
-        fontFamily: 'prototype'
+        fontFamily: 'prototype',
+        color: 'white'
     },
     loadingtext: {
         fontFamily: 'prototype',
         color: DeepBlue.text_secondary
     },
     currentmatch: {
-        flex: 1,
+        flex: 4,
         alignItems: 'stretch',
         width: '100%'
     },
@@ -566,12 +711,14 @@ const styles = StyleSheet.create({
     opponent_text: {
         fontFamily: 'prototype',
         fontSize: 80 * ratio,
-        color: 'white'
+    },
+    opponent_forecast_text: {
+        fontFamily: 'prototype',
+        fontSize: 55 * ratio,
     },
     pending_opponent_text: {
         fontFamily: 'prototype',
-        fontSize: 49 * ratio,
-        color: 'white'
+        fontSize: 50 * ratio,
     },
     send_scores: {
         backgroundColor: DeepBlue.primary_light,
@@ -583,7 +730,46 @@ const styles = StyleSheet.create({
     pending_rounds_text: {
         fontFamily: 'prototype',
         fontSize: 44 * ratio,
-        color: 'white'
+    },
+    forecast_section:{
+        flex: 13, 
+        alignItems: 'center', 
+    },
+    forecast_inner: {
+        alignItems: 'center', 
+        marginHorizontal: 20,
+        minHeight: 620 * ratio
+    },
+    forecast_text: {
+        fontFamily: 'prototype',
+        fontSize: 50 * ratio,
+        color: DeepBlue.primary_light,
+        textAlign: 'center',
+        paddingHorizontal: 15,
+        paddingTop: 4,
+        borderRadius: 50 * ratio,
+        borderWidth: 3,
+        borderColor: DeepBlue.primary,
+        backgroundColor: DeepBlue.bg_primary
+    },
+    forecast_border: {
+        minHeight: 600 * ratio ,
+        width: '95%',
+        marginHorizontal: 12, 
+        alignItems: 'center',
+        position: 'absolute',
+        borderWidth: 3,
+        borderColor: DeepBlue.primary,
+        borderRadius: 30,
+        top: 40 * ratio
+    },
+    winlose_forecast: {
+        alignItems: 'center',
+        minHeight: 440 * ratio,
+        marginHorizontal: 5,
+        marginTop: 10,
+        borderRadius: 20,
+        
     }
 });
 
