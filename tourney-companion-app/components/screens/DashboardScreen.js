@@ -328,25 +328,25 @@ const DashboardScreen = props => {
 
                     return(
                         <View style={{flexDirection: 'row'}}>
-                            <View style={{alignItems: 'stretch', flex: 1, width: '100%'}}>
-                                <Text style={{fontFamily: 'prototype', color: DeepBlue.text_primary, textAlign: 'center'}}>If winning...</Text>
+                            <View style={styles.if_winning_losing_section}>
+                                <Text style={styles.if_winning_losing_text}>If winning...</Text>
                                 <View style={{backgroundColor: forecasts[0] ? DeepBlue.accent_light : DeepBlue.gold, ...styles.winlose_forecast}}>
-                                    {forecasts[0] && <Banner style={{marginTop: 20 * ratio}} fontSize={31 * ratio} textColor={DeepBlue.text_primary} color={DeepBlue.accent}>{getMatchRound(forecasts[0])}</Banner>}
+                                    {forecasts[0] && <Banner style={styles.forecast_banners} fontSize={31 * ratio} textColor={DeepBlue.text_primary} color={DeepBlue.accent}>{getMatchRound(forecasts[0])}</Banner>}
                                     {gfResetIfWin &&
-                                        <View style={{alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
+                                        <View style={styles.grand_finals_reset}>
                                             <Text style={{color: DeepBlue.bg_secondary, ...styles.pending_rounds_text}}>Grand Finals</Text>
                                             <Text style={{color: DeepBlue.bg_secondary, ...styles.opponent_forecast_text}}>Reset!</Text>
                                         </View>}
                                     {!gfResetIfWin && <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={winOpponent}/>}
                                 </View>
                             </View>
-                            <View style={{alignItems: 'stretch', flex: 1, width: '100%'}}>
-                            <Text style={{fontFamily: 'prototype', color: DeepBlue.text_primary, textAlign: 'center'}}>If losing...</Text>
+                            <View style={styles.if_winning_losing_section}>
+                                <Text style={styles.if_winning_losing_text}>If losing...</Text>
                                 <View style={{backgroundColor: forecasts[1] ? DeepBlue.red_light : DeepBlue.text_secondary, ...styles.winlose_forecast}}>
-                                    {forecasts[1] && <Banner style={{marginTop: 20 * ratio}} fontSize={31 * ratio} textColor={DeepBlue.text_primary} color={DeepBlue.red}>{getMatchRound(forecasts[1])}</Banner>}
+                                    {forecasts[1] && <Banner style={styles.forecast_banners} fontSize={31 * ratio} textColor={DeepBlue.text_primary} color={DeepBlue.red}>{getMatchRound(forecasts[1])}</Banner>}
                                     {forecasts[0] && <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={lossOpponent}/>}
                                     {gfResetIfLoss &&
-                                        <View style={{alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
+                                        <View style={styles.grand_finals_reset}>
                                             <Text style={{color: DeepBlue.bg_secondary, ...styles.pending_rounds_text}}>Grand Finals</Text>
                                             <Text style={{color: DeepBlue.bg_secondary, ...styles.opponent_forecast_text}}>Reset!</Text>
                                         </View>}
@@ -836,7 +836,24 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
         marginTop: 10,
         borderRadius: 20,
-        
+    },
+    grand_finals_reset: {
+        alignItems: 'center', 
+        padding: 5, 
+        marginTop: 35 * ratio
+    },
+    forecast_banners: {
+        marginTop: 20 * ratio
+    },
+    if_winning_losing_text: {
+        fontFamily: 'prototype', 
+        color: DeepBlue.text_primary, 
+        textAlign: 'center'
+    },
+    if_winning_losing_section: {
+        alignItems: 'stretch', 
+        flex: 1, 
+        width: '100%'
     }
 });
 
