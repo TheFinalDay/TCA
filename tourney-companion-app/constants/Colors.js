@@ -9,6 +9,8 @@ export const DeepBlue = {
     accent_light: '#99dec7',
     red: '#a30000',
     red_light: '#d67474',
+    gold: '#ffbb00',
+    gold_light: '#ebcc8f',
     text_primary: '#ffffff',
     text_secondary: '#91919c'
 }
@@ -25,6 +27,8 @@ export const MGC = {
     accent_light: '#8fd7eb',
     red: '#6e1896',
     red_light: '#975bb3',
+    gold: '#ffbb00',
+    gold_light: '#ebcc8f',
     text_primary: '#000000',
     text_secondary: '#965052'
 }

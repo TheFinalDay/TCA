@@ -47,6 +47,8 @@ const DashboardScreen = props => {
     // runs only on first mount...
     useEffect(() => {
         
+        console.log("useEffect []")
+
         // runs only on every unmount...
         return () => {
           // cleaning up states...
@@ -65,6 +67,8 @@ const DashboardScreen = props => {
     
     // runs only the first time the dashboard is loaded, and when switching dashboards
     useEffect(() => {
+
+        console.log("useEffect [tourney]")
 
         if(tourney){
             setIsLoading(true);
@@ -138,95 +142,113 @@ const DashboardScreen = props => {
 
         const { style, isForecast, textColor } = props;
 
-        if(opponent){
+        if(opponent || props.opponent){
 
-            const { names, state, isWinner } = isForecast ? props.opponent.data : opponent.data;
+            const { names, state, isWinner, pendingRound } = isForecast ? props.opponent.data : opponent.data;
 
-            if(state == "open"){// just display opponent name
+            switch(state){// just display opponent name
+                case "open": {
 
-                if(!isForecast){
-                    return(
-                        <View style={{...style, flexDirection: 'row', alignItems: 'flex-start', padding: 5}}>
-                            <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS  </Text>
-                            <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_text}}>{names[0]}</Text>
-                        </View>
-                    );
-                } else {
-                    return(
-                        <View style={{...style, alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
-                            <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS</Text>
-                            <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_forecast_text}}>{names[0]}</Text>
-                        </View>
-                    );
-                }
-            } else {
-                switch(names.length){
-                    case 2:// display pending set with both names
-                        if(!isForecast){
-                            return(
-                                <View style={{...style, alignItems: 'flex-start', padding: 5}}>
-                                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>{isWinner ? "Winner" : "Loser"} of </Text>
-                                        <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
+                    if(!isForecast){
+                        return(
+                            <View style={{...style, flexDirection: 'row', alignItems: 'flex-start', padding: 5}}>
+                                <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS  </Text>
+                                <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_text}}>{names[0]}</Text>
+                            </View>
+                        );
+                    } else {
+                        return(
+                            <View style={{...style, alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
+                                <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS</Text>
+                                <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_forecast_text}}>{names[0]}</Text>
+                            </View>
+                        );
+                    }
+                } 
+                case "pending": {
+                    switch(names.length){
+                        case 2:// display pending set with both names
+                            if(!isForecast){
+                                return(
+                                    <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                            <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>{isWinner ? "Winner" : "Loser"} of </Text>
+                                            <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
+                                        </View>
+                                        <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: (isWinner ? 88 : 75) * ratio}}>
+                                            <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}> and </Text>
+                                            <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[1]}</Text>
+                                        </View>
                                     </View>
-                                    <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: (isWinner ? 88 : 75) * ratio}}>
-                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}> and </Text>
+                                );
+                            } else {
+                                return(
+                                    <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
+                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS {isWinner ? "winner" : "loser"} of</Text>
+                                        <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
+                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>and</Text>
                                         <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[1]}</Text>
                                     </View>
-                                </View>
-                            );
-                        } else {
-                            return(
-                                <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
-                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS {isWinner ? "winner" : "loser"} of</Text>
-                                    <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
-                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>and</Text>
-                                    <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[1]}</Text>
-                                </View>
-                            );
-                        }
-                        
-                    case 1:// display pending set opponent 'and winner of earlier rounds...'
-                        if(!isForecast){
-                            return(
-                                <View style={{...style, alignItems: 'flex-start', padding: 5}}>
-                                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for  </Text>
-                                        <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
+                                );
+                            }
+                            
+                        case 1:// display pending set opponent 'and winner of earlier rounds...'
+                            if(!isForecast){
+                                return(
+                                    <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                            <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for  </Text>
+                                            <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
+                                        </View>
+                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>and {getMatchRound(pendingRound)} to resolve...</Text>
                                     </View>
-                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>and earlier rounds...</Text>
-                                </View>
-                            );
-                        } else {
-                            return(
-                                <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
-                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for</Text>
-                                    <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
-                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>and earlier</Text>
-                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>rounds...</Text>
-                                </View>
-                            );
-                        }
-                        
-                    default:// display 'waiting for more than one pending round...'
-                        if(!isForecast){
-                            return(
-                                <View style={{...style, alignItems: 'flex-start', padding: 5}}>
-                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for  </Text>
-                                    <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>multiple earlier rounds...</Text>
-                                </View>
-                            );
-                        } else {
-                            return(
-                                <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
-                                    <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for</Text>
-                                    <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>multiple earlier</Text>
-                                    <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>rounds</Text>
-                                    <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>...</Text>
-                                </View>
-                            );
-                        }
-                        
+                                );
+                            } else {
+                                return(
+                                    <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
+                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for</Text>
+                                        <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
+                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>and</Text>
+                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>{getMatchRound(pendingRound)}</Text>
+                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>to resolve...</Text>
+                                    </View>
+                                );
+                            }
+                            
+                        default:// display 'waiting for more than one pending round...'
+                            if(!isForecast){
+                                return(
+                                    <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for  </Text>
+                                        <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>{getMatchRound(pendingRound)}</Text>
+                                        <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>to resolve...</Text>
+                                    </View>
+                                );
+                            } else {
+                                return(
+                                    <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
+                                        <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for</Text>
+                                        <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>{getMatchRound(pendingRound)}</Text>
+                                        <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>to resolve...</Text>
+                                    </View>
+                                );
+                            }
+                            
+                    }
+                } 
+                case "champion": {
+                    return(
+                        <View style={{...style, alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
+                            <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_forecast_text}}>Champion!</Text>
+                        </View>
+                    );
+                } 
+                case "elimination": {
+                    return(
+                        <View style={{...style, alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
+                            <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_forecast_text}}>Eliminated</Text>
+                        </View>
+                    );
                 }
             }
         }
@@ -281,22 +303,53 @@ const DashboardScreen = props => {
         if(forecasts){
             if(currentMatchRound){
                 if(currentMatchRound != 'completed'){
-                    let winOpponent = getOpponentData(forecasts[0]);
-                    let lossOpponent = getOpponentData(forecasts[1]);
+
+                    //TODO handle when one of these is null!!!
+                    let winOpponent = forecasts[0] ? getOpponentData(forecasts[0]) : {
+                            data: {
+                                names: [],
+                                state: "champion",
+                                isWinner: true,
+                                pendingRound: null
+                            }
+                        };
+
+                    let lossOpponent = forecasts[1] ? getOpponentData(forecasts[1]) : {
+                            data: {
+                                names: [],
+                                state: "elimination",
+                                isWinner: true,
+                                pendingRound: null
+                            }
+                        };
+
+                    let gfResetIfWin = (currentMatchRound == "Grand Finals" && lossOpponent.data.state == "elimination");
+                    let gfResetIfLoss = (winOpponent.data.state == "champion");
+
                     return(
                         <View style={{flexDirection: 'row'}}>
                             <View style={{alignItems: 'stretch', flex: 1, width: '100%'}}>
                                 <Text style={{fontFamily: 'prototype', color: DeepBlue.text_primary, textAlign: 'center'}}>If winning...</Text>
-                                <View style={{backgroundColor: DeepBlue.accent_light, ...styles.winlose_forecast}}>
-                                    <Banner style={{marginTop: 20 * ratio}} fontSize={31 * ratio} textColor={DeepBlue.text_primary} color={DeepBlue.accent}>{getMatchRound(forecasts[0]) || "Champion"}</Banner>
-                                    <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={winOpponent}/>
+                                <View style={{backgroundColor: forecasts[0] ? DeepBlue.accent_light : DeepBlue.gold, ...styles.winlose_forecast}}>
+                                    {forecasts[0] && <Banner style={{marginTop: 20 * ratio}} fontSize={31 * ratio} textColor={DeepBlue.text_primary} color={DeepBlue.accent}>{getMatchRound(forecasts[0])}</Banner>}
+                                    {gfResetIfWin &&
+                                        <View style={{alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
+                                            <Text style={{color: DeepBlue.bg_secondary, ...styles.pending_rounds_text}}>Grand Finals</Text>
+                                            <Text style={{color: DeepBlue.bg_secondary, ...styles.opponent_forecast_text}}>Reset!</Text>
+                                        </View>}
+                                    {!gfResetIfWin && <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={winOpponent}/>}
                                 </View>
                             </View>
                             <View style={{alignItems: 'stretch', flex: 1, width: '100%'}}>
                             <Text style={{fontFamily: 'prototype', color: DeepBlue.text_primary, textAlign: 'center'}}>If losing...</Text>
-                                <View style={{backgroundColor: DeepBlue.red_light, ...styles.winlose_forecast}}>
-                                    <Banner style={{marginTop: 20 * ratio}} fontSize={31 * ratio} textColor={DeepBlue.text_primary} color={DeepBlue.red}>{getMatchRound(forecasts[1]) || "Eliminated"}</Banner>
-                                    <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={lossOpponent}/>
+                                <View style={{backgroundColor: forecasts[1] ? DeepBlue.red_light : DeepBlue.text_secondary, ...styles.winlose_forecast}}>
+                                    {forecasts[1] && <Banner style={{marginTop: 20 * ratio}} fontSize={31 * ratio} textColor={DeepBlue.text_primary} color={DeepBlue.red}>{getMatchRound(forecasts[1])}</Banner>}
+                                    {forecasts[0] && <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={lossOpponent}/>}
+                                    {gfResetIfLoss &&
+                                        <View style={{alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
+                                            <Text style={{color: DeepBlue.bg_secondary, ...styles.pending_rounds_text}}>Grand Finals</Text>
+                                            <Text style={{color: DeepBlue.bg_secondary, ...styles.opponent_forecast_text}}>Reset!</Text>
+                                        </View>}
                                 </View>
                             </View>
                         </View>
@@ -416,16 +469,14 @@ const DashboardScreen = props => {
                             (current.match.player1_id ? current.match.player1_id : current.match.player2_id) : 
                             (current.match.player1_id == playerId ? current.match.player2_id : current.match.player1_id);
 
-                            console.log("opponentId" + opponentId)
-
                         let opponent = tourney.players.find(player => (player.participant.id == opponentId));
-                        if(!forecastMode){ setOpponent(opponent); }
-
+                        if(!forecastMode){ setOpponent(opponent);}
                         return {
                             data: {
                                 names: [opponent.participant.name],
                                 state: "open",
-                                isWinner: true
+                                isWinner: true,
+                                pendingRound: null
                             }
                         };
 
@@ -473,17 +524,31 @@ const DashboardScreen = props => {
                                         data: {
                                             names: [opponent1.participant.name, opponent2.participant.name],
                                             state: "pending",
-                                            isWinner: true
+                                            isWinner: true,
+                                            pendingRound: pending
                                         }
                                     };
                                 } else {
-                                    return {
+                                    if(pending.match.round == numberOfRounds[1] && current.match.round == numberOfRounds[0]){
+                                        return {
+                                            data: {
+                                                names: [opponent1.participant.name, opponent2.participant.name],
+                                                state: "pending",
+                                                isWinner: true,
+                                                pendingRound: pending
+                                            }
+                                        };
+                                    } else {
+                                        return {
                                         data: {
                                             names: [opponent1.participant.name, opponent2.participant.name],
                                             state: "pending",
-                                            isWinner: false
+                                            isWinner: false,
+                                            pendingRound: pending
                                         }
                                     };
+                                    }
+                                    
                                 }
                                 
                             } else {
@@ -491,7 +556,8 @@ const DashboardScreen = props => {
                                     data: {
                                         names: [(opponent1 ? opponent1 : opponent2).participant.name],
                                         state: "pending",
-                                        isWinner: true
+                                        isWinner: true,
+                                        pendingRound: pending
                                     }
                                 };
                             }
@@ -500,7 +566,8 @@ const DashboardScreen = props => {
                             data: {
                                 names: [],
                                 state: "pending",
-                                isWinner: true
+                                isWinner: true,
+                                pendingRound: pending
                             }
                         };
                     }
