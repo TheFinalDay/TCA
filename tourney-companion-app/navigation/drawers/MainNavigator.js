@@ -6,21 +6,27 @@ import { Platform } from 'react-native';
 
 import TourneyTabNavigator from '../tabs/TourneyTabNavigator';
 import ImportTourneyScreen from '../../components/screens/ImportTourneyScreen';
+import TourneyListScreen from '../../components/screens/TourneyListScreen';
 
 const MainNavigator = createDrawerNavigator({
-    Import: {
-        screen: ImportTourneyScreen,
-        navigationOptions: {
-            drawerLabel: 'Join New Tourney'
-        }
-    },
     CurrentTourney: {
         screen: TourneyTabNavigator,
         navigationOptions: {
             drawerLabel: 'Active Dashboard'
         }
     },
-    
+    TourneyList: {
+        screen: TourneyListScreen,
+        navigationOptions: {
+            drawerLabel: 'My Tourneys'
+        }
+    },
+    Import: {
+        screen: ImportTourneyScreen,
+        navigationOptions: {
+            drawerLabel: 'Join New Tourney'
+        }
+    },
     
     
     
@@ -35,15 +41,6 @@ const MainNavigator = createDrawerNavigator({
     }
 
     */
-}, 
-    {
-        contentOptions: {
-            labelStyle: {
-                fontFamily: 'prototype'
-            }
-        }
-    }
-
-)
+});
 
 export default createAppContainer(MainNavigator);

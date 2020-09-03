@@ -1,0 +1,3 @@
+const CHALLONGE_API_KEY = "TGaVdDrYsL5eoHyB32SO50r7wQ2rEEnfRfH7E6Hu";
+
+export default CHALLONGE_API_KEY;

@@ -4,15 +4,28 @@ import { createMaterialBottomTabNavigator } from 'react-navigation-material-bott
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import DashboardScreen from '../../components/screens/DashboardScreen';
+import ScoreFeedScreen from '../../components/screens/ScoreFeedScreen';
+import TourneyInfoScreen from '../../components/screens/TourneyInfoScreen';
 import { DeepBlue } from '../../constants/Colors';
 
 const tabScreenConfig = {
+    ScoreFeed: {screen: ScoreFeedScreen, navigationOptions: {
+        tabBarIcon: tabInfo => {
+            return (<MaterialCommunityIcons name='message-text' size={25} color='white' />);
+        }
+
+    }},
     Dashboard: {screen: DashboardScreen, navigationOptions: {
         tabBarIcon: tabInfo => {
             return (<MaterialCommunityIcons name='bulletin-board' size={25} color='white' />);
-        },
-        tabBarColor: DeepBlue.bg_secondary
+        }
         
+    }},
+    TourneyInfo: {screen: TourneyInfoScreen, navigationOptions: {
+        tabBarIcon: tabInfo => {
+            return (<MaterialCommunityIcons name='information' size={25} color='white' />);
+        }
+
     }}
     /**  TODO: add the rest of my content (in this order) 
      *      -> TourneyDetails, ScoreFeed, (Dashboard), ManageStations, BracketViewer

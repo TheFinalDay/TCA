@@ -31,6 +31,7 @@ type Props = $ReadOnly<{|
   source?: ?{
     fileName?: string,
     lineNumber?: number,
+    ...
   },
   frame?: ?Object,
   selection?: ?number,
@@ -38,7 +39,7 @@ type Props = $ReadOnly<{|
 |}>;
 
 class ElementProperties extends React.Component<Props> {
-  render() {
+  render(): React.Node {
     const style = flattenStyle(this.props.style);
     const selection = this.props.selection;
     let openFileButton;

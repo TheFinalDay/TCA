@@ -7,7 +7,7 @@ const initialState = {
 
 const settingsReducer = (state = initialState, action) => {
     switch (action.type) {
-        case "SET_THEME":
+        case SET_THEME:
             const chosenTheme = action.theme;
             return {...state, theme: chosenTheme};
         default:

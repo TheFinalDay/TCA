@@ -1,7 +1,10 @@
 class Tournament {
-    constructor(url, players){
+    constructor(tid, url, players, tourneyData, userPlayer){
+        this.tid = tid;
         this.url = url;
         this.players = players;
+        this.tourneyData = tourneyData;
+        this.userPlayer = userPlayer;
     }
 }
 
