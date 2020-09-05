@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View, StatusBar, ActivityIndicator } from 'react-native';
 import { Provider } from 'react-redux';
 import * as Font from 'expo-font';
@@ -23,6 +23,7 @@ export default class App extends React.Component {
     
     this.setState({ assetsLoaded: true });
   }
+
 
   render() {
 

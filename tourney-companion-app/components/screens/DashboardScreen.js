@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import { Text, StyleSheet, View, Dimensions, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Permissions from 'expo-permissions';
 
 import { DeepBlue } from '../../constants/Colors';
 import DashboardHeader from '../UI/DashboardHeader';
 import Banner from '../UI/Banner';
 import { API } from '../../misc/apiCalls';
 import * as tourneyActions from '../../store/actions/tournaments';
+import { Notifications } from 'expo';
 
 const dims = Dimensions.get('window');
 const ratio = dims.width / 1000;
@@ -64,6 +66,34 @@ const DashboardScreen = props => {
           setPlayerId(null);
         }
     }, []);
+
+    //TODO move this on whichever is the first booted screen shown to the user
+    // runs only first time dashboard is loaded
+    useEffect(() => {
+        Permissions.getAsync(Permissions.NOTIFICATIONS).then(statusObj => {
+          if(statusObj.status !== 'granted'){
+            return Permissions.askAsync(Permissions.NOTIFICATIONS);
+          }
+          return statusObj;
+        }).then(statusObj => {
+          if(statusObj.status !== 'granted') {
+            //TODO alert user that there will be no notifications shown...
+            throw new Error('Permission not granted');
+          }
+        }).then(() => {
+            //sign up with expo's push servers
+            console.log("getting token...")
+            return Notifications.getExpoPushTokenAsync();
+        }).then(response => {
+            console.log(response);
+            const token = response.data;
+        }).catch((err) => {
+            console.log(err);
+            return null;
+        });
+      }, []);
+
+    
     
     // runs only the first time the dashboard is loaded, and when switching dashboards
     useEffect(() => {

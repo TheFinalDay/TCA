@@ -2,14 +2,86 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import { Text, StyleSheet, View, Dimensions, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Notifications from 'expo-notifications';
 
 import { DeepBlue } from '../../constants/Colors';
 import SimpleButton from '../UI/SimpleButton';
 import { API } from '../../misc/apiCalls';
 
+Notifications.setNotificationHandler({
+        handleNotification: async () => {
+            return {
+                shouldSetBadge: true,
+                shouldShowAlert: true
+            };
+        }
+    });
+
 const TourneyInfoScreen = props => {
 
+
+    // runs only on first render
+    useEffect(() => {
+
+        const backgroundSubscription = Notifications.addNotificationResponseReceivedListener(response => {
+            // what to do when notif received while app in running in background
+            console.log(response);
+        })
+
+        const foregroundSubscription = Notifications.addNotificationReceivedListener(notification => {
+            // notification here contains all the content set to it including data
+            console.log(notification);
+
+        });
+
+        return () => {
+            foregroundSubscription.remove();
+            backgroundSubscription.remove();
+        };
+    }, []);
+
+    
+    
+    
+
     const tourney = useSelector(state => state.tournaments.activeTournament);
+
+    // example...
+    const triggerNotificationHandler = () => {
+
+        // use this to send a push notification to the TO
+
+        fetch('https://exp.host/--/api/v2/push/send', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Accept-Encoding': 'gzip, deflate',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                to: '',//TO token here (get from firebase)
+                data: {stuff: 'stuffs'}, // score data
+                title: 'New score reported!',
+                body: 'player1: won 2-0 versus player2' // cute message
+            })
+        });
+
+        // example for local notification
+        /*
+        Notifications.scheduleNotificationAsync({
+            content: {
+                title: 'My first local notif!',
+                body: 'whaddup',
+                data: {
+                    //whatever i want here
+                }
+            },
+            trigger: {
+                seconds: 10,
+            }
+        });
+        */
+    };
 
 
     return(
@@ -23,6 +95,7 @@ const TourneyInfoScreen = props => {
                     });
                 }
             }}>Register tourney in DB</SimpleButton>
+            <SimpleButton onPress={() => {}}>Trigger Local Notification</SimpleButton>
         </View>
     );
 

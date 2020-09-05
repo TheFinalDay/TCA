@@ -25,6 +25,9 @@
     "ios": {
       "supportsTablet": true
     },
+    "android": {
+      "useNextNotificationsApi": true
+    },
     "description": "A quality of life & tournament management app for players and TOs respectively",
     "githubUrl": "https://github.com/TheFinalDay/TCA"
   }
