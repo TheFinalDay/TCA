@@ -1,4 +1,4 @@
-
+import { Text, StyleSheet, View } from 'react-native';
 import { DeepBlue } from '../../constants/Colors';
 
 const TOLoginScreen = props => {

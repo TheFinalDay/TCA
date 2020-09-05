@@ -7,6 +7,7 @@ import * as Permissions from 'expo-permissions';
 import { DeepBlue } from '../../constants/Colors';
 import DashboardHeader from '../UI/DashboardHeader';
 import Banner from '../UI/Banner';
+import TopPaddingBar from '../UI/TopPaddingBar';
 import { API } from '../../misc/apiCalls';
 import * as tourneyActions from '../../store/actions/tournaments';
 import { Notifications } from 'expo';
@@ -676,9 +677,9 @@ const DashboardScreen = props => {
 
         <View style={styles.screen}>
             <DashboardHeader 
-                refresh={tourney ? () => { 
-                        dispatch(tourneyActions.refreshTourney(tourney.url, tourney.players, tourney.userPlayer));
-                    } : null} 
+                refresh={tourney ? () => {
+                    dispatch(tourneyActions.refreshTourney(tourney.url, tourney.players, tourney.userPlayer));
+                } : null}
                 openDrawer={props.navigation.openDrawer} 
                 iconSize={85 * ratio} 
                 playerName={tourney?.userPlayer.participant.name || "Empty"}>

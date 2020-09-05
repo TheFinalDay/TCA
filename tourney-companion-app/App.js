@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import * as Font from 'expo-font';
 
 import MainNavigator from './navigation/drawers/MainNavigator';
+import TopPaddingBar from './components/UI/TopPaddingBar';
 import store from './store/store';
 import { DeepBlue } from './constants/Colors';
 
@@ -32,6 +33,7 @@ export default class App extends React.Component {
     if( assetsLoaded ) {
       return (
         <Provider store={store}>
+          <TopPaddingBar/>
           <MainNavigator/>
         </Provider>
       );

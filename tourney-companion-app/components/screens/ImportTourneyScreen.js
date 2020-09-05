@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, StyleSheet, View, Dimensions, TouchableOpacity, FlatList, TextInput, Platform} from 'react-native';
+import { Text, StyleSheet, View, Dimensions, TouchableOpacity, FlatList, TextInput} from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { API } from '../../misc/apiCalls';

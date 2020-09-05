@@ -51,6 +51,7 @@ const TourneyInfoScreen = props => {
 
         // use this to send a push notification to the TO
 
+        /*
         fetch('https://exp.host/--/api/v2/push/send', {
             method: 'POST',
             headers: {
@@ -65,9 +66,10 @@ const TourneyInfoScreen = props => {
                 body: 'player1: won 2-0 versus player2' // cute message
             })
         });
+        */
 
         // example for local notification
-        /*
+        
         Notifications.scheduleNotificationAsync({
             content: {
                 title: 'My first local notif!',
@@ -80,7 +82,7 @@ const TourneyInfoScreen = props => {
                 seconds: 10,
             }
         });
-        */
+        
     };
 
 
@@ -95,7 +97,7 @@ const TourneyInfoScreen = props => {
                     });
                 }
             }}>Register tourney in DB</SimpleButton>
-            <SimpleButton onPress={() => {}}>Trigger Local Notification</SimpleButton>
+            <SimpleButton onPress={triggerNotificationHandler}>Trigger Local Notification</SimpleButton>
         </View>
     );
 

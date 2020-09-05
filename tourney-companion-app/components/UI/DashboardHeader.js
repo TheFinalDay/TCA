@@ -1,14 +1,15 @@
 import React from 'react';
+import { useDispatch } from "react-redux";
 import { Text, StyleSheet, View, Dimensions, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { DeepBlue } from '../../constants/Colors';
-
+import * as tourneyActions from '../../store/actions/tournaments';
 
 const dims = Dimensions.get('window');
 
 const DashboardHeader = props => {
-    
+
     //TODO 
     // Add more icons (trusted icon & TO registered icon) on banner
 
@@ -19,7 +20,7 @@ const DashboardHeader = props => {
                     <MaterialCommunityIcons name={props.iconName || 'forwardburger'} size={props.iconSize || 35} color={props.iconColor || 'white'} />
                 </TouchableOpacity>
                     <Text numberOfLines={1} style={{...styles.headerText, flex: 17}}>{props.playerName} ~ Dashboard</Text>
-                {props.refresh &&<TouchableOpacity style={{...styles.refreshIconButton, flex: 2}} onPress={props.refresh}>
+                    {props.refresh && <TouchableOpacity style={{...styles.refreshIconButton, flex: 2}} onPress={props.refresh} >
                     <MaterialCommunityIcons name={'refresh'} size={props.iconSize || 35} color={props.iconColor || 'white'} />
                 </TouchableOpacity>}
             </View>
