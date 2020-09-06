@@ -7,6 +7,7 @@ import * as Notifications from 'expo-notifications';
 import { DeepBlue } from '../../constants/Colors';
 import SimpleButton from '../UI/SimpleButton';
 import { API } from '../../misc/apiCalls';
+import { insertUserData, fetchAllUserData } from '../../misc/db'
 
 Notifications.setNotificationHandler({
         handleNotification: async () => {
@@ -47,7 +48,7 @@ const TourneyInfoScreen = props => {
     const tourney = useSelector(state => state.tournaments.activeTournament);
 
     // example...
-    const triggerNotificationHandler = () => {
+    const triggerNotificationExample = () => {
 
         // use this to send a push notification to the TO
 
@@ -85,6 +86,16 @@ const TourneyInfoScreen = props => {
         
     };
 
+    const useLocalDbExample = async () => {
+        /*
+        const dbResult = await insertUserData("notarealapikey", "notarealaccountname");
+        console.log(dbResult);
+        console.log('new addition to db: '+ dbResult.insertId);
+        */
+        const dbResult = await fetchAllUserData();
+        console.log(dbResult.rows._array[0].apikey);
+    }
+
 
     return(
         <View style={styles.screen}>
@@ -97,7 +108,7 @@ const TourneyInfoScreen = props => {
                     });
                 }
             }}>Register tourney in DB</SimpleButton>
-            <SimpleButton onPress={triggerNotificationHandler}>Trigger Local Notification</SimpleButton>
+            <SimpleButton onPress={useLocalDbExample}>add dummy apikey to sqlite db</SimpleButton>
         </View>
     );
 

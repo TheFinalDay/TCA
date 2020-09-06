@@ -6,9 +6,30 @@ import * as Font from 'expo-font';
 import MainNavigator from './navigation/drawers/MainNavigator';
 import TopPaddingBar from './components/UI/TopPaddingBar';
 import store from './store/store';
-import { DeepBlue } from './constants/Colors';
+import { init, dropUserData } from './misc/db';
 
+/* 
+// UNCOMMENT IF NECESSARY (TESTING)
 
+dropUserData()
+  .then(result => {
+    console.log("Dropped userData");
+  })
+  .catch(err => {
+    console.log('Dropping userData failed');
+    console.log(err);
+  });
+
+*/
+
+init()
+  .then(() => {
+    console.log('Initialized db');
+  })
+  .catch(err => {
+    console.log('Initializing db failed');
+    console.log(err);
+  });
 
 export default class App extends React.Component {
 

@@ -7,6 +7,7 @@ import { Platform } from 'react-native';
 import TourneyTabNavigator from '../tabs/TourneyTabNavigator';
 import ImportTourneyScreen from '../../components/screens/ImportTourneyScreen';
 import TourneyListScreen from '../../components/screens/TourneyListScreen';
+import TOAccountScreen from '../../components/screens/TOAccountScreen';
 
 const MainNavigator = createDrawerNavigator({
     CurrentTourney: {
@@ -24,9 +25,15 @@ const MainNavigator = createDrawerNavigator({
     Import: {
         screen: ImportTourneyScreen,
         navigationOptions: {
-            drawerLabel: 'Join New Tourney'
+            drawerLabel: 'Join as Player'
         }
     },
+    TOAccount: {
+        screen: TOAccountScreen,
+        navigationOptions: {
+            drawerLabel: 'TO Accounts'
+        }
+    }
     
     
     
