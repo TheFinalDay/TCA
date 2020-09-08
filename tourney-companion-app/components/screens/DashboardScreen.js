@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from "react-redux";
-import { Text, StyleSheet, View, Dimensions, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, View, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Permissions from 'expo-permissions';
 
@@ -98,8 +98,6 @@ const DashboardScreen = props => {
     
     // runs only the first time the dashboard is loaded, and when switching dashboards
     useEffect(() => {
-
-        console.log("useEffect [tourney]")
 
         if(tourney){
             setIsLoading(true);
@@ -693,12 +691,16 @@ const DashboardScreen = props => {
                         {!isLoading ? 
                             <MatchRoundText/>
                             : 
-                            <Banner color={DeepBlue.bg_secondary} textColor={DeepBlue.text_secondary}>loading...</Banner>
+                            <View>
+                                <ActivityIndicator color={DeepBlue.text_secondary}/>
+                            </View>
                         }
                         {!isLoading ? 
                             <ScoreText/>
                             : 
-                            <Text style={styles.loadingtext}>loading...</Text>
+                            <View>
+                                <ActivityIndicator color={DeepBlue.text_secondary}/>
+                            </View>
                         }
                     </View>
 
@@ -714,13 +716,17 @@ const DashboardScreen = props => {
                                     
                                 </View>
                                 : 
-                                <Text style={styles.loadingtext}>loading...</Text>
+                                <View style={{alignItems: 'flex-start', justifyContent: 'center'}}>
+                                    <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
+                                </View>
                             }
                         <View style={{backgroundColor: DeepBlue.bg_secondary}}>
                             {!isLoading ? 
                                 <MatchStateText/>
                                 : 
-                                <Text style={styles.loadingtext}>loading...</Text>
+                                <View style={{alignItems: 'flex-start'}}>
+                                    <ActivityIndicator color={DeepBlue.text_secondary}/>
+                                </View>
                             }
                         </View>
                     </View>
@@ -733,7 +739,9 @@ const DashboardScreen = props => {
                         {!isLoading ? 
                             <ForecastInfoSection/>
                             : 
-                            <Text style={styles.loadingtext}>loading...</Text>
+                            <View style={{flex: 1, justifyContent: 'center'}}>
+                                <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
+                            </View>
                         }
                     </View>
                     
