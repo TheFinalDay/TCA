@@ -389,6 +389,82 @@ const DashboardScreen = props => {
         
     }
 
+    // Displays tournament info, player name and standing once tourney is over
+    const FinalResultCard = props => {
+
+        let rankText = "";
+        let cardColor = DeepBlue.primary;
+        let rightTextColor = DeepBlue.primary_light;
+        switch (tourney.userPlayer.participant.final_rank) {
+            case 1: rankText = "Champion"; cardColor = DeepBlue.gold; rightTextColor = DeepBlue.gold_light; break;
+            case 2: rankText = "Runner-up"; cardColor = DeepBlue.accent; rightTextColor = DeepBlue.accent_light; break;
+            case 3: rankText = "3rd"; cardColor = DeepBlue.accent; rightTextColor = DeepBlue.accent_light; break;
+            default: rankText = tourney.userPlayer.participant.final_rank + "th";
+        }
+
+        
+
+        const frc_styles = StyleSheet.create({
+            finalresultcard: {
+                padding: 12,
+                borderRadius: 10,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                backgroundColor: cardColor
+            },
+            playertext: {
+                fontFamily: 'prototype',
+                color: DeepBlue.text_primary,
+                fontSize: 55 * ratio
+            },
+            standtext: {
+                fontFamily: 'prototype',
+                color: DeepBlue.text_primary,
+                fontSize: 72 * ratio
+            },
+            righttext: {
+                fontFamily: 'prototype',
+                color: rightTextColor,
+                fontSize: 35 * ratio,
+                textAlign: 'right'
+            }
+
+        });
+
+        return (
+            <View style={frc_styles.finalresultcard}>
+                <View style={{flex: 3, justifyContent: 'space-between'}}>
+                    <Text numberOfLines={1} style={frc_styles.playertext}>{tourney.userPlayer.participant.name}</Text>
+                    <Text numberOfLines={1} style={frc_styles.standtext}>{rankText}</Text>
+                </View>
+                <View style={{flex: 2, justifyContent: 'space-evenly'}}>
+                    <Text numberOfLines={2} style={frc_styles.righttext}>{tourney.tourneyData.tournament.game_name || tourney.tourneyData.tournament.category || "Miscellaneous"}</Text>
+                    <Text numberOfLines={1} style={frc_styles.righttext}>{tourney.tourneyData.tournament.tournament_type}</Text>
+                    <Text numberOfLines={1} style={frc_styles.righttext}>{tourney.players.length} players</Text>
+                </View>
+                
+            </View>
+        );
+    }
+
+    // Displays final score in large font
+    const FinalScoreCard = props => {
+        return (
+            <View></View>
+        );
+    }
+
+    // Displays scrollable list of matches played by the player with individual scores and opponent names
+    const MatchesScrollableList = props => {
+        return (
+            <View></View>
+        );
+    }
+
+
+
+
+
     //#endregion
 
     //#region functions
@@ -675,12 +751,12 @@ const DashboardScreen = props => {
                 refresh={tourney ? () => {
                     dispatch(tourneyActions.refreshTourney(tourney.url, tourney.players, tourney.userPlayer));
                 } : null}
-                openDrawer={props.navigation.openDrawer} 
+                openDrawer={props.navigation.openDrawer}
                 iconSize={85 * ratio} 
                 playerName={tourney?.userPlayer.participant.name || "Empty"}>
                     {tourney?.tourneyData.tournament.name || "Nothing here!"}
             </DashboardHeader>
-            {tourney && <View style={styles.dashboard}>
+            {tourney && <View style={{...styles.dashboard, justifyContent: isTourneyComplete ? 'flex-start' : 'center'}}>
 
                 {!isTourneyComplete &&<View style={styles.currentmatch}>
 
@@ -745,9 +821,12 @@ const DashboardScreen = props => {
                             </View>
                         }
                     </View>
-                    
-                    
                 </View>}
+
+                {isTourneyComplete && <View style={styles.tc_dashboard}>
+                    <FinalResultCard/>
+                </View>}
+
                 
             </View>}
         </View>
@@ -781,7 +860,6 @@ const styles = StyleSheet.create({
     dashboard: {
         height: '100%',
         width: '100%',
-        justifyContent: 'center',
         alignItems: 'center'
     },
     text: {
@@ -899,6 +977,12 @@ const styles = StyleSheet.create({
         fontFamily: 'prototype',
         color: DeepBlue.text_primary,
         textAlign: 'center'
+    },
+    tc_dashboard: {
+        flex: 1,
+        padding: 12,
+        maxHeight: 1700 * ratio,
+        width: '100%'
     }
 });
 

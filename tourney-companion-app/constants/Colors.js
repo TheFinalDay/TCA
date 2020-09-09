@@ -10,7 +10,7 @@ export const DeepBlue = {
     red: '#a30000',
     red_light: '#d67474',
     gold: '#ffbb00',
-    gold_light: '#ebcc8f',
+    gold_light: '#fae7c3',
     text_primary: '#ffffff',
     text_secondary: '#91919c'
 }
