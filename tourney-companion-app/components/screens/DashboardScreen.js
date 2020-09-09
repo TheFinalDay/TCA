@@ -107,6 +107,8 @@ const DashboardScreen = props => {
     // Displays score text in color or grayed out depending on score
     const ScoreText = props => {
 
+        let isResults = props.isResults ? props.isResults : false;
+
         if(cumulativeScores.length > 0){
             const wins = cumulativeScores[0];
             const losses = cumulativeScores[1];
@@ -114,38 +116,73 @@ const DashboardScreen = props => {
             if(wins > 0){
                 if(losses > 0){
                     // both scores coloured
-                    return(
-                        <Text style={styles.loadingtext}>
-                            <Text style={{...styles.text, color: DeepBlue.accent}}>{wins}W</Text> - <Text style={{...styles.text, color: DeepBlue.red}}>{losses}L</Text>
-                        </Text>
-                    );
+                    if(isResults){
+                        return(
+                            <Text style={{...styles.text, fontSize: 30}}>
+                                <Text style={{...styles.text, color: DeepBlue.accent, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: DeepBlue.red, fontSize: 30}}>{losses}</Text>
+                            </Text>
+                        );
+                    } else {
+                        return(
+                            <Text style={styles.loadingtext}>
+                                <Text style={{...styles.text, color: DeepBlue.accent}}>{wins}W</Text> - <Text style={{...styles.text, color: DeepBlue.red}}>{losses}L</Text>
+                            </Text>
+                        );
+                    }
                 } else {
                     // only wins coloured
-                    return(
-                        <Text style={styles.loadingtext}>
-                            <Text style={{...styles.text, color: DeepBlue.accent}}>{wins}W</Text> - <Text style={styles.loadingtext}>0L</Text>
-                        </Text>
-                    );
+                    if(isResults){
+                        return(
+                            <Text style={{...styles.text, fontSize: 30}}>
+                                <Text style={{...styles.text, color: DeepBlue.accent, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: DeepBlue.text_primary, fontSize: 30}}>{losses}</Text>
+                            </Text>
+                        );
+                    } else {
+                        return(
+                            <Text style={styles.loadingtext}>
+                                <Text style={{...styles.text, color: DeepBlue.accent}}>{wins}W</Text> - <Text style={styles.loadingtext}>0L</Text>
+                            </Text>
+                        );
+                    }
+                    
                 }
             } else {
                 if(losses > 0){
                     // only losses coloured
-                    return(
-                        <Text style={styles.loadingtext}>
-                            <Text style={styles.loadingtext}>0W</Text> - <Text style={{...styles.text, color: DeepBlue.red}}>{losses}L</Text>
-                        </Text>
-                    );
+                    if(isResults){
+                        return(
+                            <Text style={{...styles.text, fontSize: 30}}>
+                                <Text style={{...styles.text, color: DeepBlue.text_primary, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: DeepBlue.red, fontSize: 30}}>{losses}</Text>
+                            </Text>
+                        );
+                    } else {
+                        return(
+                            <Text style={styles.loadingtext}>
+                                <Text style={styles.loadingtext}>0W</Text> - <Text style={{...styles.text, color: DeepBlue.red}}>{losses}L</Text>
+                            </Text>
+                        );
+                    }
+                    
                 } else {
                     // both scores grayed out
-                    return(
-                        <Text style={styles.loadingtext}>
-                            <Text style={styles.loadingtext}>0W</Text> - <Text style={styles.loadingtext}>0L</Text>
-                        </Text>
-                    );
+                    if(isResults){
+                        return(
+                            <Text style={{...styles.text, fontSize: 30}}>
+                                <Text style={{...styles.text, color: DeepBlue.text_primary, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: DeepBlue.text_primary, fontSize: 30}}>{losses}</Text>
+                            </Text>
+                        );
+                    } else {
+                        return(
+                            <Text style={styles.loadingtext}>
+                                <Text style={styles.loadingtext}>0W</Text> - <Text style={styles.loadingtext}>0L</Text>
+                            </Text>
+                        );
+                    }
+                    
                 }
             }
         }
-        return <Text style={styles.loadingtext}>Tournament complete</Text>
+        return <></>;
 
     }
 
@@ -395,19 +432,24 @@ const DashboardScreen = props => {
         let rankText = "";
         let cardColor = DeepBlue.primary;
         let rightTextColor = DeepBlue.primary_light;
+        let lastDigit = tourney.userPlayer.participant.final_rank % 10;
         switch (tourney.userPlayer.participant.final_rank) {
             case 1: rankText = "Champion"; cardColor = DeepBlue.gold; rightTextColor = DeepBlue.gold_light; break;
-            case 2: rankText = "Runner-up"; cardColor = DeepBlue.accent; rightTextColor = DeepBlue.accent_light; break;
-            case 3: rankText = "3rd"; cardColor = DeepBlue.accent; rightTextColor = DeepBlue.accent_light; break;
-            default: rankText = tourney.userPlayer.participant.final_rank + "th";
+            case 2: rankText = "Runner-up"; break;
+            default: {
+                switch (lastDigit){
+                    case 1: rankText = tourney.userPlayer.participant.final_rank + "rst"; break;
+                    case 2: rankText = tourney.userPlayer.participant.final_rank + "nd"; break;
+                    case 3: rankText = tourney.userPlayer.participant.final_rank + "rd"; break;
+                    default: rankText = tourney.userPlayer.participant.final_rank + "th";
+                }
+            }
         }
-
-        
 
         const frc_styles = StyleSheet.create({
             finalresultcard: {
                 padding: 12,
-                borderRadius: 10,
+                borderRadius: 20,
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 backgroundColor: cardColor
@@ -428,36 +470,86 @@ const DashboardScreen = props => {
                 fontSize: 35 * ratio,
                 textAlign: 'right'
             }
-
         });
 
         return (
             <View style={frc_styles.finalresultcard}>
-                <View style={{flex: 3, justifyContent: 'space-between'}}>
-                    <Text numberOfLines={1} style={frc_styles.playertext}>{tourney.userPlayer.participant.name}</Text>
-                    <Text numberOfLines={1} style={frc_styles.standtext}>{rankText}</Text>
-                </View>
-                <View style={{flex: 2, justifyContent: 'space-evenly'}}>
-                    <Text numberOfLines={2} style={frc_styles.righttext}>{tourney.tourneyData.tournament.game_name || tourney.tourneyData.tournament.category || "Miscellaneous"}</Text>
-                    <Text numberOfLines={1} style={frc_styles.righttext}>{tourney.tourneyData.tournament.tournament_type}</Text>
-                    <Text numberOfLines={1} style={frc_styles.righttext}>{tourney.players.length} players</Text>
-                </View>
-                
+                {!isLoading ?
+                    <View style={{flex: 3, justifyContent: 'space-between'}}>
+                        <Text numberOfLines={1} style={frc_styles.playertext}>{tourney.userPlayer.participant.name}</Text>
+                        <Text numberOfLines={1} style={frc_styles.standtext}>{rankText}</Text>
+                    </View>
+                    :
+                    <View style={{flex: 3, justifyContent: 'space-between'}}>
+                        <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
+                    </View>
+                }
+                {!isLoading ?
+                    <View style={{flex: 2, justifyContent: 'space-evenly'}}>
+                        <Text numberOfLines={2} style={frc_styles.righttext}>{tourney.tourneyData.tournament.game_name || tourney.tourneyData.tournament.category || "Miscellaneous"}</Text>
+                        <Text numberOfLines={1} style={frc_styles.righttext}>{tourney.tourneyData.tournament.tournament_type}</Text>
+                        <Text numberOfLines={1} style={frc_styles.righttext}>{tourney.players.length} players</Text>
+                    </View>
+                    :
+                    <View style={{flex: 2, justifyContent: 'space-evenly'}}>
+                        <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
+                    </View>
+                }
             </View>
         );
     }
 
     // Displays final score in large font
     const FinalScoreCard = props => {
+
+        let cardColor = DeepBlue.primary;
+        switch (tourney.userPlayer.participant.final_rank) {
+            case 1: cardColor = DeepBlue.gold; break;
+            case 2: cardColor = DeepBlue.accent; break;
+            case 3: cardColor = DeepBlue.accent; break;
+        }
+
+        const fsc_styles = StyleSheet.create({
+            finalscorecard: {
+                marginTop: 10,
+                padding: 15,
+                borderRadius: 20,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                borderWidth: 3,
+                borderColor: cardColor
+            },
+            text: {
+                fontFamily: 'prototype',
+                color: DeepBlue.text_primary,
+                fontSize: 55 * ratio
+            }
+        });
+
         return (
-            <View></View>
+            <View style={fsc_styles.finalscorecard}>
+                <View style={{flex: 5, justifyContent: 'center'}}>
+                    <Text style={fsc_styles.text}>Final Results:</Text>
+                </View>
+                {!isLoading ? 
+                    <View style={{flex: 6, alignItems: 'flex-end'}}>
+                        <ScoreText isResults={true}/>
+                    </View> 
+                    :
+                    <View style={{flex: 1, justifyContent: 'center'}}>
+                        <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
+                    </View>
+                }
+            </View>
         );
     }
 
     // Displays scrollable list of matches played by the player with individual scores and opponent names
     const MatchesScrollableList = props => {
         return (
-            <View></View>
+            <View>
+
+            </View>
         );
     }
 
@@ -825,6 +917,7 @@ const DashboardScreen = props => {
 
                 {isTourneyComplete && <View style={styles.tc_dashboard}>
                     <FinalResultCard/>
+                    <FinalScoreCard/>
                 </View>}
 
                 
