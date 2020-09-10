@@ -9,8 +9,8 @@ export const DeepBlue = {
     accent_light: '#99dec7',
     red: '#a30000',
     red_light: '#d67474',
-    gold: '#ffbb00',
-    gold_light: '#fae7c3',
+    gold: '#d49b00',
+    gold_light: '#e6c15e',
     text_primary: '#ffffff',
     text_secondary: '#91919c'
 }

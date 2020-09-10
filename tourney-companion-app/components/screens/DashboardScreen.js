@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from "react-redux";
-import { Text, StyleSheet, View, Dimensions, TouchableOpacity, ActivityIndicator, Modal } from 'react-native';
+import { Text, StyleSheet, View, Dimensions, TouchableOpacity, ActivityIndicator, FlatList, Modal } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Permissions from 'expo-permissions';
 import { Notifications } from 'expo';
@@ -108,6 +108,9 @@ const DashboardScreen = props => {
     const ScoreText = props => {
 
         let isResults = props.isResults ? props.isResults : false;
+        let isChampion = tourney.userPlayer.participant.final_rank ? 
+            (tourney.userPlayer.participant.final_rank == 1 ? true : false) :
+            false;
 
         if(cumulativeScores.length > 0){
             const wins = cumulativeScores[0];
@@ -118,8 +121,8 @@ const DashboardScreen = props => {
                     // both scores coloured
                     if(isResults){
                         return(
-                            <Text style={{...styles.text, fontSize: 30}}>
-                                <Text style={{...styles.text, color: DeepBlue.accent, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: DeepBlue.red, fontSize: 30}}>{losses}</Text>
+                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 30}}>
+                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.accent, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.red, fontSize: 30}}>{losses}</Text>
                             </Text>
                         );
                     } else {
@@ -133,8 +136,8 @@ const DashboardScreen = props => {
                     // only wins coloured
                     if(isResults){
                         return(
-                            <Text style={{...styles.text, fontSize: 30}}>
-                                <Text style={{...styles.text, color: DeepBlue.accent, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: DeepBlue.text_primary, fontSize: 30}}>{losses}</Text>
+                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 30}}>
+                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.accent, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 30}}>{losses}</Text>
                             </Text>
                         );
                     } else {
@@ -151,8 +154,8 @@ const DashboardScreen = props => {
                     // only losses coloured
                     if(isResults){
                         return(
-                            <Text style={{...styles.text, fontSize: 30}}>
-                                <Text style={{...styles.text, color: DeepBlue.text_primary, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: DeepBlue.red, fontSize: 30}}>{losses}</Text>
+                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 30}}>
+                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.red, fontSize: 30}}>{losses}</Text>
                             </Text>
                         );
                     } else {
@@ -167,8 +170,8 @@ const DashboardScreen = props => {
                     // both scores grayed out
                     if(isResults){
                         return(
-                            <Text style={{...styles.text, fontSize: 30}}>
-                                <Text style={{...styles.text, color: DeepBlue.text_primary, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: DeepBlue.text_primary, fontSize: 30}}>{losses}</Text>
+                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 30}}>
+                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 30}}>{losses}</Text>
                             </Text>
                         );
                     } else {
@@ -431,10 +434,9 @@ const DashboardScreen = props => {
 
         let rankText = "";
         let cardColor = DeepBlue.primary;
-        let rightTextColor = DeepBlue.primary_light;
         let lastDigit = tourney.userPlayer.participant.final_rank % 10;
         switch (tourney.userPlayer.participant.final_rank) {
-            case 1: rankText = "Champion"; cardColor = DeepBlue.gold; rightTextColor = DeepBlue.gold_light; break;
+            case 1: rankText = "Champion"; cardColor = DeepBlue.gold; break;
             case 2: rankText = "Runner-up"; break;
             default: {
                 switch (lastDigit){
@@ -466,7 +468,7 @@ const DashboardScreen = props => {
             },
             righttext: {
                 fontFamily: 'prototype',
-                color: rightTextColor,
+                color: DeepBlue.text_primary,
                 fontSize: 35 * ratio,
                 textAlign: 'right'
             }
@@ -502,12 +504,9 @@ const DashboardScreen = props => {
     // Displays final score in large font
     const FinalScoreCard = props => {
 
-        let cardColor = DeepBlue.primary;
-        switch (tourney.userPlayer.participant.final_rank) {
-            case 1: cardColor = DeepBlue.gold; break;
-            case 2: cardColor = DeepBlue.accent; break;
-            case 3: cardColor = DeepBlue.accent; break;
-        }
+        let isChampion = tourney.userPlayer.participant.final_rank == 1;
+
+        let cardColor = (!isChampion) ? DeepBlue.primary : DeepBlue.gold;
 
         const fsc_styles = StyleSheet.create({
             finalscorecard: {
@@ -521,7 +520,7 @@ const DashboardScreen = props => {
             },
             text: {
                 fontFamily: 'prototype',
-                color: DeepBlue.text_primary,
+                color: isChampion ? DeepBlue.gold : DeepBlue.text_primary,
                 fontSize: 55 * ratio
             }
         });
@@ -546,16 +545,96 @@ const DashboardScreen = props => {
 
     // Displays scrollable list of matches played by the player with individual scores and opponent names
     const MatchesScrollableList = props => {
-        return (
-            <View>
 
-            </View>
-        );
+        if(matches){
+
+            let isChampion = tourney.userPlayer.participant.final_rank == 1;
+            let playerMatches = matches.filter(o => (o.match.player1_id == playerId || o.match.player2_id == playerId));
+
+            const msl_styles = StyleSheet.create({
+                listsection: {
+                    marginTop: 10,
+                    paddingTop: 5,
+                    paddingBottom: 10,
+                    maxHeight: 1000 * ratio,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    borderTopWidth: 3,
+                    borderBottomWidth: 3,
+                    borderBottomStartRadius: 20,
+                    borderBottomEndRadius: 20,
+                    borderTopStartRadius: 20,
+                    borderTopEndRadius: 20,
+                    borderColor: isChampion ? DeepBlue.gold : DeepBlue.primary
+                },
+                text: {
+                    fontFamily: 'prototype',
+                    color: DeepBlue.bg_secondary,
+                    fontSize: 45 * ratio
+                },
+                headertext: {
+                    fontFamily: 'prototype',
+                    textAlign: 'center',
+                    color: isChampion ? DeepBlue.gold : DeepBlue.text_primary,
+                    fontSize: 35 * ratio,
+                },
+                itemrow: {
+                    marginVertical: 5,
+                    marginHorizontal: 5,
+                    paddingHorizontal: 10,
+                    paddingVertical: 5,
+                    borderRadius: 20,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between'
+                }
+            });
+    
+            return (
+                <View style={msl_styles.listsection}>
+                    {!isLoading ? 
+                        <FlatList
+                            ListHeaderComponent={<Text style={msl_styles.headertext}>Matches Played</Text>}
+                            data={playerMatches}
+                            keyExtractor={o => o.match.id.toString()} 
+                            renderItem={itemData => {
+                                    let isWin = (itemData.item.match.winner_id == playerId) ? true : false;
+
+                                    let player2Id = (itemData.item.match.player1_id == playerId) ? itemData.item.match.player2_id : itemData.item.match.player1_id;
+                                    let player2Name = tourney.players.find(player => player.participant.id == player2Id)?.participant.name;
+
+                                    let winScore = itemData.item.match.scores_csv.substr(0,1); 
+                                    let losScore = itemData.item.match.scores_csv.substr(2);
+                                    if(winScore < losScore){
+                                        let temp = winScore;
+                                        winScore = losScore;
+                                        losScore = temp;
+                                    }
+
+                                    return(
+                                        <View style={{...msl_styles.itemrow, backgroundColor: isWin ? DeepBlue.accent_light : DeepBlue.red_light}}>
+                                            <View style={{flex: 5}}>
+                                                <Text style={msl_styles.text}>{isWin ? "Won" : "Lost"} vs {player2Name}</Text>
+                                            </View>
+                                            <View style={{flex: 1, alignItems: 'center'}}>
+                                                <Text style={msl_styles.text}>{isWin ? winScore : losScore} - {isWin ? losScore : winScore}</Text>
+                                            </View>
+                                        </View>
+                                    );
+                                }
+                            }
+                        />
+                        :
+                        <View style={{flex: 1, justifyContent: 'center'}}>
+                            <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
+                        </View>
+                    }
+                </View>
+            );
+
+        }
+        return <></>;
+
     }
-
-
-
-
 
     //#endregion
 
@@ -706,7 +785,8 @@ const DashboardScreen = props => {
                                  * XNOR logic: 
                                  * if both sides are winners or both sides are losers
                                  */
-                                if(!((!currentSide && pendingSide) || (!pendingSide && currentSide))){
+                                //if(!((!currentSide && pendingSide) || (!pendingSide && currentSide))){
+                                if(currentSide === pendingSide){
                                     return {
                                         data: {
                                             names: [opponent1.participant.name, opponent2.participant.name],
@@ -918,6 +998,7 @@ const DashboardScreen = props => {
                 {isTourneyComplete && <View style={styles.tc_dashboard}>
                     <FinalResultCard/>
                     <FinalScoreCard/>
+                    <MatchesScrollableList/>
                 </View>}
 
                 
