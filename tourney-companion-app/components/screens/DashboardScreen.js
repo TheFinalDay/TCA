@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from "react-redux";
-import { Text, StyleSheet, View, Dimensions, TouchableOpacity, ActivityIndicator, FlatList, Modal } from 'react-native';
+import { Text, StyleSheet, View, Dimensions, TouchableOpacity, TouchableWithoutFeedback, ActivityIndicator, FlatList, Modal } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Permissions from 'expo-permissions';
 import { Notifications } from 'expo';
@@ -8,6 +8,7 @@ import { Notifications } from 'expo';
 import { DeepBlue } from '../../constants/Colors';
 import DashboardHeader from '../UI/DashboardHeader';
 import Banner from '../UI/Banner';
+import PopUp from '../UI/PopUp';
 import { API } from '../../misc/apiCalls';
 import * as tourneyActions from '../../store/actions/tournaments';
 
@@ -20,32 +21,6 @@ const DashboardScreen = props => {
     // TODO
     // Score reporting modal
     // Different dashboard look when tourney is completed, ScoreText should display final scores
-
-    //#region states/redux
-
-    const dispatch = useDispatch();
-
-    [matches, setMatches] = useState(null);
-
-    // Current match related states
-    [opponent, setOpponent] = useState(null);
-    [cumulativeScores, setCumulativeScores] = useState([]);
-    [currentMatchState, setCurrentMatchState] = useState(null);
-    [numberOfRounds, setNumberOfRounds] = useState([]);
-    [currentMatchRound, setCurrentMatchRound] = useState(null);
-    [forecasts, setForecasts] = useState([]);
-
-    [isLoading, setIsLoading] = useState(true);
-    [isTourneyComplete, setIsTourneyComplete] = useState(false);
-    [isPlayerEliminated, setIsPlayerEliminated] = useState(false);
-
-    [playerId, setPlayerId] = useState(null);
-    
-    const tourney = useSelector(state => state.tournaments.activeTournament);
-
-    //#endregion
-
-    //#region hooks
 
     /*
     //TODO move this on whichever is the first booted screen shown to the user
@@ -77,7 +52,34 @@ const DashboardScreen = props => {
 
       */
 
+
+    //#region states/redux
+
+    const dispatch = useDispatch();
+
+    [matches, setMatches] = useState(null);
+
+    // Current match related states
+    [opponent, setOpponent] = useState(null);
+    [cumulativeScores, setCumulativeScores] = useState([]);
+    [currentMatchState, setCurrentMatchState] = useState(null);
+    [numberOfRounds, setNumberOfRounds] = useState([]);
+    [currentMatchRound, setCurrentMatchRound] = useState(null);
+    [forecasts, setForecasts] = useState([]);
+
+    [isLoading, setIsLoading] = useState(true);
+    [isTourneyComplete, setIsTourneyComplete] = useState(false);
+    [isPlayerEliminated, setIsPlayerEliminated] = useState(false);
+    [scoreModalVisible, setScoreModalVisible] = useState(false);
+
+    [playerId, setPlayerId] = useState(null);
     
+    const tourney = useSelector(state => state.tournaments.activeTournament);
+
+    //#endregion
+
+    //#region hooks
+
     // runs only the first time the dashboard is loaded, and when switching dashboards
     useEffect(() => {
 
@@ -95,6 +97,7 @@ const DashboardScreen = props => {
                 setCurrentMatchRound(getMatchRound());
                 setForecasts(getForecastData());
                 setIsLoading(false);
+                setScoreModalVisible(false);
             });
         }
         
@@ -916,97 +919,118 @@ const DashboardScreen = props => {
 
     //#endregion
 
+
     return(
+        <View style={{flex: 1, justifyContent: 'center'}}>
+            <PopUp 
+                visible={scoreModalVisible} 
+                onRequestClose={() => {/*do something on close*/}} 
+                backgroundColor={DeepBlue.bg_primary} 
+                borderColor={DeepBlue.bg_secondary} 
+                topFlex={1} 
+                contentFlex={4} 
+                bottomFlex={3}>
 
-        <View style={styles.screen}>
-            <DashboardHeader 
-                refresh={tourney ? () => {
-                    dispatch(tourneyActions.refreshTourney(tourney.url, tourney.players, tourney.userPlayer));
-                } : null}
-                openDrawer={props.navigation.openDrawer}
-                iconSize={85 * ratio} 
-                playerName={tourney?.userPlayer.participant.name || "Empty"}>
-                    {tourney?.tourneyData.tournament.name || "Nothing here!"}
-            </DashboardHeader>
-            {tourney && <View style={{...styles.dashboard, justifyContent: isTourneyComplete ? 'flex-start' : 'center'}}>
+                <View style={{width: '100%', height: '20%', backgroundColor: DeepBlue.bg_secondary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
+                    <Text style={{...styles.text, fontSize: 18}}>Report Scores</Text>
+                </View>
+                <View style={{width: '100%', height: '12%', backgroundColor: DeepBlue.bg_tertiary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
+                    <Text style={styles.text}>Select the winning player's row below:</Text>
+                </View>
+                
+            </PopUp>
+            
+            <View style={styles.screen}>
+                <DashboardHeader 
+                    refresh={tourney ? () => {
+                        dispatch(tourneyActions.refreshTourney(tourney.url, tourney.players, tourney.userPlayer));
+                    } : null}
+                    openDrawer={props.navigation.openDrawer}
+                    iconSize={85 * ratio} 
+                    playerName={tourney?.userPlayer.participant.name || "Empty"}>
+                        {tourney?.tourneyData.tournament.name || "Nothing here!"}
+                </DashboardHeader>
+                {tourney && <View style={{...styles.dashboard, justifyContent: isTourneyComplete ? 'flex-start' : 'center'}}>
+                    {!isTourneyComplete &&<View style={styles.currentmatch}>
 
-                {!isTourneyComplete &&<View style={styles.currentmatch}>
-
-                    <View style={styles.round_and_scores}>
-                        {!isLoading ? 
-                            <MatchRoundText/>
-                            : 
-                            <View>
-                                <ActivityIndicator color={DeepBlue.text_secondary}/>
-                            </View>
-                        }
-                        {!isLoading ? 
-                            <ScoreText/>
-                            : 
-                            <View>
-                                <ActivityIndicator color={DeepBlue.text_secondary}/>
-                            </View>
-                        }
-                    </View>
-
-                    <View style={{...styles.cm_card, minHeight: isPlayerEliminated ? 260 * ratio : 175 * ratio}}>
-                        {!isLoading ? 
-                            <View style={{flexDirection: 'row', flex: 1}}>
-                                {!isPlayerEliminated ? 
-                                    <OpponentText style={{flex: 6}} isForecast={false}/> 
-                                    : 
-                                    <OpponentText style={{flex: 1}} isForecast={false}/>
-                                }
-                                {!isPlayerEliminated &&<View style={{justifyContent: 'space-around', flex: 1}}>
-                                     <TouchableOpacity style={styles.send_scores} onPress={() => {/* TODO */}}>
-                                        <MaterialCommunityIcons name={'square-edit-outline'} size={85 * ratio} color={DeepBlue.bg_secondary}/>
-                                    </TouchableOpacity>
-                                </View>}
-                                
-                            </View>
-                            : 
-                            <View style={{alignItems: 'flex-start', justifyContent: 'center'}}>
-                                <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
-                            </View>
-                        }
-                        {!isPlayerEliminated && <View style={{backgroundColor: DeepBlue.bg_secondary}}>
+                        <View style={styles.round_and_scores}>
                             {!isLoading ? 
-                                <MatchStateText/>
+                                <MatchRoundText/>
                                 : 
-                                <View style={{alignItems: 'flex-start'}}>
+                                <View>
                                     <ActivityIndicator color={DeepBlue.text_secondary}/>
                                 </View>
                             }
-                        </View>}
-                    </View>
-                </View>}
+                            {!isLoading ? 
+                                <ScoreText/>
+                                : 
+                                <View>
+                                    <ActivityIndicator color={DeepBlue.text_secondary}/>
+                                </View>
+                            }
+                        </View>
 
-                {!isTourneyComplete && <View style={styles.forecast_section}>
-                    <View style={styles.forecast_border}/>
-                    <View style={styles.forecast_inner}>
-                        <Text style={styles.forecast_text}>Forecast</Text>
-                        {!isLoading ? 
-                            <ForecastInfoSection/>
-                            : 
-                            <View style={{flex: 1, justifyContent: 'center'}}>
-                                <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
-                            </View>
-                        }
-                    </View>
-                </View>}
+                        <View style={{...styles.cm_card, minHeight: isPlayerEliminated ? 260 * ratio : 175 * ratio}}>
+                            {!isLoading ? 
+                                <View style={{flexDirection: 'row', flex: 1}}>
+                                    {!isPlayerEliminated ? 
+                                        <OpponentText style={{flex: 6}} isForecast={false}/> 
+                                        : 
+                                        <OpponentText style={{flex: 1}} isForecast={false}/>
+                                    }
+                                    {!isPlayerEliminated &&<View style={{justifyContent: 'space-around', flex: 1}}>
+                                        <TouchableOpacity style={styles.send_scores} onPress={() => {setScoreModalVisible(true)}}>
+                                            <MaterialCommunityIcons name={'square-edit-outline'} size={85 * ratio} color={DeepBlue.bg_secondary}/>
+                                        </TouchableOpacity>
+                                    </View>}
+                                    
+                                </View>
+                                : 
+                                <View style={{alignItems: 'flex-start', justifyContent: 'center'}}>
+                                    <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
+                                </View>
+                            }
+                            {!isPlayerEliminated && <View style={{backgroundColor: DeepBlue.bg_secondary}}>
+                                {!isLoading ? 
+                                    <MatchStateText/>
+                                    : 
+                                    <View style={{alignItems: 'flex-start'}}>
+                                        <ActivityIndicator color={DeepBlue.text_secondary}/>
+                                    </View>
+                                }
+                            </View>}
+                        </View>
+                    </View>}
 
-                {isTourneyComplete && <View style={styles.tc_dashboard}>
-                    <FinalResultCard/>
-                    <FinalScoreCard/>
-                    <MatchesScrollableList/>
-                </View>}
+                    {!isTourneyComplete && <View style={styles.forecast_section}>
+                        <View style={styles.forecast_border}/>
+                        <View style={styles.forecast_inner}>
+                            <Text style={styles.forecast_text}>Forecast</Text>
+                            {!isLoading ? 
+                                <ForecastInfoSection/>
+                                : 
+                                <View style={{flex: 1, justifyContent: 'center'}}>
+                                    <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
+                                </View>
+                            }
+                        </View>
+                    </View>}
 
-                
-            </View>}
+                    {isTourneyComplete && <View style={styles.tc_dashboard}>
+                        <FinalResultCard/>
+                        <FinalScoreCard/>
+                        <MatchesScrollableList/>
+                    </View>}
+
+                    
+                </View>}
+            </View>
         </View>
         
     );
 }
+
+
 
 /* temp info stuff
 
@@ -1023,6 +1047,8 @@ const DashboardScreen = props => {
 </View>
 
 */
+
+//#region styles
 
 const styles = StyleSheet.create({
     screen: {
@@ -1159,6 +1185,8 @@ const styles = StyleSheet.create({
         width: '100%'
     }
 });
+
+//#endregion
 
 
 export default DashboardScreen;
