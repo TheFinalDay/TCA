@@ -7,10 +7,10 @@ const PopUp = props => {
     
     return(
         
-        <Modal animationType="fade" transparent={true} visible={props.visible} onRequestClose={props.onRequestClose}>
-            <View style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.75)', justifyContent: 'flex-start', alignItems: 'center'}}>
+        <Modal animationType="fade" transparent={true} visible={props.visible} onRequestClose={() => {props.onClose()}} onShow={props.onShow}>
+            <View style={{...props.style, flex: 1, backgroundColor: 'rgba(0,0,0,0.75)', justifyContent: 'flex-start', alignItems: 'center'}}>
                 <View style={{...styles.modal_clickableView, flex: props.topFlex || 1}}>
-                    <TouchableWithoutFeedback onPress={() => {setScoreModalVisible(false)}}>
+                    <TouchableWithoutFeedback onPress={() => {props.onClose()}}>
                         <View style={{flex: 1}}/>
                     </TouchableWithoutFeedback>
                 </View>
@@ -20,7 +20,7 @@ const PopUp = props => {
                     </View>
                 </View>
                 <View style={{...styles.modal_clickableView, flex: props.bottomFlex || 3}}>
-                    <TouchableWithoutFeedback onPress={() => {setScoreModalVisible(false)}}>
+                    <TouchableWithoutFeedback onPress={() => {props.onClose()}}>
                         <View style={{flex: 1}}/>
                     </TouchableWithoutFeedback>
                 </View>

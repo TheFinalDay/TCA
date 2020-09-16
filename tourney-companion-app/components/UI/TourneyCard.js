@@ -1,11 +1,13 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import { useDispatch } from 'react-redux';
 
 import { DeepBlue } from '../../constants/Colors';
 import RectangleIconButton from '../UI/RectangleIconButton';
 import * as tourneyActions from '../../store/actions/tournaments';
 
+const dims = Dimensions.get('window');
+const ratio = dims.width / 1000;
 
 const TourneyCard = props => {
 
@@ -62,6 +64,7 @@ const TourneyCard = props => {
 
 const styles = StyleSheet.create({
     buttons: {
+        height: 120 * ratio,
         flexDirection: 'row',
         borderTopWidth: 3,
         borderColor: DeepBlue.primary

@@ -43,7 +43,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 10,
         flexDirection: 'row',
-        borderRadius: 0
+        borderRadius: 0,
+        height: '100%'
     },
     buttonText: {
         marginRight: 5,

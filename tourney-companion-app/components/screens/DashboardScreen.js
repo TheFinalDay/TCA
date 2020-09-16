@@ -8,6 +8,7 @@ import { Notifications } from 'expo';
 import { DeepBlue } from '../../constants/Colors';
 import DashboardHeader from '../UI/DashboardHeader';
 import Banner from '../UI/Banner';
+import RectangleIconButton from '../UI/RectangleIconButton';
 import PopUp from '../UI/PopUp';
 import { API } from '../../misc/apiCalls';
 import * as tourneyActions from '../../store/actions/tournaments';
@@ -917,6 +918,22 @@ const DashboardScreen = props => {
         return;
     }
 
+    // does shtuff when the score popup closes
+    const closePopUpHandler = (isSendingScores) => {
+
+        isSendingScores = isSendingScores ? isSendingScores : false;
+        setScoreModalVisible(false);
+
+        // do something when modal closes
+        //console.log("onClose!");
+
+        // do something when modal closes with "Send Scores"
+        if(isSendingScores){
+            //console.log("Sending scores!")
+        }
+        
+    }
+
     //#endregion
 
 
@@ -924,18 +941,43 @@ const DashboardScreen = props => {
         <View style={{flex: 1, justifyContent: 'center'}}>
             <PopUp 
                 visible={scoreModalVisible} 
-                onRequestClose={() => {/*do something on close*/}} 
+                style={{overflow: 'hidden'}}
+                onShow={() => {/*console.log("onShow!")*/}}
+                onClose={closePopUpHandler.bind(this)}
                 backgroundColor={DeepBlue.bg_primary} 
                 borderColor={DeepBlue.bg_secondary} 
                 topFlex={1} 
                 contentFlex={4} 
-                bottomFlex={3}>
+                bottomFlex={2}>
 
                 <View style={{width: '100%', height: '20%', backgroundColor: DeepBlue.bg_secondary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
                     <Text style={{...styles.text, fontSize: 18}}>Report Scores</Text>
                 </View>
                 <View style={{width: '100%', height: '12%', backgroundColor: DeepBlue.bg_tertiary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
                     <Text style={styles.text}>Select the winning player's row below:</Text>
+                </View>
+                <View style={{width: '100%', height: '50%', backgroundColor: DeepBlue.bg_primary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
+
+                </View>
+                <View style={{width: '100%', height: '18%', backgroundColor: DeepBlue.bg_secondary, justifyContent: 'space-between', overflow: 'hidden'}}>
+                    <View style={{height: '100%',flexDirection: 'row', justifyContent: 'space-evenly', borderTopWidth: 3, borderColor: DeepBlue.bg_secondary}}>
+                        <RectangleIconButton
+                            onPress={() => {closePopUpHandler()}}
+                            style={{flex: 1, height: '100%'}}
+                            fontSize={18}
+                            backgroundColor={DeepBlue.red}>
+                            Cancel
+                        </RectangleIconButton>
+                        <View style={{flex: 2, borderLeftWidth: 3, borderColor: DeepBlue.bg_secondary}}>
+                            <RectangleIconButton
+                                onPress={() => {closePopUpHandler(true)}}
+                                style={{height: '100%'}}
+                                fontSize={18}
+                                backgroundColor={DeepBlue.primary}>
+                                Send Scores
+                            </RectangleIconButton>
+                        </View>
+                    </View>
                 </View>
                 
             </PopUp>
