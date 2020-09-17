@@ -61,7 +61,7 @@ const DashboardScreen = props => {
     [matches, setMatches] = useState(null);
 
     // Current match related states
-    [opponent, setOpponent] = useState(null);
+    [opponentData, setOpponentData] = useState(null);
     [cumulativeScores, setCumulativeScores] = useState([]);
     [currentMatchState, setCurrentMatchState] = useState(null);
     [numberOfRounds, setNumberOfRounds] = useState([]);
@@ -93,7 +93,7 @@ const DashboardScreen = props => {
                 setCurrentMatchState(getMatchState());
                 setIsPlayerEliminated(currentMatchState == 'eliminated');
                 setNumberOfRounds(getNumberOfRounds());
-                setOpponent(getOpponentData());
+                setOpponentData(getOpponentData());
                 setCumulativeScores([getWinsLosses(true), getWinsLosses(false)]);
                 setCurrentMatchRound(getMatchRound());
                 setForecasts(getForecastData());
@@ -198,9 +198,9 @@ const DashboardScreen = props => {
 
         const { style, isForecast, textColor } = props;
 
-        if(opponent || props.opponent){
+        if(opponentData || props.opponent){
 
-            const { names, state, isWinner, pendingRound } = isForecast ? props.opponent.data : opponent.data;
+            const { names, state, isWinner, pendingRound } = isForecast ? props.opponent.data : opponentData.data;
 
             switch(state){// just display opponent name
                 case "open": {
@@ -640,6 +640,22 @@ const DashboardScreen = props => {
 
     }
 
+    const ScoreSelectionRows = props => {
+
+        return (
+            <View style={{...props.style, width: '95%', height: '40%', backgroundColor: DeepBlue.primary, justifyContent: 'flex-start', alignItems: 'center', flexDirection: 'row', padding: 7}}>
+                <View style={{height: '100%', width: '45%', justifyContent: 'center', alignItems: 'flex-start'}}>
+                    <Text numberOfLines={1} style={styles.text}>{props.children}</Text>
+                </View>
+                <View style={{height: '100%', width: '55%', flexDirection: 'row'}}>
+                    <View style={{flex: 1, backgroundColor: 'white'}}></View>
+                    <View style={{flex: 1, backgroundColor: 'gray'}}></View>
+                    <View style={{flex: 1, backgroundColor: 'white'}}></View>
+                </View>
+            </View>
+        );
+    }
+
     //#endregion
 
     //#region functions
@@ -740,7 +756,7 @@ const DashboardScreen = props => {
                             (current.match.player1_id == playerId ? current.match.player2_id : current.match.player1_id);
 
                         let opponent = tourney.players.find(player => (player.participant.id == opponentId));
-                        if(!forecastMode){ setOpponent(opponent);}
+                        if(!forecastMode){ setOpponentData(opponent);}
                         return {
                             data: {
                                 names: [opponent.participant.name],
@@ -946,18 +962,33 @@ const DashboardScreen = props => {
                 onClose={closePopUpHandler.bind(this)}
                 backgroundColor={DeepBlue.bg_primary} 
                 borderColor={DeepBlue.bg_secondary} 
-                topFlex={1} 
-                contentFlex={4} 
-                bottomFlex={2}>
+                topFlex={1}
+                contentFlex={5}
+                bottomFlex={3}>
 
-                <View style={{width: '100%', height: '20%', backgroundColor: DeepBlue.bg_secondary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
+                <View style={{width: '100%', height: '16%', backgroundColor: DeepBlue.bg_secondary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
                     <Text style={{...styles.text, fontSize: 18}}>Report Scores</Text>
                 </View>
-                <View style={{width: '100%', height: '12%', backgroundColor: DeepBlue.bg_tertiary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
-                    <Text style={styles.text}>Select the winning player's row below:</Text>
+                <View style={{width: '100%', height: '14%', backgroundColor: DeepBlue.bg_tertiary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
+                    <Text style={styles.text}>Enter each player's scores and select</Text>
+                    <Text style={styles.text}>the winning player's row below:</Text>
                 </View>
-                <View style={{width: '100%', height: '50%', backgroundColor: DeepBlue.bg_primary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
-
+                <View style={{width: '100%', height: '52%', backgroundColor: DeepBlue.bg_primary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
+                    
+                    {!isLoading ? 
+                        <ScoreSelectionRows>{tourney.userPlayer.participant.name}</ScoreSelectionRows>
+                        : 
+                        <View>
+                            <ActivityIndicator color={DeepBlue.text_secondary}/>
+                        </View>
+                    }
+                    {!isLoading ? 
+                        <ScoreSelectionRows style={{marginTop: 10}}>{opponentData.data.names[0]}</ScoreSelectionRows>
+                        : 
+                        <View>
+                            <ActivityIndicator color={DeepBlue.text_secondary}/>
+                        </View>
+                    }
                 </View>
                 <View style={{width: '100%', height: '18%', backgroundColor: DeepBlue.bg_secondary, justifyContent: 'space-between', overflow: 'hidden'}}>
                     <View style={{height: '100%',flexDirection: 'row', justifyContent: 'space-evenly', borderTopWidth: 3, borderColor: DeepBlue.bg_secondary}}>
