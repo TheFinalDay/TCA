@@ -9,6 +9,7 @@ import Header from '../UI/Header';
 import * as tourneyActions from '../../store/actions/tournaments';
 
 const dims = Dimensions.get('window');
+const ratio = dims.width / 1000;
 
 const TourneyListScreen = props => {
 
@@ -78,11 +79,11 @@ const styles = StyleSheet.create({
     errorMessage:{
         fontFamily: 'prototype',
         color: DeepBlue.text_secondary,
-        marginTop: 10,
-        marginLeft: 10
+        marginTop: 25 * ratio,
+        marginLeft: 25 * ratio
     },
     joinTourneyButton: {
-        marginTop: 10,
+        marginTop: 25 * ratio,
         width: '50%',
     }
 });

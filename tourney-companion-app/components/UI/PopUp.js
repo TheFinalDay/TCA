@@ -1,7 +1,10 @@
 import React from 'react';
-import { StyleSheet, View, Modal, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, View, Modal, TouchableWithoutFeedback, Dimensions } from 'react-native';
 
 import { DeepBlue } from '../../constants/Colors';
+
+const dims = Dimensions.get('window');
+const ratio = dims.width / 1000;
 
 const PopUp = props => {
     
@@ -46,7 +49,7 @@ const styles = StyleSheet.create({
         height: '70%', 
         justifyContent: 'flex-start', 
         alignItems: 'center', 
-        borderRadius: 20,
+        borderRadius: 47 * ratio,
         borderWidth: 3,
         overflow: 'hidden'
     }

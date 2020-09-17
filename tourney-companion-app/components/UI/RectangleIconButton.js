@@ -1,6 +1,9 @@
 import React from 'react';
-import {TouchableOpacity, View, Text, StyleSheet} from 'react-native';
+import {TouchableOpacity, View, Text, StyleSheet, Dimensions} from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+const dims = Dimensions.get('window');
+const ratio = dims.width / 1000;
 
 /**
  * RectangleIconButton
@@ -25,9 +28,9 @@ const RectangleIconButton = props => {
     return (
         <TouchableOpacity onPress={props.onPress} style={{...props.style, ...styles.buttonContainer}}>
             <View style={{...styles.button, backgroundColor: props.backgroundColor || 'white', borderWidth: props.borderWidth || 0, borderColor: props.borderColor || 'black'}}>
-                {isText && <Text style={{...styles.buttonText, color: props.textColor || 'black', fontSize: props.fontSize || 16}}>{props.children}</Text>}
+                {isText && <Text style={{...styles.buttonText, color: props.textColor || 'black', fontSize: props.fontSize || 39 * ratio}}>{props.children}</Text>}
                 <View>
-                    <MaterialCommunityIcons name={props.iconName} size={props.iconSize || 20} color={props.iconColor || 'black'} />
+                    <MaterialCommunityIcons name={props.iconName} size={props.iconSize || 47 * ratio} color={props.iconColor || 'black'} />
                 </View>
             </View>
         </TouchableOpacity>
@@ -41,13 +44,12 @@ const styles = StyleSheet.create({
     button: {
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 10,
+        padding: 25 * ratio,
         flexDirection: 'row',
-        borderRadius: 0,
         height: '100%'
     },
     buttonText: {
-        marginRight: 5,
+        marginRight: 12 * ratio,
         fontFamily: 'prototype',
         textAlign: 'center'
     }

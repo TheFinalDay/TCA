@@ -132,8 +132,8 @@ const DashboardScreen = props => {
                     // both scores coloured
                     if(isResults){
                         return(
-                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 30}}>
-                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.accent, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.red, fontSize: 30}}>{losses}</Text>
+                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 72 * ratio}}>
+                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.accent, fontSize: 72 * ratio}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.red, fontSize: 72 * ratio}}>{losses}</Text>
                             </Text>
                         );
                     } else {
@@ -147,8 +147,8 @@ const DashboardScreen = props => {
                     // only wins coloured
                     if(isResults){
                         return(
-                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 30}}>
-                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.accent, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 30}}>{losses}</Text>
+                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 72 * ratio}}>
+                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.accent, fontSize: 72 * ratio}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 72 * ratio}}>{losses}</Text>
                             </Text>
                         );
                     } else {
@@ -165,8 +165,8 @@ const DashboardScreen = props => {
                     // only losses coloured
                     if(isResults){
                         return(
-                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 30}}>
-                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.red, fontSize: 30}}>{losses}</Text>
+                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 72 * ratio}}>
+                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 72 * ratio}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.red, fontSize: 72 * ratio}}>{losses}</Text>
                             </Text>
                         );
                     } else {
@@ -181,8 +181,8 @@ const DashboardScreen = props => {
                     // both scores grayed out
                     if(isResults){
                         return(
-                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 30}}>
-                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 30}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 30}}>{losses}</Text>
+                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 72 * ratio}}>
+                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 72 * ratio}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 72 * ratio}}>{losses}</Text>
                             </Text>
                         );
                     } else {
@@ -214,14 +214,14 @@ const DashboardScreen = props => {
 
                     if(!isForecast){
                         return(
-                            <View style={{...style, flexDirection: 'row', alignItems: 'flex-start', padding: 5}}>
+                            <View style={{...style, flexDirection: 'row', alignItems: 'flex-start', padding: 12 * ratio}}>
                                 <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS  </Text>
                                 <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_text}}>{names[0]}</Text>
                             </View>
                         );
                     } else {
                         return(
-                            <View style={{...style, alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
+                            <View style={{...style, alignItems: 'center', padding: 12 * ratio, marginTop: 35 * ratio}}>
                                 <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS</Text>
                                 <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_forecast_text}}>{names[0]}</Text>
                             </View>
@@ -233,7 +233,7 @@ const DashboardScreen = props => {
                         case 2:// display pending set with both names
                             if(!isForecast){
                                 return(
-                                    <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                    <View style={{...style, alignItems: 'flex-start', padding: 12 * ratio}}>
                                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                             <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>{isWinner ? "Winner" : "Loser"} of </Text>
                                             <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
@@ -246,7 +246,7 @@ const DashboardScreen = props => {
                                 );
                             } else {
                                 return(
-                                    <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
+                                    <View style={{...style, alignItems: 'center', padding: 12 * ratio, marginTop: 25 * ratio}}>
                                         <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS {isWinner ? "winner" : "loser"} of</Text>
                                         <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
                                         <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>and</Text>
@@ -258,7 +258,7 @@ const DashboardScreen = props => {
                         case 1:// display pending set opponent 'and winner of earlier rounds...'
                             if(!isForecast){
                                 return(
-                                    <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                    <View style={{...style, alignItems: 'flex-start', padding: 12 * ratio}}>
                                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                             <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for  </Text>
                                             <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
@@ -268,7 +268,7 @@ const DashboardScreen = props => {
                                 );
                             } else {
                                 return(
-                                    <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
+                                    <View style={{...style, alignItems: 'center', padding: 12 * ratio, marginTop: 25 * ratio}}>
                                         <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for</Text>
                                         <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
                                         <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>and</Text>
@@ -281,7 +281,7 @@ const DashboardScreen = props => {
                         default:// display 'waiting for more than one pending round...'
                             if(!isForecast){
                                 return(
-                                    <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                    <View style={{...style, alignItems: 'flex-start', padding: 12 * ratio}}>
                                         <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for  </Text>
                                         <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>{getMatchRound(pendingRound)}</Text>
                                         <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>to resolve...</Text>
@@ -289,7 +289,7 @@ const DashboardScreen = props => {
                                 );
                             } else {
                                 return(
-                                    <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
+                                    <View style={{...style, alignItems: 'center', padding: 12 * ratio, marginTop: 25 * ratio}}>
                                         <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for</Text>
                                         <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>{getMatchRound(pendingRound)}</Text>
                                         <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>to resolve...</Text>
@@ -301,14 +301,14 @@ const DashboardScreen = props => {
                 } 
                 case "champion": {
                     return(
-                        <View style={{...style, alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
+                        <View style={{...style, alignItems: 'center', padding: 12 * ratio, marginTop: 35 * ratio}}>
                             <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_forecast_text}}>Champion!</Text>
                         </View>
                     );
                 } 
                 case "elimination": {
                     return(
-                        <View style={{...style, alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
+                        <View style={{...style, alignItems: 'center', padding: 12 * ratio, marginTop: 35 * ratio}}>
                             <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_forecast_text}}>Eliminated</Text>
                         </View>
                     );
@@ -324,11 +324,11 @@ const DashboardScreen = props => {
             if(currentMatchState != 'completed' && currentMatchState != 'eliminated'){
                 if(currentMatchState == 'open'){
                     return(
-                        <Text style={{...styles.text, color: DeepBlue.text_primary, padding: 5}}>Status: <Text style={{color: DeepBlue.accent}}>Ready</Text></Text>
+                        <Text style={{...styles.text, color: DeepBlue.text_primary, padding: 12 * ratio}}>Status: <Text style={{color: DeepBlue.accent}}>Ready</Text></Text>
                     );
                 } else {
                     return(
-                        <Text style={{...styles.text, color: DeepBlue.text_primary, padding: 5}}>Status: <Text style={{color: DeepBlue.text_secondary}}>Pending</Text></Text>
+                        <Text style={{...styles.text, color: DeepBlue.text_primary, padding: 12 * ratio}}>Status: <Text style={{color: DeepBlue.text_secondary}}>Pending</Text></Text>
                     );
                 }
                 
@@ -429,7 +429,7 @@ const DashboardScreen = props => {
         } else if(!isTourneyComplete){
             return (
                 <View style={{flex: 1, justifyContent: 'center', alignItems: 'stretch'}}>
-                    <Text style={{...styles.eliminatedtext, fontSize: 18}}>Better Luck Next Time!</Text>
+                    <Text style={{...styles.eliminatedtext, fontSize: 43 * ratio}}>Better Luck Next Time!</Text>
                     <Text style={styles.eliminatedtext}>Refresh this page after</Text>
                     <Text style={styles.eliminatedtext}>the tourney is over.</Text>
                 </View>
@@ -461,8 +461,8 @@ const DashboardScreen = props => {
 
         const frc_styles = StyleSheet.create({
             finalresultcard: {
-                padding: 12,
-                borderRadius: 20,
+                padding: 29 * ratio,
+                borderRadius: 47 * ratio,
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 backgroundColor: cardColor
@@ -521,9 +521,9 @@ const DashboardScreen = props => {
 
         const fsc_styles = StyleSheet.create({
             finalscorecard: {
-                marginTop: 10,
-                padding: 15,
-                borderRadius: 20,
+                marginTop: 25 * ratio,
+                padding: 36 * ratio,
+                borderRadius: 47 * ratio,
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 borderWidth: 3,
@@ -564,18 +564,15 @@ const DashboardScreen = props => {
 
             const msl_styles = StyleSheet.create({
                 listsection: {
-                    marginTop: 10,
-                    paddingTop: 5,
-                    paddingBottom: 10,
+                    marginTop: 25 * ratio,
+                    paddingTop: 12 * ratio,
+                    paddingBottom: 25 * ratio,
                     maxHeight: 1000 * ratio,
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                     borderTopWidth: 3,
                     borderBottomWidth: 3,
-                    borderBottomStartRadius: 20,
-                    borderBottomEndRadius: 20,
-                    borderTopStartRadius: 20,
-                    borderTopEndRadius: 20,
+                    borderRadius: 47 * ratio,
                     borderColor: isChampion ? DeepBlue.gold : DeepBlue.primary
                 },
                 text: {
@@ -590,11 +587,11 @@ const DashboardScreen = props => {
                     fontSize: 35 * ratio,
                 },
                 itemrow: {
-                    marginVertical: 5,
-                    marginHorizontal: 5,
-                    paddingHorizontal: 10,
-                    paddingVertical: 5,
-                    borderRadius: 20,
+                    marginVertical: 12 * ratio,
+                    marginHorizontal: 12 * ratio,
+                    paddingHorizontal: 25 * ratio,
+                    paddingVertical: 12 * ratio,
+                    borderRadius: 47 * ratio,
                     flexDirection: 'row',
                     justifyContent: 'space-between'
                 }
@@ -662,7 +659,7 @@ const DashboardScreen = props => {
                 justifyContent: 'flex-start', 
                 alignItems: 'center', 
                 flexDirection: 'row', 
-                paddingLeft: 10, 
+                paddingLeft: 25 * ratio, 
                 overflow: 'hidden',
                 borderWidth: 3,
                 borderColor: isWrongSelection ? DeepBlue.red : DeepBlue.primary
@@ -1085,7 +1082,7 @@ const DashboardScreen = props => {
 
     return(
         <View style={{flex: 1, justifyContent: 'center'}}>
-            <PopUp 
+            {!isTourneyComplete && !isPlayerEliminated && <PopUp 
                 visible={scoreModalVisible} 
                 style={{overflow: 'hidden'}}
                 onShow={() => {/*console.log("onShow!")*/}}
@@ -1096,14 +1093,14 @@ const DashboardScreen = props => {
                 contentFlex={5}
                 bottomFlex={3}>
 
-                <View style={{width: '100%', height: '16%', backgroundColor: DeepBlue.bg_secondary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
-                    <Text style={{...styles.text, fontSize: 18}}>Report Scores</Text>
+                <View style={{width: '100%', height: '16%', backgroundColor: DeepBlue.bg_secondary, paddingHorizontal: 25 * ratio, justifyContent: 'center', alignItems: 'center'}}>
+                    <Text style={{...styles.text, fontSize: 43 * ratio}}>Report Scores</Text>
                 </View>
-                <View style={{width: '100%', height: '14%', backgroundColor: DeepBlue.bg_tertiary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
+                <View style={{width: '100%', height: '14%', backgroundColor: DeepBlue.bg_tertiary, paddingHorizontal: 25 * ratio, justifyContent: 'center', alignItems: 'center'}}>
                     <Text style={styles.text}>Enter each player's scores and tap</Text>
                     <Text style={styles.text}>the winning player's row below:</Text>
                 </View>
-                <View style={{width: '100%', height: '52%', backgroundColor: DeepBlue.bg_primary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
+                <View style={{width: '100%', height: '52%', backgroundColor: DeepBlue.bg_primary, paddingHorizontal: 25 * ratio, justifyContent: 'center', alignItems: 'center'}}>
                     
                     {!isLoading ? 
                         <ScoreSelectionRows isPlayer={true}>{tourney.userPlayer.participant.name}</ScoreSelectionRows>
@@ -1113,7 +1110,7 @@ const DashboardScreen = props => {
                         </View>
                     }
                     {!isLoading ? 
-                        <ScoreSelectionRows style={{marginTop: 10}}>{opponentData.data.names[0]}</ScoreSelectionRows>
+                        <ScoreSelectionRows style={{marginTop: 25 * ratio}}>{opponentData.data.names[0]}</ScoreSelectionRows>
                         : 
                         <View>
                             <ActivityIndicator color={DeepBlue.text_secondary}/>
@@ -1125,7 +1122,7 @@ const DashboardScreen = props => {
                         <RectangleIconButton
                             onPress={() => {closePopUpHandler()}}
                             style={{flex: 1, height: '100%'}}
-                            fontSize={18}
+                            fontSize={44 * ratio}
                             backgroundColor={DeepBlue.red}>
                             Cancel
                         </RectangleIconButton>
@@ -1143,7 +1140,7 @@ const DashboardScreen = props => {
                                     setIsWrongSelection(true);
                                 }}
                                 style={{height: '100%'}}
-                                fontSize={18}
+                                fontSize={44 * ratio}
                                 backgroundColor={DeepBlue.primary}>
                                 Send Scores
                             </RectangleIconButton>
@@ -1151,7 +1148,7 @@ const DashboardScreen = props => {
                     </View>
                 </View>
                 
-            </PopUp>
+            </PopUp>}
             
             <View style={styles.screen}>
                 <DashboardHeader 
@@ -1183,7 +1180,7 @@ const DashboardScreen = props => {
                             }
                         </View>
 
-                        <View style={{...styles.cm_card, minHeight: isPlayerEliminated ? 260 * ratio : 175 * ratio}}>
+                        <View style={{...styles.cm_card, minHeight: (isPlayerEliminated ? 260 : 175) * ratio}}>
                             {!isLoading ? 
                                 <View style={{flexDirection: 'row', flex: 1}}>
                                     {!isPlayerEliminated ? 
@@ -1292,13 +1289,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginHorizontal: 12,
-        marginTop: 15
+        marginHorizontal: 29 * ratio,
+        marginTop: 36 * ratio
     },
     cm_card:{
-        marginHorizontal: 12,
-        marginTop: 10,
-        borderRadius: 10,
+        marginHorizontal: 29 * ratio,
+        marginTop: 25 * ratio,
+        borderRadius: 25 * ratio,
         borderWidth: 3,
         minHeight: 175 * ratio ,
         borderColor: DeepBlue.primary,
@@ -1320,9 +1317,9 @@ const styles = StyleSheet.create({
     },
     send_scores: {
         backgroundColor: DeepBlue.primary_light,
-        borderRadius: 10,
+        borderRadius: 25 * ratio,
         alignItems: 'center',
-        marginRight: 8,
+        marginRight: 19 * ratio,
         padding: 3
     },
     pending_rounds_text: {
@@ -1335,7 +1332,7 @@ const styles = StyleSheet.create({
     },
     forecast_inner: {
         alignItems: 'center', 
-        marginHorizontal: 20,
+        marginHorizontal: 47 * ratio,
         minHeight: 620 * ratio
     },
     forecast_text: {
@@ -1343,8 +1340,8 @@ const styles = StyleSheet.create({
         fontSize: 50 * ratio,
         color: DeepBlue.primary_light,
         textAlign: 'center',
-        paddingHorizontal: 15,
-        paddingTop: 4,
+        paddingHorizontal: 36 * ratio,
+        paddingTop: 10 * ratio,
         borderRadius: 50 * ratio,
         borderWidth: 3,
         borderColor: DeepBlue.primary,
@@ -1353,24 +1350,24 @@ const styles = StyleSheet.create({
     forecast_border: {
         minHeight: 600 * ratio ,
         width: '95%',
-        marginHorizontal: 12, 
+        marginHorizontal: 29 * ratio, 
         alignItems: 'center',
         position: 'absolute',
         borderWidth: 3,
         borderColor: DeepBlue.primary,
-        borderRadius: 30,
+        borderRadius: 72 * ratio,
         top: 40 * ratio
     },
     winlose_forecast: {
         alignItems: 'center',
         minHeight: 440 * ratio,
-        marginHorizontal: 5,
-        marginTop: 10,
-        borderRadius: 20,
+        marginHorizontal: 12 * ratio,
+        marginTop: 25 * ratio,
+        borderRadius: 47 * ratio,
     },
     grand_finals_reset: {
         alignItems: 'center', 
-        padding: 5, 
+        padding: 12 * ratio, 
         marginTop: 35 * ratio
     },
     forecast_banners: {
@@ -1393,7 +1390,7 @@ const styles = StyleSheet.create({
     },
     tc_dashboard: {
         flex: 1,
-        padding: 12,
+        padding: 29 * ratio,
         maxHeight: 1700 * ratio,
         width: '100%'
     }

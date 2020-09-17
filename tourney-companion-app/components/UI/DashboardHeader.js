@@ -7,6 +7,7 @@ import { DeepBlue } from '../../constants/Colors';
 import * as tourneyActions from '../../store/actions/tournaments';
 
 const dims = Dimensions.get('window');
+const ratio = dims.width / 1000;
 
 const DashboardHeader = props => {
 
@@ -17,11 +18,11 @@ const DashboardHeader = props => {
         <View style={styles.dashboardHeader}>
             <View style={styles.header}>
                 <TouchableOpacity style={{...styles.drawericonButton, flex: 2}} onPress={props.openDrawer}>
-                    <MaterialCommunityIcons name={props.iconName || 'forwardburger'} size={props.iconSize || 35} color={props.iconColor || 'white'} />
+                    <MaterialCommunityIcons name={props.iconName || 'forwardburger'} size={props.iconSize || 85 * ratio} color={props.iconColor || 'white'} />
                 </TouchableOpacity>
-                    <Text numberOfLines={1} style={{...styles.headerText, flex: 17}}>{props.playerName} ~ Dashboard</Text>
+                    <Text numberOfLines={1} style={{...styles.headerText, flex: 41 * ratio}}>{props.playerName} ~ Dashboard</Text>
                     {props.refresh && <TouchableOpacity style={{...styles.refreshIconButton, flex: 2}} onPress={props.refresh} >
-                    <MaterialCommunityIcons name={'refresh'} size={props.iconSize || 35} color={props.iconColor || 'white'} />
+                    <MaterialCommunityIcons name={'refresh'} size={props.iconSize || 85 * ratio} color={props.iconColor || 'white'} />
                 </TouchableOpacity>}
             </View>
             <View style={styles.banner}>
@@ -46,16 +47,16 @@ const styles = StyleSheet.create({
     headerText: {
         fontFamily: 'prototype',
         color: DeepBlue.text_primary,
-        fontSize: 17,
-        marginLeft: 15,
-        marginVertical: 15
+        fontSize: 41 * ratio,
+        marginLeft: 36 * ratio,
+        marginVertical: 36 * ratio
     },
     drawericonButton: {
-        marginLeft: 15,
+        marginLeft: 36 * ratio,
         alignItems: 'flex-start'
     },
     refreshIconButton: {
-        marginRight: 10,
+        marginRight: 25 * ratio,
         alignItems: 'flex-end'
     },
     banner: {
@@ -67,9 +68,9 @@ const styles = StyleSheet.create({
     bannerText: {
         fontFamily: 'prototype',
         color: DeepBlue.text_primary,
-        fontSize: 16,
-        marginLeft: 12,
-        marginVertical: 15
+        fontSize: 39 * ratio,
+        marginLeft: 29 * ratio,
+        marginVertical: 36 * ratio
     },
     bannerIcons: {
 

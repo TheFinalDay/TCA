@@ -40,7 +40,7 @@ const TourneyCard = props => {
                     onPress={props.onRemove}
                     style={styles.removeButton}
                     iconName='trash-can-outline'
-                    iconSize={25}
+                    iconSize={60 * ratio}
                     backgroundColor={DeepBlue.red}
                 />
                 <View style={{...styles.dashboardButton, borderLeftWidth: 3, borderColor: DeepBlue.primary}}>
@@ -50,8 +50,8 @@ const TourneyCard = props => {
                         props.navigation.navigate('CurrentTourney');
                     }}
                     iconName='arrow-right-drop-circle-outline'
-                    iconSize={25}
-                    fontSize={18}
+                    iconSize={60 * ratio}
+                    fontSize={43 * ratio}
                     backgroundColor={DeepBlue.accent}>
                     View Dashboard
                 </RectangleIconButton>
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     removeText: {
         fontFamily: 'prototype',
         color: DeepBlue.red,
-        fontSize: 14
+        fontSize: 34 * ratio
     },
     dashboardButton: {
         flex: 5
@@ -83,33 +83,33 @@ const styles = StyleSheet.create({
     accentText: {
         fontFamily: 'prototype',
         color: DeepBlue.accent,
-        fontSize: 14
+        fontSize: 34 * ratio
     },
     textTitle: {
         fontFamily: 'prototype',
         color: 'black',
-        fontSize: 18,
-        margin: 5,
-        marginHorizontal: 7
+        fontSize: 43 * ratio,
+        margin: 12 * ratio,
+        marginHorizontal: 17 * ratio
     }, 
     textPrimary: {
         fontFamily: 'prototype',
         color: DeepBlue.text_primary,
-        fontSize: 14,
-        margin: 3,
-        marginHorizontal: 8
+        fontSize: 34 * ratio,
+        margin: 10 * ratio,
+        marginHorizontal: 19 * ratio
     },
     textSecondary: {
         fontFamily: 'prototype',
         color: DeepBlue.text_secondary,
-        fontSize: 14,
-        margin: 3,
-        marginHorizontal: 8
+        fontSize: 34 * ratio,
+        margin: 10 * ratio,
+        marginHorizontal: 19 * ratio
     },
     card: {
-        marginHorizontal: 10,
-        marginTop: 10,
-        borderRadius: 10,
+        marginHorizontal: 25 * ratio,
+        marginTop: 25 * ratio,
+        borderRadius: 25 * ratio,
         borderWidth: 3,
         borderColor: DeepBlue.primary,
         overflow: 'hidden',

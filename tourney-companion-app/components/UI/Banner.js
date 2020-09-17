@@ -4,6 +4,7 @@ import { Text, StyleSheet, View, Dimensions } from 'react-native';
 import { DeepBlue } from '../../constants/Colors';
 
 const dims = Dimensions.get('window');
+const ratio = dims.width / 1000;
 
 const Banner = props => {
     
@@ -17,7 +18,7 @@ const Banner = props => {
             borderColor: props.textColor || DeepBlue.text_primary,
             borderWidth: props.borderWidth || 0
             }}>
-            <Text numberOfLines={1} style={{...styles.bannerText, color: props.textColor || DeepBlue.text_primary, fontSize: props.fontSize || 14}}>{props.children}</Text>
+            <Text numberOfLines={1} style={{...styles.bannerText, color: props.textColor || DeepBlue.text_primary, fontSize: props.fontSize || 34 * ratio}}>{props.children}</Text>
         </View>
             
     );
@@ -30,14 +31,14 @@ const styles = StyleSheet.create({
         height:  dims.height * 0.035,
         flexDirection: 'row', 
         alignItems: 'center',
-        borderBottomLeftRadius: 10,
-        borderTopRightRadius: 10
+        borderBottomLeftRadius: 25 * ratio,
+        borderTopRightRadius: 25 * ratio
     },
     bannerText: {
         fontFamily: 'prototype',
         color: DeepBlue.text_primary,
-        marginHorizontal: 12,
-        marginVertical: 12
+        marginHorizontal: 29 * ratio,
+        marginVertical: 29 * ratio
     }
 });
 
