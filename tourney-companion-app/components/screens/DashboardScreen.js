@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from "react-redux";
-import { Text, StyleSheet, View, Dimensions, TouchableOpacity, TouchableWithoutFeedback, ActivityIndicator, FlatList, Modal } from 'react-native';
+import { Text, StyleSheet, View, Dimensions, TouchableOpacity, TouchableHighlight, ActivityIndicator, FlatList, TouchableWithoutFeedback} from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Permissions from 'expo-permissions';
 import { Notifications } from 'expo';
@@ -73,6 +73,10 @@ const DashboardScreen = props => {
     [isPlayerEliminated, setIsPlayerEliminated] = useState(false);
     [scoreModalVisible, setScoreModalVisible] = useState(false);
 
+    [reportedScores, setReportedScores] = useState([0, 0]);
+    [selectedPlayerRow, setSelectedPlayerRow] = useState([false, false]);
+    [isWrongSelection, setIsWrongSelection] = useState(false);
+
     [playerId, setPlayerId] = useState(null);
     
     const tourney = useSelector(state => state.tournaments.activeTournament);
@@ -99,6 +103,9 @@ const DashboardScreen = props => {
                 setForecasts(getForecastData());
                 setIsLoading(false);
                 setScoreModalVisible(false);
+                setReportedScores([0, 0]);
+                setSelectedPlayerRow([false, false]);
+                setIsWrongSelection(false);
             });
         }
         
@@ -642,16 +649,119 @@ const DashboardScreen = props => {
 
     const ScoreSelectionRows = props => {
 
+        let isPlayer = props.isPlayer ? props.isPlayer : false;
+
+        const ssr_styles = StyleSheet.create({
+            top_view: {
+                width: '100%', 
+                height: '35%', 
+                backgroundColor: selectedPlayerRow[isPlayer ? 0 : 1] ? 
+                    DeepBlue.accent : 
+                    DeepBlue.bg_secondary, 
+                borderRadius: 20, 
+                justifyContent: 'flex-start', 
+                alignItems: 'center', 
+                flexDirection: 'row', 
+                paddingLeft: 10, 
+                overflow: 'hidden',
+                borderWidth: 3,
+                borderColor: isWrongSelection ? DeepBlue.red : DeepBlue.primary
+            },
+            name: {
+                height: '100%', 
+                width: '50%', 
+                justifyContent: 'center', 
+                alignItems: 'flex-start'
+            },
+            nametext: {
+                fontFamily: 'prototype', 
+                color: 'white', 
+                fontSize: 36 * ratio
+            },
+            plusminustopview: {
+                height: '100%', 
+                width: '50%', 
+                flexDirection: 'row'
+            },
+            plusminustouchable: {
+                flex: 1, 
+                alignItems: 'center'
+            },
+            plusminus: {
+                flex: 1, 
+                justifyContent: 'center'
+            },
+            score: {
+                flex: 1, 
+                justifyContent: 'center', 
+                alignItems: 'center'
+            },
+            scoretext: {
+                fontFamily: 'prototype', 
+                color: 'white', 
+                fontSize: 55 * ratio
+            }
+        });
+
         return (
-            <View style={{...props.style, width: '95%', height: '40%', backgroundColor: DeepBlue.primary, justifyContent: 'flex-start', alignItems: 'center', flexDirection: 'row', padding: 7}}>
-                <View style={{height: '100%', width: '45%', justifyContent: 'center', alignItems: 'flex-start'}}>
-                    <Text numberOfLines={1} style={styles.text}>{props.children}</Text>
+            <View style={{...props.style, ...ssr_styles.top_view}}>
+
+                <TouchableWithoutFeedback onPress={() => {setIsWrongSelection(false); setSelectedPlayerRow([isPlayer ? true : false, isPlayer ? false : true])}}>
+                    <View style={ssr_styles.name}>
+                        <Text numberOfLines={1} style={ssr_styles.nametext}>{props.children}</Text>
+                    </View>
+                </TouchableWithoutFeedback>
+
+                <View style={ssr_styles.plusminustopview}>
+
+                    <TouchableHighlight 
+                        style={ssr_styles.plusminustouchable} 
+                        onPress={() => {isPlayer ? 
+                            editScoreHandler([reportedScores[0] - 1, reportedScores[1]]) :
+                            editScoreHandler([reportedScores[0], reportedScores[1] - 1])}} 
+                        underlayColor={selectedPlayerRow[isPlayer ? 0 : 1] ? 
+                            DeepBlue.accent_light :
+                            DeepBlue.bg_primary} 
+                        activeOpacity={0.5}>
+                        <View style={ssr_styles.plusminus}>
+                            <MaterialCommunityIcons 
+                                name={'minus'} 
+                                size={85 * ratio} 
+                                color={selectedPlayerRow[isPlayer ? 0 : 1] ? 
+                                    DeepBlue.bg_secondary :
+                                    DeepBlue.primary}/>
+                        </View>
+                    </TouchableHighlight>
+
+                    <View style={ssr_styles.score}>
+                        <Text numberOfLines={1} style={ssr_styles.scoretext}>
+                            {isPlayer ? 
+                                (reportedScores[0] || 0) :
+                                (reportedScores[1] || 0)}
+                        </Text>
+                    </View>
+
+                    <TouchableHighlight 
+                        style={ssr_styles.plusminustouchable} 
+                        onPress={() => {isPlayer ? 
+                                editScoreHandler([reportedScores[0] + 1, reportedScores[1]]) :
+                                editScoreHandler([reportedScores[0], reportedScores[1] + 1])}} 
+                        underlayColor={selectedPlayerRow[isPlayer ? 0 : 1] ? 
+                                DeepBlue.accent_light :
+                                DeepBlue.bg_primary} 
+                        activeOpacity={0.5}>
+                        <View style={ssr_styles.plusminus}>
+                            <MaterialCommunityIcons 
+                                name={'plus'} 
+                                size={85 * ratio} 
+                                color={selectedPlayerRow[isPlayer ? 0 : 1] ? 
+                                    DeepBlue.bg_secondary :
+                                    DeepBlue.primary}/>
+                        </View>
+                    </TouchableHighlight>
+
                 </View>
-                <View style={{height: '100%', width: '55%', flexDirection: 'row'}}>
-                    <View style={{flex: 1, backgroundColor: 'white'}}></View>
-                    <View style={{flex: 1, backgroundColor: 'gray'}}></View>
-                    <View style={{flex: 1, backgroundColor: 'white'}}></View>
-                </View>
+
             </View>
         );
     }
@@ -939,15 +1049,35 @@ const DashboardScreen = props => {
 
         isSendingScores = isSendingScores ? isSendingScores : false;
         setScoreModalVisible(false);
-
+        setIsWrongSelection(false);
         // do something when modal closes
         //console.log("onClose!");
 
         // do something when modal closes with "Send Scores"
         if(isSendingScores){
-            //console.log("Sending scores!")
+            console.log("Sending scores! => "+ reportedScores[0] + " - "+reportedScores[1]);
+            
+            // do stuff
+
+            setSelectedPlayerRow([false, false]);
+            setReportedScores([0, 0]);
         }
-        
+    }
+
+    // validates score entry to be included between 0 and 9
+    const editScoreHandler = (newScores) => {
+
+        let [ playerScore, opponentScore ] = newScores;
+
+        if(playerScore > 9 || playerScore < 0){
+            playerScore = reportedScores[0];
+        }
+        if(opponentScore > 9 || opponentScore < 0){
+            opponentScore = reportedScores[1];
+        }
+
+        setReportedScores([playerScore, opponentScore]);
+
     }
 
     //#endregion
@@ -970,13 +1100,13 @@ const DashboardScreen = props => {
                     <Text style={{...styles.text, fontSize: 18}}>Report Scores</Text>
                 </View>
                 <View style={{width: '100%', height: '14%', backgroundColor: DeepBlue.bg_tertiary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
-                    <Text style={styles.text}>Enter each player's scores and select</Text>
+                    <Text style={styles.text}>Enter each player's scores and tap</Text>
                     <Text style={styles.text}>the winning player's row below:</Text>
                 </View>
                 <View style={{width: '100%', height: '52%', backgroundColor: DeepBlue.bg_primary, paddingHorizontal: 10, justifyContent: 'center', alignItems: 'center'}}>
                     
                     {!isLoading ? 
-                        <ScoreSelectionRows>{tourney.userPlayer.participant.name}</ScoreSelectionRows>
+                        <ScoreSelectionRows isPlayer={true}>{tourney.userPlayer.participant.name}</ScoreSelectionRows>
                         : 
                         <View>
                             <ActivityIndicator color={DeepBlue.text_secondary}/>
@@ -1001,7 +1131,17 @@ const DashboardScreen = props => {
                         </RectangleIconButton>
                         <View style={{flex: 2, borderLeftWidth: 3, borderColor: DeepBlue.bg_secondary}}>
                             <RectangleIconButton
-                                onPress={() => {closePopUpHandler(true)}}
+                                onPress={() => {
+                                    // validating that the selected row is really the winner
+                                    if(reportedScores[0] != reportedScores[1]){
+                                        let winnerIndex = reportedScores[0] > reportedScores[1] ? 0 : 1;
+                                        if(selectedPlayerRow[winnerIndex]){
+                                            closePopUpHandler(true);
+                                            return;
+                                        }
+                                    }
+                                    setIsWrongSelection(true);
+                                }}
                                 style={{height: '100%'}}
                                 fontSize={18}
                                 backgroundColor={DeepBlue.primary}>
@@ -1052,7 +1192,7 @@ const DashboardScreen = props => {
                                         <OpponentText style={{flex: 1}} isForecast={false}/>
                                     }
                                     {!isPlayerEliminated &&<View style={{justifyContent: 'space-around', flex: 1}}>
-                                        <TouchableOpacity style={styles.send_scores} onPress={() => {setScoreModalVisible(true)}}>
+                                        <TouchableOpacity style={{...styles.send_scores, opacity: currentMatchState=='open' ? 1 : 0.2}} onPress={() => {setScoreModalVisible(currentMatchState=='open')}}>
                                             <MaterialCommunityIcons name={'square-edit-outline'} size={85 * ratio} color={DeepBlue.bg_secondary}/>
                                         </TouchableOpacity>
                                     </View>}
