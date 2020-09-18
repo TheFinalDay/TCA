@@ -1,9 +1,11 @@
 import React from 'react';
-import { Text, StyleSheet, View } from 'react-native';
+import { Text, StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { DeepBlue } from '../../constants/Colors';
-import Header from '../UI/Header';
 
+const dims = Dimensions.get('window');
+const ratio = dims.width / 1000;
 
 const TOAccountScreen = props => {
 
@@ -17,12 +19,26 @@ const TOAccountScreen = props => {
 
     return(
         <View style={styles.screen}>
-            <Header openDrawer={props.navigation.openDrawer}>T.O. Accounts</Header>
             <Text style={{color: DeepBlue.primary_light}}>TO Accounts Screen</Text>
             <Text style={{color: DeepBlue.primary_light}}>Coming soon!</Text>
+            <TouchableOpacity onPress={() => {
+                props.navigation.navigate("TOLogin");
+            }}>
+                <Text style={{color: DeepBlue.primary_light}}>navigate to TOLoginScreen...</Text>
+            </TouchableOpacity>
         </View>
     );
 
+}
+
+TOAccountScreen.navigationOptions = ({navigation}) => {
+    return {
+        headerTitle: 'T.O. Accounts',
+        headerLeft: () =>
+            <TouchableOpacity style={{marginLeft: 36 * ratio}} onPress={()=>{navigation.toggleDrawer()}}>
+                <MaterialCommunityIcons name={'forwardburger'} size={85 * ratio} color={'white'} />
+            </TouchableOpacity>
+    }
 }
 
 const styles = StyleSheet.create({

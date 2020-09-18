@@ -1,3 +1,4 @@
+import React from 'react';
 import { Text, StyleSheet, View } from 'react-native';
 import { DeepBlue } from '../../constants/Colors';
 
@@ -21,5 +22,11 @@ const styles = StyleSheet.create({
         backgroundColor: DeepBlue.bg_primary
     }
 });
+
+TOLoginScreen.navigationOptions = ({navigation}) => {
+    return {
+        headerTitle: 'Login',
+    }
+}
 
 export default TOLoginScreen;
