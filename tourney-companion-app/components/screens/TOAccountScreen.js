@@ -3,6 +3,7 @@ import { Text, StyleSheet, View, TouchableOpacity, Dimensions } from 'react-nati
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { DeepBlue } from '../../constants/Colors';
+import { fetchAllUserData } from '../../misc/db';
 
 const dims = Dimensions.get('window');
 const ratio = dims.width / 1000;
@@ -16,6 +17,12 @@ const TOAccountScreen = props => {
         );
     }
 
+    // this has to be done during app initialization, not here --> see Udemy course 202
+    const fetchAllUserDataHandler = async () => {
+        const dbResult = await fetchAllUserData();
+        console.log(dbResult.rows._array);
+    }
+
 
     return(
         <View style={styles.screen}>
@@ -24,7 +31,10 @@ const TOAccountScreen = props => {
             <TouchableOpacity onPress={() => {
                 props.navigation.navigate("TOLogin");
             }}>
-                <Text style={{color: DeepBlue.primary_light}}>navigate to TOLoginScreen...</Text>
+                <Text style={{color: DeepBlue.primary_light}}>[navigate to TOLoginScreen]</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={fetchAllUserDataHandler}>
+                <Text style={{color: DeepBlue.primary_light}}>[fetch local user data]</Text>
             </TouchableOpacity>
         </View>
     );

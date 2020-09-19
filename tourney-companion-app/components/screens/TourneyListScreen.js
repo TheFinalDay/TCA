@@ -27,6 +27,8 @@ const TourneyListScreen = props => {
 
     },[tourneys]);
 
+    
+
     return (
         <View style={styles.screen}>
             <Header openDrawer={props.navigation.openDrawer}>My Tourneys</Header>

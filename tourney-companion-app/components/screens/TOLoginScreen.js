@@ -5,6 +5,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { DeepBlue } from '../../constants/Colors';
 import SimpleButton from '../UI/SimpleButton';
 import PopUp from '../UI/PopUp';
+import { API } from '../../misc/apiCalls';
+import { insertUserData } from '../../misc/db';
+import * as UDActions from '../../store/actions/userdata';
 
 const dims = Dimensions.get('window');
 const ratio = dims.width / 1000;
@@ -15,9 +18,67 @@ const TOLoginScreen = props => {
     const [keyText, onChangeKeyText] = useState('');
     const [nameModalVisible, setNameModalVisible] = useState(false);
     const [keyModalVisible, setKeyModalVisible] = useState(false);
+    const [fieldEmptyError, setFieldEmptyError] = useState([false, false]);
+    const [keyInvalidModalVisible, setKeyInvalidModalVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const insertUserDataHandler = () => {
+
+        let keyInvalid = keyText.length != 40;
+        let nameInvalid = nameText == '';
+
+        if(!keyInvalid && !nameInvalid){
+            setFieldEmptyError([false, false]);
+
+            setIsLoading(true);
+            API._getUserTournaments(keyText)
+                .then(result => {
+                    setIsLoading(false);
+                    let status = result.payloadData.status;
+                    if(status==200){
+                        console.log("key is validated")
+                        insertUserData(keyText, nameText)
+                            .then(dbResult => {
+                                console.log(dbResult);
+                                UDActions.createUserData(dbResult.insertId, nameText, keyText);
+                                props.navigation.goBack();
+                            })
+                            .catch(err => {
+                                console.log("problem when adding to db");
+                                throw err;
+                            })
+                        
+                    } else {
+                        console.log("key is not validated")
+                        setKeyInvalidModalVisible(true);
+                    }
+                })
+                .catch(err => {
+                    console.log("problem when validating key");
+                    throw err;
+                });
+
+        } else {
+            setFieldEmptyError([nameInvalid, keyInvalid]);
+        }
+        
+    }
 
     return(
         <View style={{flex: 1, justifyContent: 'center'}}>
+            <PopUp 
+                visible={keyInvalidModalVisible} 
+                onClose={() => {setKeyInvalidModalVisible(false)}}
+                onPress={() => {setKeyInvalidModalVisible(false)}}
+                topFlex={1}
+                contentFlex={3.5}
+                bottomFlex={3}
+                title={"API Key Invalid"}>
+                    <Text style={{color: DeepBlue.text_primary, fontFamily: 'prototype', fontSize: 36 * ratio}}>
+                        The API Key you've entered doesn't match any existing Challonge account.{"\n\n"}
+                        Make sure that you've entered it correctly, that there's no missing characters or that you haven't accidentally generated a new API Key.
+                    </Text>
+            </PopUp>
             <PopUp 
                 visible={nameModalVisible} 
                 onClose={() => {setNameModalVisible(false)}}
@@ -42,7 +103,7 @@ const TOLoginScreen = props => {
                     <Text style={{color: DeepBlue.text_primary, fontFamily: 'prototype', fontSize: 36 * ratio}}>
                         In order to find your API Key, log into your Challonge account and go to{"\n"}
                         <Text style={{color: DeepBlue.primary_light}}>Settings {">"} Developer API</Text>{"\n"}
-                        On that page, if not done already, generate a new API Key (a case sensitive 40 character long string of numbers and letters), and copy and paste it here!{"\n\n"}
+                        On that page, if not done already, generate a new API Key (a case sensitive 40 character long string of letters and digits), and copy and paste it here!{"\n\n"}
                         <Text style={{color: DeepBlue.gold_light}}>IMPORTANT{"\n"}
                         Do not share this API Key with anyone you wouldn't share your account's password with.
                         The API key wields all the power of your account.</Text>{"\n\n"}
@@ -52,7 +113,7 @@ const TOLoginScreen = props => {
             <View style={styles.screen}>
 
                 <View style={{flexDirection: 'row', width: '100%', height: '9%', justifyContent: 'center', marginTop: 36 * ratio}}>
-                    <View style={{flex: 6, alignItems: 'flex-start', justifyContent: 'space-around', backgroundColor: DeepBlue.bg_secondary, marginLeft: 25 * ratio, paddingLeft: 47 * ratio, paddingVertical: 12 * ratio, borderRadius: 47 * ratio}}>
+                    <View style={{flex: 6, alignItems: 'flex-start', justifyContent: 'space-around', backgroundColor: DeepBlue.bg_secondary, marginLeft: 25 * ratio, paddingLeft: 47 * ratio, paddingVertical: 12 * ratio, borderRadius: 47 * ratio, borderWidth: 3, borderColor: fieldEmptyError[0] ? DeepBlue.red : DeepBlue.bg_secondary}}>
                         <Text style={{fontFamily: 'prototype', fontSize: 43 * ratio, color: DeepBlue.text_primary}}>Name:</Text>
                         <TextInput
                             style={{height: 97 * ratio, color: DeepBlue.text_primary, borderColor: DeepBlue.bg_tertiary, borderBottomWidth: 3, marginBottom: 10 * ratio, width: '95%', fontSize: 34 * ratio}}
@@ -70,7 +131,7 @@ const TOLoginScreen = props => {
                 </View>
                 
                 <View style={{flexDirection: 'row', width: '100%', height: '9%', justifyContent: 'center', marginTop: 36 * ratio}}>
-                    <View style={{flex: 6, alignItems: 'flex-start', justifyContent: 'space-around', backgroundColor: DeepBlue.bg_secondary, marginLeft: 25 * ratio, paddingLeft: 47 * ratio, paddingVertical: 12 * ratio, borderRadius: 47 * ratio}}>
+                    <View style={{flex: 6, alignItems: 'flex-start', justifyContent: 'space-around', backgroundColor: DeepBlue.bg_secondary, marginLeft: 25 * ratio, paddingLeft: 47 * ratio, paddingVertical: 12 * ratio, borderRadius: 47 * ratio, borderWidth: 3, borderColor: fieldEmptyError[1] ? DeepBlue.red : DeepBlue.bg_secondary}}>
                         <Text style={{fontFamily: 'prototype', fontSize: 43 * ratio, color: DeepBlue.text_primary}}>API Key:</Text>
                         <TextInput
                             style={{height: 97 * ratio, color: DeepBlue.text_primary, borderColor: DeepBlue.bg_tertiary, borderBottomWidth: 3, marginBottom: 10 * ratio, width: '95%', fontSize: 29 * ratio}}
@@ -89,25 +150,9 @@ const TOLoginScreen = props => {
 
                 <SimpleButton 
                         style={styles.saveAccountButton}
-                        backgroundColor={DeepBlue.primary}
-                        onPress={async () => {
-
-
-                                /*
-                                setShowPlayers(false)
-                                let result = await API._getPlayerList(urlText);
-                                if(result){
-                                    setSelectedPlayer(null);
-                                    setShowErrorMessage(false);
-                                    setPlayers(result.payloadData.players);
-                                    setShowPlayers(true);
-                                }else{
-                                    setShowErrorMessage(true);
-                                }
-                                */
-                            }
-                        }>
-                        Save Account
+                        backgroundColor={isLoading ? DeepBlue.text_secondary : DeepBlue.primary}
+                        onPress={isLoading ? () => {} : insertUserDataHandler}>
+                        {isLoading ? "Validating..." : "Save Account"}
                     </SimpleButton>
             </View>
         </View>

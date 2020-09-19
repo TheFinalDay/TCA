@@ -52,10 +52,6 @@ const _getTournamentInfo = async (url) => {
                     header: {
                         'Content-type': 'application/json'
                     }
-                    /*,
-                    body: JSON.stringify({ // stringify generates an ID, so no need to put an ID in the body
-                        url
-                    })*/
                 }
             );
 
@@ -71,6 +67,45 @@ const _getTournamentInfo = async (url) => {
         return {
             payloadData: {
                 tournamentInfo: resData
+            }
+        };
+};
+
+const _getUserTournaments = async (key) => {
+    let resData = null;
+    let status = null;
+
+        try {
+            const response = await fetch(
+                `https://api.challonge.com/v1/tournaments.json?api_key=${key}`, 
+                    {
+                    method: 'GET',
+                    header: {
+                        'Content-type': 'application/json'
+                    }
+                }
+            );
+
+            if (response.status !== 200) { 
+                console.log(`${response.status} ${response.statusText} | ${response.url}`); 
+                return {
+                    payloadData: {
+                        status: response.status,
+                        tournaments: null
+                    }
+                };
+            } else {
+                status = response.status;
+                resData = await response.json();
+
+            }
+
+        } catch (e) { throw e; }
+
+        return {
+            payloadData: {
+                status: status,
+                tournaments: resData
             }
         };
 };
@@ -157,5 +192,6 @@ export const API = {
     _getPlayerList,
     _getMatchList,
     _getTournamentInfo,
-    _registerTourney
+    _registerTourney,
+    _getUserTournaments
 }
