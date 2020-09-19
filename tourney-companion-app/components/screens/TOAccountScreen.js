@@ -33,7 +33,7 @@ const TOAccountScreen = props => {
 
 TOAccountScreen.navigationOptions = ({navigation}) => {
     return {
-        headerTitle: 'T.O. Accounts',
+        headerTitle: 'Challonge Accounts',
         headerLeft: () =>
             <TouchableOpacity style={{marginLeft: 36 * ratio}} onPress={()=>{navigation.toggleDrawer()}}>
                 <MaterialCommunityIcons name={'forwardburger'} size={85 * ratio} color={'white'} />

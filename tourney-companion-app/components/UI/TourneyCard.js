@@ -40,7 +40,8 @@ const TourneyCard = props => {
                     onPress={props.onRemove}
                     style={styles.removeButton}
                     iconName='trash-can-outline'
-                    iconSize={60 * ratio}
+                    iconSize={85 * ratio}
+                    iconColor={DeepBlue.text_primary}
                     backgroundColor={DeepBlue.red}
                 />
                 <View style={{...styles.dashboardButton, borderLeftWidth: 3, borderColor: DeepBlue.primary}}>
@@ -50,8 +51,10 @@ const TourneyCard = props => {
                         props.navigation.navigate('CurrentTourney');
                     }}
                     iconName='arrow-right-drop-circle-outline'
-                    iconSize={60 * ratio}
-                    fontSize={43 * ratio}
+                    iconSize={85 * ratio}
+                    fontSize={47 * ratio}
+                    textColor={DeepBlue.text_primary}
+                    iconColor={DeepBlue.text_primary}
                     backgroundColor={DeepBlue.accent}>
                     View Dashboard
                 </RectangleIconButton>
@@ -109,7 +112,7 @@ const styles = StyleSheet.create({
     card: {
         marginHorizontal: 25 * ratio,
         marginTop: 25 * ratio,
-        borderRadius: 25 * ratio,
+        borderRadius: 47 * ratio,
         borderWidth: 3,
         borderColor: DeepBlue.primary,
         overflow: 'hidden',

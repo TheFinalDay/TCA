@@ -20,8 +20,7 @@ const ratio = dims.width / 1000;
 const DashboardScreen = props => {
 
     // TODO
-    // Score reporting modal
-    // Different dashboard look when tourney is completed, ScoreText should display final scores
+    // tournament progress bar on the bottom of the screen
 
     /*
     //TODO move this on whichever is the first booted screen shown to the user
@@ -76,6 +75,7 @@ const DashboardScreen = props => {
     [reportedScores, setReportedScores] = useState([0, 0]);
     [selectedPlayerRow, setSelectedPlayerRow] = useState([false, false]);
     [isWrongSelection, setIsWrongSelection] = useState(false);
+    [isScoreSent, setIsScoreSent] = useState(false);
 
     [playerId, setPlayerId] = useState(null);
     
@@ -97,7 +97,11 @@ const DashboardScreen = props => {
                 setCurrentMatchState(getMatchState());
                 setIsPlayerEliminated(currentMatchState == 'eliminated');
                 setNumberOfRounds(getNumberOfRounds());
-                setOpponentData(getOpponentData());
+                let opdata = getOpponentData();
+                if(opponentData == opdata){
+                    setIsScoreSent(false);
+                }
+                setOpponentData(opdata);
                 setCumulativeScores([getWinsLosses(true), getWinsLosses(false)]);
                 setCurrentMatchRound(getMatchRound());
                 setForecasts(getForecastData());
@@ -110,6 +114,8 @@ const DashboardScreen = props => {
         }
         
     }, [tourney]);
+
+    useEffect(() => {}, [currentMatchState]);
 
     //#endregion
 
@@ -322,16 +328,21 @@ const DashboardScreen = props => {
     const MatchStateText = props => {
         if(currentMatchState){
             if(currentMatchState != 'completed' && currentMatchState != 'eliminated'){
-                if(currentMatchState == 'open'){
+                if(currentMatchState == 'open' && !isScoreSent){
                     return(
                         <Text style={{...styles.text, color: DeepBlue.text_primary, padding: 12 * ratio}}>Status: <Text style={{color: DeepBlue.accent}}>Ready</Text></Text>
                     );
-                } else {
+                } else if (currentMatchState == 'pending'){
                     return(
                         <Text style={{...styles.text, color: DeepBlue.text_primary, padding: 12 * ratio}}>Status: <Text style={{color: DeepBlue.text_secondary}}>Pending</Text></Text>
                     );
+                } else if (isScoreSent){
+                    return(
+                        <Text style={{...styles.text, color: DeepBlue.text_primary, padding: 12 * ratio}}>Status: <Text style={{color: DeepBlue.primary_light}}>Scores sent to Tournament Organizer!</Text></Text>
+                    );
+                } else {
+                    return <></>;
                 }
-                
             }
             return <></>;
         }
@@ -367,7 +378,6 @@ const DashboardScreen = props => {
             if(currentMatchRound){
                 if(currentMatchRound != 'completed'){
 
-                    //TODO handle when one of these is null!!!
                     let winOpponent = forecasts[0] ? getOpponentData(forecasts[0]) : {
                             data: {
                                 names: [],
@@ -395,12 +405,13 @@ const DashboardScreen = props => {
                                 <Text style={styles.if_winning_losing_text}>If winning...</Text>
                                 <View style={{backgroundColor: forecasts[0] ? DeepBlue.accent_light : DeepBlue.gold, ...styles.winlose_forecast}}>
                                     {forecasts[0] && <Banner style={styles.forecast_banners} fontSize={31 * ratio} textColor={DeepBlue.text_primary} color={DeepBlue.accent}>{getMatchRound(forecasts[0])}</Banner>}
-                                    {gfResetIfWin &&
+                                    {gfResetIfWin && !gfResetIfLoss &&
                                         <View style={styles.grand_finals_reset}>
                                             <Text style={{color: DeepBlue.bg_secondary, ...styles.pending_rounds_text}}>Grand Finals</Text>
                                             <Text style={{color: DeepBlue.bg_secondary, ...styles.opponent_forecast_text}}>Reset!</Text>
                                         </View>}
                                     {!gfResetIfWin && <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={winOpponent}/>}
+                                    {gfResetIfWin && gfResetIfLoss && <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={winOpponent}/>}
                                 </View>
                             </View>
                             <View style={styles.if_winning_losing_section}>
@@ -408,11 +419,12 @@ const DashboardScreen = props => {
                                 <View style={{backgroundColor: forecasts[1] ? DeepBlue.red_light : DeepBlue.text_secondary, ...styles.winlose_forecast}}>
                                     {forecasts[1] && <Banner style={styles.forecast_banners} fontSize={31 * ratio} textColor={DeepBlue.text_primary} color={DeepBlue.red}>{getMatchRound(forecasts[1])}</Banner>}
                                     {forecasts[0] && <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={lossOpponent}/>}
-                                    {gfResetIfLoss &&
+                                    {gfResetIfLoss && !gfResetIfWin &&
                                         <View style={styles.grand_finals_reset}>
                                             <Text style={{color: DeepBlue.bg_secondary, ...styles.pending_rounds_text}}>Grand Finals</Text>
                                             <Text style={{color: DeepBlue.bg_secondary, ...styles.opponent_forecast_text}}>Reset!</Text>
                                         </View>}
+                                    {gfResetIfWin && gfResetIfLoss && <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={lossOpponent}/>}
                                 </View>
                             </View>
                         </View>
@@ -451,6 +463,7 @@ const DashboardScreen = props => {
             case 2: rankText = "Runner-up"; break;
             default: {
                 switch (lastDigit){
+                    case 0: rankText = "nullth!"; break;
                     case 1: rankText = tourney.userPlayer.participant.final_rank + "rst"; break;
                     case 2: rankText = tourney.userPlayer.participant.final_rank + "nd"; break;
                     case 3: rankText = tourney.userPlayer.participant.final_rank + "rd"; break;
@@ -475,7 +488,7 @@ const DashboardScreen = props => {
             standtext: {
                 fontFamily: 'prototype',
                 color: DeepBlue.text_primary,
-                fontSize: 72 * ratio
+                fontSize: (lastDigit == 0) ? 47 * ratio : 72 * ratio
             },
             righttext: {
                 fontFamily: 'prototype',
@@ -863,15 +876,17 @@ const DashboardScreen = props => {
                             (current.match.player1_id == playerId ? current.match.player2_id : current.match.player1_id);
 
                         let opponent = tourney.players.find(player => (player.participant.id == opponentId));
-                        if(!forecastMode){ setOpponentData(opponent);}
-                        return {
+                        let opdata = {
                             data: {
                                 names: [opponent.participant.name],
                                 state: "open",
                                 isWinner: true,
                                 pendingRound: null
                             }
-                        };
+                        } 
+                        
+                        if(!forecastMode){ setOpponentData(opdata)}
+                        return opdata;
 
                     } else { // player 2 not decided yet
 
@@ -1055,7 +1070,7 @@ const DashboardScreen = props => {
             console.log("Sending scores! => "+ reportedScores[0] + " - "+reportedScores[1]);
             
             // do stuff
-
+            setIsScoreSent(true);
             setSelectedPlayerRow([false, false]);
             setReportedScores([0, 0]);
         }
@@ -1079,75 +1094,48 @@ const DashboardScreen = props => {
 
     //#endregion
 
-
     return(
         <View style={{flex: 1, justifyContent: 'center'}}>
             {!isTourneyComplete && !isPlayerEliminated && <PopUp 
                 visible={scoreModalVisible} 
-                style={{overflow: 'hidden'}}
+                isSubtitle={true}
+                isSecondaryButton={true}
                 onShow={() => {/*console.log("onShow!")*/}}
                 onClose={closePopUpHandler.bind(this)}
-                backgroundColor={DeepBlue.bg_primary} 
-                borderColor={DeepBlue.bg_secondary} 
+                onPress={() => {
+                    // validating that the selected row is really the winner
+                    if(reportedScores[0] != reportedScores[1]){
+                        let winnerIndex = reportedScores[0] > reportedScores[1] ? 0 : 1;
+                        if(selectedPlayerRow[winnerIndex]){
+                            closePopUpHandler(true);
+                            return;
+                        }
+                    }
+                    setIsWrongSelection(true);
+                }}
+                secondaryOnPress={() => {closePopUpHandler()}}
                 topFlex={1}
                 contentFlex={5}
-                bottomFlex={3}>
+                bottomFlex={3}
+                title={"Report Scores"}
+                subtitle={"Enter each player's scores and tap the winning player's row below:"}
+                buttonText={"Send Scores"}>
 
-                <View style={{width: '100%', height: '16%', backgroundColor: DeepBlue.bg_secondary, paddingHorizontal: 25 * ratio, justifyContent: 'center', alignItems: 'center'}}>
-                    <Text style={{...styles.text, fontSize: 43 * ratio}}>Report Scores</Text>
-                </View>
-                <View style={{width: '100%', height: '14%', backgroundColor: DeepBlue.bg_tertiary, paddingHorizontal: 25 * ratio, justifyContent: 'center', alignItems: 'center'}}>
-                    <Text style={styles.text}>Enter each player's scores and tap</Text>
-                    <Text style={styles.text}>the winning player's row below:</Text>
-                </View>
-                <View style={{width: '100%', height: '52%', backgroundColor: DeepBlue.bg_primary, paddingHorizontal: 25 * ratio, justifyContent: 'center', alignItems: 'center'}}>
-                    
                     {!isLoading ? 
-                        <ScoreSelectionRows isPlayer={true}>{tourney.userPlayer.participant.name}</ScoreSelectionRows>
+                        <ScoreSelectionRows isPlayer={true}>{tourney?.userPlayer.participant.name}</ScoreSelectionRows>
                         : 
                         <View>
                             <ActivityIndicator color={DeepBlue.text_secondary}/>
                         </View>
                     }
                     {!isLoading ? 
-                        <ScoreSelectionRows style={{marginTop: 25 * ratio}}>{opponentData.data.names[0]}</ScoreSelectionRows>
+                        <ScoreSelectionRows style={{marginTop: 25 * ratio}}>{opponentData?.data.names[0]}</ScoreSelectionRows>
                         : 
                         <View>
                             <ActivityIndicator color={DeepBlue.text_secondary}/>
                         </View>
                     }
-                </View>
-                <View style={{width: '100%', height: '18%', backgroundColor: DeepBlue.bg_secondary, justifyContent: 'space-between', overflow: 'hidden'}}>
-                    <View style={{height: '100%',flexDirection: 'row', justifyContent: 'space-evenly', borderTopWidth: 3, borderColor: DeepBlue.bg_secondary}}>
-                        <RectangleIconButton
-                            onPress={() => {closePopUpHandler()}}
-                            style={{flex: 1, height: '100%'}}
-                            fontSize={44 * ratio}
-                            backgroundColor={DeepBlue.red}>
-                            Cancel
-                        </RectangleIconButton>
-                        <View style={{flex: 2, borderLeftWidth: 3, borderColor: DeepBlue.bg_secondary}}>
-                            <RectangleIconButton
-                                onPress={() => {
-                                    // validating that the selected row is really the winner
-                                    if(reportedScores[0] != reportedScores[1]){
-                                        let winnerIndex = reportedScores[0] > reportedScores[1] ? 0 : 1;
-                                        if(selectedPlayerRow[winnerIndex]){
-                                            closePopUpHandler(true);
-                                            return;
-                                        }
-                                    }
-                                    setIsWrongSelection(true);
-                                }}
-                                style={{height: '100%'}}
-                                fontSize={44 * ratio}
-                                backgroundColor={DeepBlue.primary}>
-                                Send Scores
-                            </RectangleIconButton>
-                        </View>
-                    </View>
-                </View>
-                
+
             </PopUp>}
             
             <View style={styles.screen}>
@@ -1188,8 +1176,8 @@ const DashboardScreen = props => {
                                         : 
                                         <OpponentText style={{flex: 1}} isForecast={false}/>
                                     }
-                                    {!isPlayerEliminated &&<View style={{justifyContent: 'space-around', flex: 1}}>
-                                        <TouchableOpacity style={{...styles.send_scores, opacity: currentMatchState=='open' ? 1 : 0.2}} onPress={() => {setScoreModalVisible(currentMatchState=='open')}}>
+                                    {!isPlayerEliminated && <View style={{justifyContent: 'space-around', flex: 1, opacity: currentMatchState!='open' || isScoreSent ? 0.2 : 1}}>
+                                        <TouchableOpacity style={styles.send_scores} onPress={() => {setScoreModalVisible(currentMatchState!='open' || isScoreSent ? false : true)}}>
                                             <MaterialCommunityIcons name={'square-edit-outline'} size={85 * ratio} color={DeepBlue.bg_secondary}/>
                                         </TouchableOpacity>
                                     </View>}

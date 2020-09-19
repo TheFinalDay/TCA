@@ -26,6 +26,7 @@
       "supportsTablet": true
     },
     "android": {
+      "softwareKeyboardLayoutMode": "pan",
       "useNextNotificationsApi": true,
       "icon": "./assets/icon_test.png",
       "adaptiveIcon": {

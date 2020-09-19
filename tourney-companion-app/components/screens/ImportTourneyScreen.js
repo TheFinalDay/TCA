@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     textinput: {
         height: 97 * ratio, 
         color: DeepBlue.text_primary,
-        borderColor: DeepBlue.text_secondary,
+        borderColor: DeepBlue.bg_tertiary,
         borderBottomWidth: 3,
         marginBottom: 10 * ratio,
         width: '95%',
