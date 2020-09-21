@@ -80,3 +80,27 @@ export const dropUserData = () => {
 
     return promise;
 }
+
+export const dropUserDataRow = (apikey) => {
+    const promise = new Promise((resolve, reject) => {
+        db.transaction(tx => {
+            tx.executeSql(
+            `DELETE FROM 
+                userData 
+            WHERE 
+                apikey = ?`, 
+            [apikey], // dynamic arguments if necessary
+            (_, result) => { // success function
+                resolve(result);
+            },
+            (_, err) => { // failure function
+                reject(err);
+            });
+        });
+    });
+
+    return promise;
+}
+
+
+

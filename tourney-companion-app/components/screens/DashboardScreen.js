@@ -22,37 +22,6 @@ const DashboardScreen = props => {
     // TODO
     // tournament progress bar on the bottom of the screen
 
-    /*
-    //TODO move this on whichever is the first booted screen shown to the user
-    // runs only first time dashboard is loaded
-
-    useEffect(() => {
-        Permissions.getAsync(Permissions.NOTIFICATIONS).then(statusObj => {
-          if(statusObj.status !== 'granted'){
-            return Permissions.askAsync(Permissions.NOTIFICATIONS);
-          }
-          return statusObj;
-        }).then(statusObj => {
-          if(statusObj.status !== 'granted') {
-            //TODO alert user that there will be no notifications shown...
-            throw new Error('Permission not granted');
-          }
-        }).then(() => {
-            //sign up with expo's push servers
-            console.log("getting token...")
-            return Notifications.getExpoPushTokenAsync();
-        }).then(response => {
-            console.log(response);
-            const token = response.data;
-        }).catch((err) => {
-            console.log(err);
-            return null;
-        });
-      }, []);
-
-      */
-
-
     //#region states/redux
 
     const dispatch = useDispatch();
@@ -1131,7 +1100,6 @@ const DashboardScreen = props => {
                 visible={scoreModalVisible} 
                 isSubtitle={true}
                 isSecondaryButton={true}
-                onShow={() => {/*console.log("onShow!")*/}}
                 onClose={closePopUpHandler.bind(this)}
                 onPress={() => {
                     // validating that the selected row is really the winner

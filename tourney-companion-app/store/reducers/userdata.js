@@ -2,6 +2,7 @@ import UserData from '../../models/userdata';
 import { CREATE_UD } from '../actions/userdata';
 import { DELETE_UD } from '../actions/userdata';
 import { SET_UD } from '../actions/userdata';
+import { dropUserDataRow } from '../../misc/db';
 
 const initialState = {
     userDatas: [],
@@ -15,17 +16,17 @@ export default (state = initialState, action) => {
             const addedUD = action.userData;
 
             const createUDName = addedUD.name;
-            const createUDKey = addedUD.key;
+            const createUDKey = addedUD.apikey;
 
             const newOrUpdatedUD = new UserData(
                 createUDName,
                 createUDKey
             );
 
-            if(state.userDatas.find(ud => ud.key === createUDKey)){
+            if(state.userDatas.find(ud => ud.apikey === createUDKey)){
                 // UD already exists in store
                 console.log("userdata update...");
-                let filteredArray = state.userDatas.filter(ud => ud.key !== createUDKey);
+                let filteredArray = state.userDatas.filter(ud => ud.apikey !== createUDKey);
                 return {
                     ...state,
                     userDatas: [ ...filteredArray, newOrUpdatedUD]
@@ -44,9 +45,11 @@ export default (state = initialState, action) => {
 
             //TODO handle when UD is removed while it's dashboard is active
 
+            let filteredArray = state.userDatas.filter(ud => ud.apikey !== action.apikey);
+
             return {
                 ...state,
-                userDatas: state.userDatas.filter(ud => ud.key !== action.key)
+                userDatas: filteredArray
             };
 
         case SET_UD:

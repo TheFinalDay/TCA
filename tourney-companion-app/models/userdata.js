@@ -1,7 +1,7 @@
 class UserData {
-    constructor(name, key){
+    constructor(name, apikey){
         this.name = name;
-        this.key = key; //serves as primary key (haha get it?)
+        this.apikey = apikey; //serves as primary key (haha get it?)
     }
 }
 

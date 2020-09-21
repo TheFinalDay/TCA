@@ -40,7 +40,7 @@ const PopUp = props => {
                                     fontSize={44 * ratio}
                                     backgroundColor={isSecondaryButton ? (props.secondaryButtonColor || DeepBlue.red) : (props.buttonColor || DeepBlue.primary)}
                                     textColor={isSecondaryButton ? (props.secondaryButtonTextColor || DeepBlue.text_primary) : (props.buttonTextColor || DeepBlue.text_primary)}>
-                                    {props.buttonText || isSecondaryButton ? "Cancel" : "OK"}
+                                    {isSecondaryButton ? (props.secondaryButtonText || "Cancel") : (props.buttonText || "OK")}
                                 </RectangleIconButton>
                                 {isSecondaryButton && <View style={{flex: 2, borderLeftWidth: 3, borderColor: DeepBlue.bg_secondary}}>
                                     <RectangleIconButton
