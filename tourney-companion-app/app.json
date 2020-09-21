@@ -34,7 +34,7 @@
         "backgroundColor": "#000000"
       }
     },
-    "description": "A quality of life & tournament management app for players and TOs respectively",
+    "description": "A quality of life & tournament management app for players and TOs respectively\nfeatures: \n- Tournament Dashboard & Forecast View\n- API Key Storage",
     "githubUrl": "https://github.com/TheFinalDay/TCA"
   }
 }
