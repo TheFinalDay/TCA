@@ -5,8 +5,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { Platform } from 'react-native';
 
 import TourneyTabNavigator from '../tabs/TourneyTabNavigator';
+import TOScreensNavigator from '../stacks/TOScreensNavigator';
 import ImportTourneyScreen from '../../components/screens/ImportTourneyScreen';
 import TourneyListScreen from '../../components/screens/TourneyListScreen';
+import TOAccountScreen from '../../components/screens/TOAccountScreen';
+import { DeepBlue } from '../../constants/Colors';
 
 const MainNavigator = createDrawerNavigator({
     CurrentTourney: {
@@ -24,23 +27,20 @@ const MainNavigator = createDrawerNavigator({
     Import: {
         screen: ImportTourneyScreen,
         navigationOptions: {
-            drawerLabel: 'Join New Tourney'
+            drawerLabel: 'Join as Player'
         }
     },
-    
-    
-    
-    
-    /** TODO: add the other drawer options...
-    ,
-    Filters: {
-        screen: FiltersNavigator,
+    TOScreens: {
+        screen: TOScreensNavigator,
         navigationOptions: {
-            drawerLabel: 'Filters'
+            drawerLabel: 'T.O. Accounts'
         }
     }
-
-    */
+    
+},{
+    contentOptions: {
+        activeTintColor: DeepBlue.primary
+    }
 });
 
 export default createAppContainer(MainNavigator);

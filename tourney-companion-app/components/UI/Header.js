@@ -5,12 +5,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { DeepBlue } from '../../constants/Colors';
 
 const dims = Dimensions.get('window');
+const ratio = dims.width / 1000;
 
 const Header = props => {
     return(
         <View style={styles.header}>
             <TouchableOpacity style={styles.drawericonButton} onPress={props.openDrawer}>
-                <MaterialCommunityIcons name={props.iconName || 'forwardburger'} size={props.iconSize || 35} color={props.iconColor || 'white'} />
+                <MaterialCommunityIcons name={props.iconName || 'forwardburger'} size={props.iconSize || 85 * ratio} color={props.iconColor || 'white'} />
             </TouchableOpacity>
             <Text style={styles.headerText}>{props.children}</Text>
         </View>
@@ -30,12 +31,12 @@ const styles = StyleSheet.create({
     headerText: {
         fontFamily: 'prototype',
         color: DeepBlue.text_primary,
-        fontSize: 22,
-        marginLeft: 15,
-        marginVertical: 15
+        fontSize: 52 * ratio,
+        marginLeft: 36 * ratio,
+        marginVertical: 36 * ratio
     },
     drawericonButton: {
-        marginLeft: 15
+        marginLeft: 36 * ratio
     }
 });
 

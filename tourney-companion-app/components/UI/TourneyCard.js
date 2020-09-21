@@ -1,11 +1,13 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import { useDispatch } from 'react-redux';
 
 import { DeepBlue } from '../../constants/Colors';
 import RectangleIconButton from '../UI/RectangleIconButton';
 import * as tourneyActions from '../../store/actions/tournaments';
 
+const dims = Dimensions.get('window');
+const ratio = dims.width / 1000;
 
 const TourneyCard = props => {
 
@@ -38,7 +40,8 @@ const TourneyCard = props => {
                     onPress={props.onRemove}
                     style={styles.removeButton}
                     iconName='trash-can-outline'
-                    iconSize={25}
+                    iconSize={85 * ratio}
+                    iconColor={DeepBlue.text_primary}
                     backgroundColor={DeepBlue.red}
                 />
                 <View style={{...styles.dashboardButton, borderLeftWidth: 3, borderColor: DeepBlue.primary}}>
@@ -48,8 +51,10 @@ const TourneyCard = props => {
                         props.navigation.navigate('CurrentTourney');
                     }}
                     iconName='arrow-right-drop-circle-outline'
-                    iconSize={25}
-                    fontSize={18}
+                    iconSize={85 * ratio}
+                    fontSize={47 * ratio}
+                    textColor={DeepBlue.text_primary}
+                    iconColor={DeepBlue.text_primary}
                     backgroundColor={DeepBlue.accent}>
                     View Dashboard
                 </RectangleIconButton>
@@ -62,6 +67,7 @@ const TourneyCard = props => {
 
 const styles = StyleSheet.create({
     buttons: {
+        height: 120 * ratio,
         flexDirection: 'row',
         borderTopWidth: 3,
         borderColor: DeepBlue.primary
@@ -72,7 +78,7 @@ const styles = StyleSheet.create({
     removeText: {
         fontFamily: 'prototype',
         color: DeepBlue.red,
-        fontSize: 14
+        fontSize: 34 * ratio
     },
     dashboardButton: {
         flex: 5
@@ -80,33 +86,33 @@ const styles = StyleSheet.create({
     accentText: {
         fontFamily: 'prototype',
         color: DeepBlue.accent,
-        fontSize: 14
+        fontSize: 34 * ratio
     },
     textTitle: {
         fontFamily: 'prototype',
         color: 'black',
-        fontSize: 18,
-        margin: 5,
-        marginHorizontal: 7
+        fontSize: 43 * ratio,
+        margin: 12 * ratio,
+        marginHorizontal: 17 * ratio
     }, 
     textPrimary: {
         fontFamily: 'prototype',
         color: DeepBlue.text_primary,
-        fontSize: 14,
-        margin: 3,
-        marginHorizontal: 8
+        fontSize: 34 * ratio,
+        margin: 10 * ratio,
+        marginHorizontal: 19 * ratio
     },
     textSecondary: {
         fontFamily: 'prototype',
         color: DeepBlue.text_secondary,
-        fontSize: 14,
-        margin: 3,
-        marginHorizontal: 8
+        fontSize: 34 * ratio,
+        margin: 10 * ratio,
+        marginHorizontal: 19 * ratio
     },
     card: {
-        marginHorizontal: 10,
-        marginTop: 10,
-        borderRadius: 10,
+        marginHorizontal: 25 * ratio,
+        marginTop: 25 * ratio,
+        borderRadius: 47 * ratio,
         borderWidth: 3,
         borderColor: DeepBlue.primary,
         overflow: 'hidden',

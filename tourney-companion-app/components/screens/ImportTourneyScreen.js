@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, StyleSheet, View, Dimensions, TouchableOpacity, FlatList, TextInput, Platform} from 'react-native';
+import { Text, StyleSheet, View, Dimensions, TouchableOpacity, FlatList, TextInput} from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { API } from '../../misc/apiCalls';
@@ -9,6 +9,7 @@ import Header from '../UI/Header';
 import * as tourneyActions from '../../store/actions/tournaments';
 
 const dims = Dimensions.get('window');
+const ratio = dims.width / 1000;
 
 const ImportTourneyScreen = props => {
 
@@ -96,8 +97,8 @@ const ImportTourneyScreen = props => {
                 <SimpleButton
                     style={styles.joinTourneyButton}
                     backgroundColor={DeepBlue.accent}
-                    fontSize={14}
-                    borderWidth={5}
+                    fontSize={34 * ratio}
+                    borderWidth={12 * ratio}
                     borderColor={DeepBlue.text_primary}
                     onPress={async () => {
                         dispatch(tourneyActions.createTourney(urlText, players, selectedPlayer));
@@ -125,26 +126,26 @@ const styles = StyleSheet.create({
     enterUrlText: {
         fontFamily: 'prototype',
         color: DeepBlue.text_primary,
-        marginTop: 5,
-        marginLeft: 10,
-        marginBottom: 3
+        marginTop: 12 * ratio,
+        marginLeft: 25 * ratio,
+        marginBottom: 10 * ratio
     },
     loadTourneyButton: {
-        marginTop: 4,
-        marginBottom: 6,
+        marginTop: 10 * ratio,
+        marginBottom: 14 * ratio,
         width: '95%',
     },
     buttonText:{
         fontFamily: 'prototype',
         textAlign: 'center',
-        fontSize: 16
+        fontSize: 39 * ratio
     },
     textinput: {
-        height: 40, 
+        height: 97 * ratio, 
         color: DeepBlue.text_primary,
-        borderColor: DeepBlue.text_secondary,
-        borderBottomWidth: 2,
-        marginBottom: 4,
+        borderColor: DeepBlue.bg_tertiary,
+        borderBottomWidth: 3,
+        marginBottom: 10 * ratio,
         width: '95%',
     },
     playerListView: {
@@ -155,22 +156,22 @@ const styles = StyleSheet.create({
         height: 1,
         width: "90%",
         backgroundColor: DeepBlue.text_secondary,
-        marginLeft: 15
+        marginLeft: 36 * ratio
     },
     listHeaderText: {
         fontFamily: 'prototype',
         color: DeepBlue.text_secondary,
-        marginVertical: 3,
-        marginLeft: 10
+        marginVertical: 10 * ratio,
+        marginLeft: 25 * ratio
     },
     listItem: {
-        marginLeft: 15,
-        marginVertical: 10
+        marginLeft: 36 * ratio,
+        marginVertical: 25 * ratio
     },
     selectedItem: {
         backgroundColor: DeepBlue.bg_secondary,
         width: '90%',
-        marginLeft: 15
+        marginLeft: 36 * ratio
     },
     joinTourneyContainer: {
         
@@ -184,7 +185,7 @@ const styles = StyleSheet.create({
         width: '85%',
     },
     buttonPlayerName: {
-        fontSize: 20,
+        fontSize: 47 * ratio,
         fontFamily: 'prototype'
     }
 });

@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from "react-redux";
-import { Text, StyleSheet, View, Dimensions, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, View, Dimensions, TouchableOpacity, TouchableHighlight, ActivityIndicator, FlatList, TouchableWithoutFeedback} from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Permissions from 'expo-permissions';
+import { Notifications } from 'expo';
 
 import { DeepBlue } from '../../constants/Colors';
 import DashboardHeader from '../UI/DashboardHeader';
 import Banner from '../UI/Banner';
+import PopUp from '../UI/PopUp';
 import { API } from '../../misc/apiCalls';
 import * as tourneyActions from '../../store/actions/tournaments';
+import * as UDActions from '../../store/actions/userdata';
+
 
 const dims = Dimensions.get('window');
 const ratio = dims.width / 1000;
@@ -15,9 +20,7 @@ const ratio = dims.width / 1000;
 const DashboardScreen = props => {
 
     // TODO
-    // Current match button styling
-    // Calculate previsions...
-    // Different dashboard look when tourney is completed, ScoreText should display final scores
+    // tournament progress bar on the bottom of the screen
 
     //#region states/redux
 
@@ -26,7 +29,7 @@ const DashboardScreen = props => {
     [matches, setMatches] = useState(null);
 
     // Current match related states
-    [opponent, setOpponent] = useState(null);
+    [opponentData, setOpponentData] = useState(null);
     [cumulativeScores, setCumulativeScores] = useState([]);
     [currentMatchState, setCurrentMatchState] = useState(null);
     [numberOfRounds, setNumberOfRounds] = useState([]);
@@ -35,6 +38,13 @@ const DashboardScreen = props => {
 
     [isLoading, setIsLoading] = useState(true);
     [isTourneyComplete, setIsTourneyComplete] = useState(false);
+    [isPlayerEliminated, setIsPlayerEliminated] = useState(false);
+    [scoreModalVisible, setScoreModalVisible] = useState(false);
+
+    [reportedScores, setReportedScores] = useState([0, 0]);
+    [selectedPlayerRow, setSelectedPlayerRow] = useState([false, false]);
+    [isWrongSelection, setIsWrongSelection] = useState(false);
+    [isScoreSent, setIsScoreSent] = useState(false);
 
     [playerId, setPlayerId] = useState(null);
     
@@ -44,31 +54,40 @@ const DashboardScreen = props => {
 
     //#region hooks
 
-    // runs only on first mount...
+    // runs only first time dashboard is loaded
+    // sets up permissions for push notifications
     useEffect(() => {
-        
-        console.log("useEffect []")
-
-        // runs only on every unmount...
-        return () => {
-          // cleaning up states...
-          setMatches(null);
-          setNumberOfRounds([]);
-          setOpponent(null);
-          setCumulativeScores([]);
-          setCurrentMatchState(null);
-          setCurrentMatchRound(null);
-          setForecasts([]);
-          setIsLoading(true);
-          setIsTourneyComplete(false);
-          setPlayerId(null);
-        }
+        Permissions.getAsync(Permissions.NOTIFICATIONS).then(statusObj => {
+            if(statusObj.status !== 'granted'){
+                return Permissions.askAsync(Permissions.NOTIFICATIONS);
+            }
+            return statusObj;
+        }).then(statusObj => {
+            if(statusObj.status !== 'granted') {
+                //TODO alert user that there will be no notifications shown...
+                throw new Error('Permission not granted');
+            }
+        }).then(() => {
+            //sign up with expo's push servers
+            console.log("getting token...")
+            return Notifications.getExpoPushTokenAsync();
+        }).then(response => {
+            console.log(response);
+            const token = response.data;
+        }).catch((err) => {
+            console.log(err);
+            return null;
+        });
     }, []);
-    
+
+    // this goes to whichever is the first screen loaded to the user
+    // loads userData from local storage
+    useEffect(() => {
+        dispatch(UDActions.setUserData());
+    }, [dispatch])
+
     // runs only the first time the dashboard is loaded, and when switching dashboards
     useEffect(() => {
-
-        console.log("useEffect [tourney]")
 
         if(tourney){
             setIsLoading(true);
@@ -76,24 +95,39 @@ const DashboardScreen = props => {
             setIsTourneyComplete(tourney.tourneyData.tournament.state == 'complete');
             API._getMatchList(tourney.url).then(result => {
                 setMatches(result.payloadData.matches);
-                setNumberOfRounds(getNumberOfRounds());
-                setOpponent(getOpponentData());
-                setCumulativeScores([getWinsLosses(true), getWinsLosses(false)]);
                 setCurrentMatchState(getMatchState());
+                setIsPlayerEliminated(currentMatchState == 'eliminated');
+                setNumberOfRounds(getNumberOfRounds());
+                let opdata = getOpponentData();
+                if(opponentData == opdata){
+                    setIsScoreSent(false);
+                }
+                setOpponentData(opdata);
+                setCumulativeScores([getWinsLosses(true), getWinsLosses(false)]);
                 setCurrentMatchRound(getMatchRound());
                 setForecasts(getForecastData());
                 setIsLoading(false);
+                setScoreModalVisible(false);
+                setReportedScores([0, 0]);
+                setSelectedPlayerRow([false, false]);
+                setIsWrongSelection(false);
             });
         }
         
     }, [tourney]);
 
+    
     //#endregion
 
     //#region components
 
     // Displays score text in color or grayed out depending on score
     const ScoreText = props => {
+
+        let isResults = props.isResults ? props.isResults : false;
+        let isChampion = tourney.userPlayer.participant.final_rank ? 
+            (tourney.userPlayer.participant.final_rank == 1 ? true : false) :
+            false;
 
         if(cumulativeScores.length > 0){
             const wins = cumulativeScores[0];
@@ -102,38 +136,73 @@ const DashboardScreen = props => {
             if(wins > 0){
                 if(losses > 0){
                     // both scores coloured
-                    return(
-                        <Text style={styles.loadingtext}>
-                            <Text style={{...styles.text, color: DeepBlue.accent}}>{wins}W</Text> - <Text style={{...styles.text, color: DeepBlue.red}}>{losses}L</Text>
-                        </Text>
-                    );
+                    if(isResults){
+                        return(
+                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 72 * ratio}}>
+                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.accent, fontSize: 72 * ratio}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.red, fontSize: 72 * ratio}}>{losses}</Text>
+                            </Text>
+                        );
+                    } else {
+                        return(
+                            <Text style={styles.loadingtext}>
+                                <Text style={{...styles.text, color: DeepBlue.accent}}>{wins}W</Text> - <Text style={{...styles.text, color: DeepBlue.red}}>{losses}L</Text>
+                            </Text>
+                        );
+                    }
                 } else {
                     // only wins coloured
-                    return(
-                        <Text style={styles.loadingtext}>
-                            <Text style={{...styles.text, color: DeepBlue.accent}}>{wins}W</Text> - <Text style={styles.loadingtext}>0L</Text>
-                        </Text>
-                    );
+                    if(isResults){
+                        return(
+                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 72 * ratio}}>
+                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.accent, fontSize: 72 * ratio}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 72 * ratio}}>{losses}</Text>
+                            </Text>
+                        );
+                    } else {
+                        return(
+                            <Text style={styles.loadingtext}>
+                                <Text style={{...styles.text, color: DeepBlue.accent}}>{wins}W</Text> - <Text style={styles.loadingtext}>0L</Text>
+                            </Text>
+                        );
+                    }
+                    
                 }
             } else {
                 if(losses > 0){
                     // only losses coloured
-                    return(
-                        <Text style={styles.loadingtext}>
-                            <Text style={styles.loadingtext}>0W</Text> - <Text style={{...styles.text, color: DeepBlue.red}}>{losses}L</Text>
-                        </Text>
-                    );
+                    if(isResults){
+                        return(
+                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 72 * ratio}}>
+                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 72 * ratio}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.red, fontSize: 72 * ratio}}>{losses}</Text>
+                            </Text>
+                        );
+                    } else {
+                        return(
+                            <Text style={styles.loadingtext}>
+                                <Text style={styles.loadingtext}>0W</Text> - <Text style={{...styles.text, color: DeepBlue.red}}>{losses}L</Text>
+                            </Text>
+                        );
+                    }
+                    
                 } else {
                     // both scores grayed out
-                    return(
-                        <Text style={styles.loadingtext}>
-                            <Text style={styles.loadingtext}>0W</Text> - <Text style={styles.loadingtext}>0L</Text>
-                        </Text>
-                    );
+                    if(isResults){
+                        return(
+                            <Text style={{fontFamily: 'prototype', color: isChampion ? DeepBlue.gold : 'white', fontSize: 72 * ratio}}>
+                                <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 72 * ratio}}>{wins}</Text> - <Text style={{...styles.text, color: isChampion ? DeepBlue.gold : DeepBlue.text_primary, fontSize: 72 * ratio}}>{losses}</Text>
+                            </Text>
+                        );
+                    } else {
+                        return(
+                            <Text style={styles.loadingtext}>
+                                <Text style={styles.loadingtext}>0W</Text> - <Text style={styles.loadingtext}>0L</Text>
+                            </Text>
+                        );
+                    }
+                    
                 }
             }
         }
-        return <Text style={styles.loadingtext}>Tournament complete</Text>
+        return <></>;
 
     }
 
@@ -142,23 +211,23 @@ const DashboardScreen = props => {
 
         const { style, isForecast, textColor } = props;
 
-        if(opponent || props.opponent){
+        if(opponentData || props.opponent){
 
-            const { names, state, isWinner, pendingRound } = isForecast ? props.opponent.data : opponent.data;
+            const { names, state, isWinner, pendingRound } = isForecast ? props.opponent.data : opponentData.data;
 
             switch(state){// just display opponent name
                 case "open": {
 
                     if(!isForecast){
                         return(
-                            <View style={{...style, flexDirection: 'row', alignItems: 'flex-start', padding: 5}}>
+                            <View style={{...style, flexDirection: 'row', alignItems: 'flex-start', padding: 12 * ratio}}>
                                 <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS  </Text>
                                 <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_text}}>{names[0]}</Text>
                             </View>
                         );
                     } else {
                         return(
-                            <View style={{...style, alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
+                            <View style={{...style, alignItems: 'center', padding: 12 * ratio, marginTop: 35 * ratio}}>
                                 <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS</Text>
                                 <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_forecast_text}}>{names[0]}</Text>
                             </View>
@@ -170,7 +239,7 @@ const DashboardScreen = props => {
                         case 2:// display pending set with both names
                             if(!isForecast){
                                 return(
-                                    <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                    <View style={{...style, alignItems: 'flex-start', padding: 12 * ratio}}>
                                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                             <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>{isWinner ? "Winner" : "Loser"} of </Text>
                                             <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
@@ -183,7 +252,7 @@ const DashboardScreen = props => {
                                 );
                             } else {
                                 return(
-                                    <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
+                                    <View style={{...style, alignItems: 'center', padding: 12 * ratio, marginTop: 25 * ratio}}>
                                         <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>VS {isWinner ? "winner" : "loser"} of</Text>
                                         <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
                                         <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>and</Text>
@@ -195,7 +264,7 @@ const DashboardScreen = props => {
                         case 1:// display pending set opponent 'and winner of earlier rounds...'
                             if(!isForecast){
                                 return(
-                                    <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                    <View style={{...style, alignItems: 'flex-start', padding: 12 * ratio}}>
                                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                             <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for  </Text>
                                             <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
@@ -205,7 +274,7 @@ const DashboardScreen = props => {
                                 );
                             } else {
                                 return(
-                                    <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
+                                    <View style={{...style, alignItems: 'center', padding: 12 * ratio, marginTop: 25 * ratio}}>
                                         <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for</Text>
                                         <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.pending_opponent_text}}>{names[0]}</Text>
                                         <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>and</Text>
@@ -218,7 +287,7 @@ const DashboardScreen = props => {
                         default:// display 'waiting for more than one pending round...'
                             if(!isForecast){
                                 return(
-                                    <View style={{...style, alignItems: 'flex-start', padding: 5}}>
+                                    <View style={{...style, alignItems: 'flex-start', padding: 12 * ratio}}>
                                         <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for  </Text>
                                         <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>{getMatchRound(pendingRound)}</Text>
                                         <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>to resolve...</Text>
@@ -226,7 +295,7 @@ const DashboardScreen = props => {
                                 );
                             } else {
                                 return(
-                                    <View style={{...style, alignItems: 'center', padding: 5, marginTop: 25 * ratio}}>
+                                    <View style={{...style, alignItems: 'center', padding: 12 * ratio, marginTop: 25 * ratio}}>
                                         <Text style={{fontFamily: 'prototype', color: textColor || DeepBlue.text_primary}}>Waiting for</Text>
                                         <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>{getMatchRound(pendingRound)}</Text>
                                         <Text style={{color: textColor || DeepBlue.text_primary, ...styles.pending_rounds_text}}>to resolve...</Text>
@@ -238,14 +307,14 @@ const DashboardScreen = props => {
                 } 
                 case "champion": {
                     return(
-                        <View style={{...style, alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
+                        <View style={{...style, alignItems: 'center', padding: 12 * ratio, marginTop: 35 * ratio}}>
                             <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_forecast_text}}>Champion!</Text>
                         </View>
                     );
                 } 
                 case "elimination": {
                     return(
-                        <View style={{...style, alignItems: 'center', padding: 5, marginTop: 35 * ratio}}>
+                        <View style={{...style, alignItems: 'center', padding: 12 * ratio, marginTop: 35 * ratio}}>
                             <Text numberOfLines={1} style={{color: textColor || DeepBlue.text_primary, ...styles.opponent_forecast_text}}>Eliminated</Text>
                         </View>
                     );
@@ -258,26 +327,27 @@ const DashboardScreen = props => {
     // Displays current match's state
     const MatchStateText = props => {
         if(currentMatchState){
-            if(currentMatchState != 'completed'){
-                if(currentMatchState == 'open'){
+            if(currentMatchState != 'completed' && currentMatchState != 'eliminated'){
+                if(currentMatchState == 'open' && !isScoreSent){
                     return(
-                        <Text style={{...styles.text, color: DeepBlue.text_primary, padding: 5}}>Status: <Text style={{color: DeepBlue.accent}}>Ready</Text></Text>
+                        <Text style={{...styles.text, color: DeepBlue.text_primary, padding: 12 * ratio}}>Status: <Text style={{color: DeepBlue.accent}}>Ready</Text></Text>
+                    );
+                } else if (currentMatchState == 'pending'){
+                    return(
+                        <Text style={{...styles.text, color: DeepBlue.text_primary, padding: 12 * ratio}}>Status: <Text style={{color: DeepBlue.text_secondary}}>Pending</Text></Text>
+                    );
+                } else if (isScoreSent){
+                    return(
+                        <Text style={{...styles.text, color: DeepBlue.text_primary, padding: 12 * ratio}}>Status: <Text style={{color: DeepBlue.primary_light}}>Scores sent to Tournament Organizer!</Text></Text>
                     );
                 } else {
-                    return(
-                        <Text style={{...styles.text, color: DeepBlue.text_primary, padding: 5}}>Status: <Text style={{color: DeepBlue.text_secondary}}>Pending</Text></Text>
-                    );
+                    return <></>;
                 }
-                
-            } else {
-                return(
-                    <Text style={styles.loadingtext}>State: N/A</Text>
-                );
             }
+            return <></>;
         }
-        return(
-            <Text style={styles.loadingtext}>State: N/A</Text>
-        );
+        return <></>;
+        
     }
 
     // Displays current match's round
@@ -289,22 +359,25 @@ const DashboardScreen = props => {
                 );
             } else {
                 return(
-                    <Banner color={DeepBlue.bg_secondary}>Tourney Ended</Banner>
+                    <Banner color={DeepBlue.bg_secondary}>   N/A   </Banner>
                 );
             }
+        } else if(!isTourneyComplete){
+            return(
+                <Banner color={DeepBlue.bg_secondary}>Eliminated</Banner>
+            );
         }
-        return(
-            <Banner color={DeepBlue.bg_secondary}>Eliminated</Banner>
-        );
+        return <></>;
+        
     }
 
     // Displays both forecasts informations
     const ForecastInfoSection = props => {
+
         if(forecasts){
             if(currentMatchRound){
                 if(currentMatchRound != 'completed'){
 
-                    //TODO handle when one of these is null!!!
                     let winOpponent = forecasts[0] ? getOpponentData(forecasts[0]) : {
                             data: {
                                 names: [],
@@ -332,12 +405,13 @@ const DashboardScreen = props => {
                                 <Text style={styles.if_winning_losing_text}>If winning...</Text>
                                 <View style={{backgroundColor: forecasts[0] ? DeepBlue.accent_light : DeepBlue.gold, ...styles.winlose_forecast}}>
                                     {forecasts[0] && <Banner style={styles.forecast_banners} fontSize={31 * ratio} textColor={DeepBlue.text_primary} color={DeepBlue.accent}>{getMatchRound(forecasts[0])}</Banner>}
-                                    {gfResetIfWin &&
+                                    {gfResetIfWin && !gfResetIfLoss &&
                                         <View style={styles.grand_finals_reset}>
                                             <Text style={{color: DeepBlue.bg_secondary, ...styles.pending_rounds_text}}>Grand Finals</Text>
                                             <Text style={{color: DeepBlue.bg_secondary, ...styles.opponent_forecast_text}}>Reset!</Text>
                                         </View>}
                                     {!gfResetIfWin && <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={winOpponent}/>}
+                                    {gfResetIfWin && gfResetIfLoss && <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={winOpponent}/>}
                                 </View>
                             </View>
                             <View style={styles.if_winning_losing_section}>
@@ -345,29 +419,361 @@ const DashboardScreen = props => {
                                 <View style={{backgroundColor: forecasts[1] ? DeepBlue.red_light : DeepBlue.text_secondary, ...styles.winlose_forecast}}>
                                     {forecasts[1] && <Banner style={styles.forecast_banners} fontSize={31 * ratio} textColor={DeepBlue.text_primary} color={DeepBlue.red}>{getMatchRound(forecasts[1])}</Banner>}
                                     {forecasts[0] && <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={lossOpponent}/>}
-                                    {gfResetIfLoss &&
+                                    {gfResetIfLoss && !gfResetIfWin &&
                                         <View style={styles.grand_finals_reset}>
                                             <Text style={{color: DeepBlue.bg_secondary, ...styles.pending_rounds_text}}>Grand Finals</Text>
                                             <Text style={{color: DeepBlue.bg_secondary, ...styles.opponent_forecast_text}}>Reset!</Text>
                                         </View>}
+                                    {gfResetIfWin && gfResetIfLoss && <OpponentText textColor={DeepBlue.bg_secondary} isForecast={true} opponent={lossOpponent}/>}
                                 </View>
                             </View>
                         </View>
                     );
                 } else {
                     return (
-                        <Text style={styles.loadingtext}>N/A - Tourney Ended</Text>
+                        <Text style={styles.loadingtext}>N/A - Current Match round completed</Text>
                     );
                 }
             }
             return (
                 <Text style={styles.loadingtext}>N/A - Current Match Round is null</Text>
             );
+        } else if(!isTourneyComplete){
+            return (
+                <View style={{flex: 1, justifyContent: 'center', alignItems: 'stretch'}}>
+                    <Text style={{...styles.eliminatedtext, fontSize: 43 * ratio}}>Better Luck Next Time!</Text>
+                    <Text style={styles.eliminatedtext}>Refresh this page after</Text>
+                    <Text style={styles.eliminatedtext}>the tourney is over.</Text>
+                </View>
+            );
         }
-        return (
-            <Text style={styles.loadingtext}>N/A - Eliminated</Text>
-        );
+        return <></>;
         
+        
+    }
+
+    // Displays tournament info, player name and standing once tourney is over
+    const FinalResultCard = props => {
+
+        let rankText = "";
+        let cardColor = DeepBlue.primary;
+        let lastDigit = tourney.userPlayer.participant.final_rank % 10;
+        switch (tourney.userPlayer.participant.final_rank) {
+            case 1: rankText = "Champion"; cardColor = DeepBlue.gold; break;
+            case 2: rankText = "Runner-up"; break;
+            default: {
+                switch (lastDigit){
+                    case 0: rankText = "nullth!"; break;
+                    case 1: rankText = tourney.userPlayer.participant.final_rank + "rst"; break;
+                    case 2: rankText = tourney.userPlayer.participant.final_rank + "nd"; break;
+                    case 3: rankText = tourney.userPlayer.participant.final_rank + "rd"; break;
+                    default: rankText = tourney.userPlayer.participant.final_rank + "th";
+                }
+            }
+        }
+
+        const frc_styles = StyleSheet.create({
+            finalresultcard: {
+                padding: 29 * ratio,
+                borderRadius: 47 * ratio,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                backgroundColor: cardColor
+            },
+            playertext: {
+                fontFamily: 'prototype',
+                color: DeepBlue.text_primary,
+                fontSize: 55 * ratio
+            },
+            standtext: {
+                fontFamily: 'prototype',
+                color: DeepBlue.text_primary,
+                fontSize: (lastDigit == 0) ? 47 * ratio : 72 * ratio
+            },
+            righttext: {
+                fontFamily: 'prototype',
+                color: DeepBlue.text_primary,
+                fontSize: 35 * ratio,
+                textAlign: 'right'
+            }
+        });
+
+        return (
+            <View style={frc_styles.finalresultcard}>
+                {!isLoading ?
+                    <View style={{flex: 3, justifyContent: 'space-between'}}>
+                        <Text numberOfLines={1} style={frc_styles.playertext}>{tourney.userPlayer.participant.name}</Text>
+                        <Text numberOfLines={1} style={frc_styles.standtext}>{rankText}</Text>
+                    </View>
+                    :
+                    <View style={{flex: 3, justifyContent: 'space-between'}}>
+                        <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
+                    </View>
+                }
+                {!isLoading ?
+                    <View style={{flex: 2, justifyContent: 'space-evenly'}}>
+                        <Text numberOfLines={2} style={frc_styles.righttext}>{tourney.tourneyData.tournament.game_name || tourney.tourneyData.tournament.category || "Miscellaneous"}</Text>
+                        <Text numberOfLines={1} style={frc_styles.righttext}>{tourney.tourneyData.tournament.tournament_type}</Text>
+                        <Text numberOfLines={1} style={frc_styles.righttext}>{tourney.players.length} players</Text>
+                    </View>
+                    :
+                    <View style={{flex: 2, justifyContent: 'space-evenly'}}>
+                        <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
+                    </View>
+                }
+            </View>
+        );
+    }
+
+    // Displays final score in large font
+    const FinalScoreCard = props => {
+
+        let isChampion = tourney.userPlayer.participant.final_rank == 1;
+
+        let cardColor = (!isChampion) ? DeepBlue.primary : DeepBlue.gold;
+
+        const fsc_styles = StyleSheet.create({
+            finalscorecard: {
+                marginTop: 25 * ratio,
+                padding: 36 * ratio,
+                borderRadius: 47 * ratio,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                borderWidth: 3,
+                borderColor: cardColor
+            },
+            text: {
+                fontFamily: 'prototype',
+                color: isChampion ? DeepBlue.gold : DeepBlue.text_primary,
+                fontSize: 55 * ratio
+            }
+        });
+
+        return (
+            <View style={fsc_styles.finalscorecard}>
+                <View style={{flex: 5, justifyContent: 'center'}}>
+                    <Text style={fsc_styles.text}>Final Results:</Text>
+                </View>
+                {!isLoading ? 
+                    <View style={{flex: 6, alignItems: 'flex-end'}}>
+                        <ScoreText isResults={true}/>
+                    </View> 
+                    :
+                    <View style={{flex: 1, justifyContent: 'center'}}>
+                        <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
+                    </View>
+                }
+            </View>
+        );
+    }
+
+    // Displays scrollable list of matches played by the player with individual scores and opponent names
+    const MatchesScrollableList = props => {
+
+        if(matches){
+
+            let isChampion = tourney.userPlayer.participant.final_rank == 1;
+            let playerMatches = matches.filter(o => (o.match.player1_id == playerId || o.match.player2_id == playerId));
+
+            const msl_styles = StyleSheet.create({
+                listsection: {
+                    marginTop: 25 * ratio,
+                    paddingTop: 12 * ratio,
+                    paddingBottom: 25 * ratio,
+                    maxHeight: 1000 * ratio,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    borderTopWidth: 3,
+                    borderBottomWidth: 3,
+                    borderRadius: 47 * ratio,
+                    borderColor: isChampion ? DeepBlue.gold : DeepBlue.primary
+                },
+                text: {
+                    fontFamily: 'prototype',
+                    color: DeepBlue.bg_secondary,
+                    fontSize: 45 * ratio
+                },
+                headertext: {
+                    fontFamily: 'prototype',
+                    textAlign: 'center',
+                    color: isChampion ? DeepBlue.gold : DeepBlue.text_primary,
+                    fontSize: 35 * ratio,
+                },
+                itemrow: {
+                    marginVertical: 12 * ratio,
+                    marginHorizontal: 12 * ratio,
+                    paddingHorizontal: 25 * ratio,
+                    paddingVertical: 12 * ratio,
+                    borderRadius: 47 * ratio,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between'
+                }
+            });
+    
+            return (
+                <View style={msl_styles.listsection}>
+                    {!isLoading ? 
+                        <FlatList
+                            ListHeaderComponent={<Text style={msl_styles.headertext}>Matches Played</Text>}
+                            data={playerMatches}
+                            keyExtractor={o => o.match.id.toString()} 
+                            renderItem={itemData => {
+                                    let isWin = (itemData.item.match.winner_id == playerId) ? true : false;
+
+                                    let player2Id = (itemData.item.match.player1_id == playerId) ? itemData.item.match.player2_id : itemData.item.match.player1_id;
+                                    let player2Name = tourney.players.find(player => player.participant.id == player2Id)?.participant.name;
+
+                                    let winScore = itemData.item.match.scores_csv.substr(0,1); 
+                                    let losScore = itemData.item.match.scores_csv.substr(2);
+                                    if(winScore < losScore){
+                                        let temp = winScore;
+                                        winScore = losScore;
+                                        losScore = temp;
+                                    }
+
+                                    return(
+                                        <View style={{...msl_styles.itemrow, backgroundColor: isWin ? DeepBlue.accent_light : DeepBlue.red_light}}>
+                                            <View style={{flex: 5}}>
+                                                <Text style={msl_styles.text}>{isWin ? "Won" : "Lost"} vs {player2Name}</Text>
+                                            </View>
+                                            <View style={{flex: 1, alignItems: 'center'}}>
+                                                <Text style={msl_styles.text}>{isWin ? winScore : losScore} - {isWin ? losScore : winScore}</Text>
+                                            </View>
+                                        </View>
+                                    );
+                                }
+                            }
+                        />
+                        :
+                        <View style={{flex: 1, justifyContent: 'center'}}>
+                            <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
+                        </View>
+                    }
+                </View>
+            );
+
+        }
+        return <></>;
+
+    }
+
+    const ScoreSelectionRows = props => {
+
+        let isPlayer = props.isPlayer ? props.isPlayer : false;
+
+        const ssr_styles = StyleSheet.create({
+            top_view: {
+                width: '100%', 
+                height: '35%', 
+                backgroundColor: selectedPlayerRow[isPlayer ? 0 : 1] ? 
+                    DeepBlue.accent : 
+                    DeepBlue.bg_secondary, 
+                borderRadius: 20, 
+                justifyContent: 'flex-start', 
+                alignItems: 'center', 
+                flexDirection: 'row', 
+                paddingLeft: 25 * ratio, 
+                overflow: 'hidden',
+                borderWidth: 3,
+                borderColor: isWrongSelection ? DeepBlue.red : DeepBlue.primary
+            },
+            name: {
+                height: '100%', 
+                width: '50%', 
+                justifyContent: 'center', 
+                alignItems: 'flex-start'
+            },
+            nametext: {
+                fontFamily: 'prototype', 
+                color: 'white', 
+                fontSize: 36 * ratio
+            },
+            plusminustopview: {
+                height: '100%', 
+                width: '50%', 
+                flexDirection: 'row'
+            },
+            plusminustouchable: {
+                flex: 1, 
+                alignItems: 'center'
+            },
+            plusminus: {
+                flex: 1, 
+                justifyContent: 'center'
+            },
+            score: {
+                flex: 1, 
+                justifyContent: 'center', 
+                alignItems: 'center'
+            },
+            scoretext: {
+                fontFamily: 'prototype', 
+                color: 'white', 
+                fontSize: 55 * ratio
+            }
+        });
+
+        return (
+            <View style={{...props.style, ...ssr_styles.top_view}}>
+
+                <TouchableWithoutFeedback onPress={() => {setIsWrongSelection(false); setSelectedPlayerRow([isPlayer ? true : false, isPlayer ? false : true])}}>
+                    <View style={ssr_styles.name}>
+                        <Text numberOfLines={1} style={ssr_styles.nametext}>{props.children}</Text>
+                    </View>
+                </TouchableWithoutFeedback>
+
+                <View style={ssr_styles.plusminustopview}>
+
+                    <TouchableHighlight 
+                        style={ssr_styles.plusminustouchable} 
+                        onPress={() => {isPlayer ? 
+                            editScoreHandler([reportedScores[0] - 1, reportedScores[1]]) :
+                            editScoreHandler([reportedScores[0], reportedScores[1] - 1])}} 
+                        underlayColor={selectedPlayerRow[isPlayer ? 0 : 1] ? 
+                            DeepBlue.accent_light :
+                            DeepBlue.bg_primary} 
+                        activeOpacity={0.5}>
+                        <View style={ssr_styles.plusminus}>
+                            <MaterialCommunityIcons 
+                                name={'minus'} 
+                                size={85 * ratio} 
+                                color={selectedPlayerRow[isPlayer ? 0 : 1] ? 
+                                    DeepBlue.bg_secondary :
+                                    DeepBlue.primary}/>
+                        </View>
+                    </TouchableHighlight>
+
+                    <View style={ssr_styles.score}>
+                        <Text numberOfLines={1} style={ssr_styles.scoretext}>
+                            {isPlayer ? 
+                                (reportedScores[0] || 0) :
+                                (reportedScores[1] || 0)}
+                        </Text>
+                    </View>
+
+                    <TouchableHighlight 
+                        style={ssr_styles.plusminustouchable} 
+                        onPress={() => {isPlayer ? 
+                                editScoreHandler([reportedScores[0] + 1, reportedScores[1]]) :
+                                editScoreHandler([reportedScores[0], reportedScores[1] + 1])}} 
+                        underlayColor={selectedPlayerRow[isPlayer ? 0 : 1] ? 
+                                DeepBlue.accent_light :
+                                DeepBlue.bg_primary} 
+                        activeOpacity={0.5}>
+                        <View style={ssr_styles.plusminus}>
+                            <MaterialCommunityIcons 
+                                name={'plus'} 
+                                size={85 * ratio} 
+                                color={selectedPlayerRow[isPlayer ? 0 : 1] ? 
+                                    DeepBlue.bg_secondary :
+                                    DeepBlue.primary}/>
+                        </View>
+                    </TouchableHighlight>
+
+                </View>
+
+            </View>
+        );
     }
 
     //#endregion
@@ -391,14 +797,14 @@ const DashboardScreen = props => {
                 if(current){
                     return current.match.state;
                 }
-                // current undefined
-                return;
+                // player was eliminated
+                return 'eliminated';
             }
             // matches not loaded yet
             return;
         }
         //TODO remove this
-        return "completed";
+        return 'completed';
     }
 
     // returns the current match round
@@ -470,15 +876,17 @@ const DashboardScreen = props => {
                             (current.match.player1_id == playerId ? current.match.player2_id : current.match.player1_id);
 
                         let opponent = tourney.players.find(player => (player.participant.id == opponentId));
-                        if(!forecastMode){ setOpponent(opponent);}
-                        return {
+                        let opdata = {
                             data: {
                                 names: [opponent.participant.name],
                                 state: "open",
                                 isWinner: true,
                                 pendingRound: null
                             }
-                        };
+                        } 
+                        
+                        if(!forecastMode){ setOpponentData(opdata)}
+                        return opdata;
 
                     } else { // player 2 not decided yet
 
@@ -519,7 +927,8 @@ const DashboardScreen = props => {
                                  * XNOR logic: 
                                  * if both sides are winners or both sides are losers
                                  */
-                                if(!((!currentSide && pendingSide) || (!pendingSide && currentSide))){
+                                //if(!((!currentSide && pendingSide) || (!pendingSide && currentSide))){
+                                if(currentSide === pendingSide){
                                     return {
                                         data: {
                                             names: [opponent1.participant.name, opponent2.participant.name],
@@ -572,8 +981,15 @@ const DashboardScreen = props => {
                         };
                     }
                 }
-                // current undefined
-                return;
+                // player was eliminated
+                return {
+                    data: {
+                        names: [],
+                        state: "elimination",
+                        isWinner: true,
+                        pendingRound: null
+                    }
+                }
             }
             // matches not loaded yet
             return;
@@ -640,96 +1056,179 @@ const DashboardScreen = props => {
         return;
     }
 
+    // does shtuff when the score popup closes
+    const closePopUpHandler = (isSendingScores) => {
+
+        isSendingScores = isSendingScores ? isSendingScores : false;
+        setScoreModalVisible(false);
+        setIsWrongSelection(false);
+        // do something when modal closes
+        //console.log("onClose!");
+
+        // do something when modal closes with "Send Scores"
+        if(isSendingScores){
+            console.log("Sending scores! => "+ reportedScores[0] + " - "+reportedScores[1]);
+            
+            // do stuff
+            setIsScoreSent(true);
+            setSelectedPlayerRow([false, false]);
+            setReportedScores([0, 0]);
+        }
+    }
+
+    // validates score entry to be included between 0 and 9
+    const editScoreHandler = (newScores) => {
+
+        let [ playerScore, opponentScore ] = newScores;
+
+        if(playerScore > 9 || playerScore < 0){
+            playerScore = reportedScores[0];
+        }
+        if(opponentScore > 9 || opponentScore < 0){
+            opponentScore = reportedScores[1];
+        }
+
+        setReportedScores([playerScore, opponentScore]);
+
+    }
+
     //#endregion
 
     return(
+        <View style={{flex: 1, justifyContent: 'center'}}>
+            {!isTourneyComplete && !isPlayerEliminated && <PopUp 
+                visible={scoreModalVisible} 
+                isSubtitle={true}
+                isSecondaryButton={true}
+                onClose={closePopUpHandler.bind(this)}
+                onPress={() => {
+                    // validating that the selected row is really the winner
+                    if(reportedScores[0] != reportedScores[1]){
+                        let winnerIndex = reportedScores[0] > reportedScores[1] ? 0 : 1;
+                        if(selectedPlayerRow[winnerIndex]){
+                            closePopUpHandler(true);
+                            return;
+                        }
+                    }
+                    setIsWrongSelection(true);
+                }}
+                secondaryOnPress={() => {closePopUpHandler()}}
+                topFlex={1}
+                contentFlex={5}
+                bottomFlex={3}
+                title={"Report Scores"}
+                subtitle={"Enter each player's scores and tap the winning player's row below:"}
+                buttonText={"Send Scores"}>
 
-        <View style={styles.screen}>
-            <DashboardHeader 
-                refresh={tourney ? () => { 
+                    {!isLoading ? 
+                        <ScoreSelectionRows isPlayer={true}>{tourney?.userPlayer.participant.name}</ScoreSelectionRows>
+                        : 
+                        <View>
+                            <ActivityIndicator color={DeepBlue.text_secondary}/>
+                        </View>
+                    }
+                    {!isLoading ? 
+                        <ScoreSelectionRows style={{marginTop: 25 * ratio}}>{opponentData?.data.names[0]}</ScoreSelectionRows>
+                        : 
+                        <View>
+                            <ActivityIndicator color={DeepBlue.text_secondary}/>
+                        </View>
+                    }
+
+            </PopUp>}
+            
+            <View style={styles.screen}>
+                <DashboardHeader 
+                    refresh={tourney ? () => {
                         dispatch(tourneyActions.refreshTourney(tourney.url, tourney.players, tourney.userPlayer));
-                    } : null} 
-                openDrawer={props.navigation.openDrawer} 
-                iconSize={85 * ratio} 
-                playerName={tourney?.userPlayer.participant.name || "Empty"}>
-                    {tourney?.tourneyData.tournament.name || "Nothing here!"}
-            </DashboardHeader>
-            {tourney && <View style={styles.dashboard}>
+                    } : null}
+                    openDrawer={props.navigation.openDrawer}
+                    iconSize={85 * ratio} 
+                    playerName={tourney?.userPlayer.participant.name || "Empty"}>
+                        {tourney?.tourneyData.tournament.name || "Nothing here!"}
+                </DashboardHeader>
+                {tourney && <View style={{...styles.dashboard, justifyContent: isTourneyComplete ? 'flex-start' : 'center'}}>
+                    {!isTourneyComplete &&<View style={styles.currentmatch}>
 
-                <View style={styles.currentmatch}>
+                        <View style={styles.round_and_scores}>
+                            {!isLoading ? 
+                                <MatchRoundText/>
+                                : 
+                                <View>
+                                    <ActivityIndicator color={DeepBlue.text_secondary}/>
+                                </View>
+                            }
+                            {!isLoading ? 
+                                <ScoreText/>
+                                : 
+                                <View>
+                                    <ActivityIndicator color={DeepBlue.text_secondary}/>
+                                </View>
+                            }
+                        </View>
 
-                    <View style={styles.round_and_scores}>
-                        {!isLoading ? 
-                            <MatchRoundText/>
-                            : 
-                            <Banner color={DeepBlue.bg_secondary} textColor={DeepBlue.text_secondary}>loading...</Banner>
-                        }
-                        {!isLoading ? 
-                            <ScoreText/>
-                            : 
-                            <Text style={styles.loadingtext}>loading...</Text>
-                        }
-                    </View>
-
-                    <View style={styles.cm_card}>
+                        <View style={{...styles.cm_card, minHeight: (isPlayerEliminated ? 260 : 175) * ratio}}>
                             {!isLoading ? 
                                 <View style={{flexDirection: 'row', flex: 1}}>
-                                    <OpponentText style={{flex: 6}} isForecast={false}/>
-                                    <View style={{justifyContent: 'space-around', flex: 1}}>
-                                        <TouchableOpacity style={styles.send_scores} onPress={() => {/* TODO */}}>
+                                    {!isPlayerEliminated ? 
+                                        <OpponentText style={{flex: 6}} isForecast={false}/> 
+                                        : 
+                                        <OpponentText style={{flex: 1}} isForecast={false}/>
+                                    }
+                                    {!isPlayerEliminated && <View style={{justifyContent: 'space-around', flex: 1, opacity: currentMatchState!='open' || isScoreSent ? 0.2 : 1}}>
+                                        <TouchableOpacity style={styles.send_scores} onPress={() => {setScoreModalVisible(currentMatchState!='open' || isScoreSent ? false : true)}}>
                                             <MaterialCommunityIcons name={'square-edit-outline'} size={85 * ratio} color={DeepBlue.bg_secondary}/>
                                         </TouchableOpacity>
-                                    </View>
+                                    </View>}
                                     
                                 </View>
                                 : 
-                                <Text style={styles.loadingtext}>loading...</Text>
+                                <View style={{alignItems: 'flex-start', justifyContent: 'center'}}>
+                                    <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
+                                </View>
                             }
-                        <View style={{backgroundColor: DeepBlue.bg_secondary}}>
+                            {!isPlayerEliminated && <View style={{backgroundColor: DeepBlue.bg_secondary}}>
+                                {!isLoading ? 
+                                    <MatchStateText/>
+                                    : 
+                                    <View style={{alignItems: 'flex-start'}}>
+                                        <ActivityIndicator color={DeepBlue.text_secondary}/>
+                                    </View>
+                                }
+                            </View>}
+                        </View>
+                    </View>}
+
+                    {!isTourneyComplete && <View style={styles.forecast_section}>
+                        <View style={styles.forecast_border}/>
+                        <View style={styles.forecast_inner}>
+                            <Text style={styles.forecast_text}>Forecast</Text>
                             {!isLoading ? 
-                                <MatchStateText/>
+                                <ForecastInfoSection/>
                                 : 
-                                <Text style={styles.loadingtext}>loading...</Text>
+                                <View style={{flex: 1, justifyContent: 'center'}}>
+                                    <ActivityIndicator size={'large'} color={DeepBlue.text_secondary}/>
+                                </View>
                             }
                         </View>
-                    </View>
-                </View>
+                    </View>}
 
-                <View style={styles.forecast_section}>
-                    <View style={styles.forecast_border}/>
-                    <View style={styles.forecast_inner}>
-                        <Text style={styles.forecast_text}>Forecast</Text>
-                        {!isLoading ? 
-                            <ForecastInfoSection/>
-                            : 
-                            <Text style={styles.loadingtext}>loading...</Text>
-                        }
-                    </View>
+                    {isTourneyComplete && <View style={styles.tc_dashboard}>
+                        <FinalResultCard/>
+                        <FinalScoreCard/>
+                        <MatchesScrollableList/>
+                    </View>}
+
                     
-                    
-                </View>
-                
-            </View>}
+                </View>}
+            </View>
         </View>
         
     );
 }
 
-/* temp info stuff
 
-<View style={styles.tempinfo}>
-    <Text style={{...styles.text, color: DeepBlue.text_secondary}}>Player: {tourney.userPlayer.participant.name}</Text>
-    <Text style={{...styles.text, color: DeepBlue.primary}}>{tourney.players.length} players</Text>
-    <Text style={{...styles.text, color: DeepBlue.primary}}>URL: {tourney.url}</Text>
-    <Text style={{...styles.text, color: DeepBlue.accent}}>{tourney.tid}</Text>
-    {!isLoading ? 
-        <Text style={{...styles.text, color: DeepBlue.text_primary}}>Size: {matches.length} sets</Text>
-        : 
-        <Text style={styles.loadingtext}>loading...</Text>
-    }
-</View>
-
-*/
+//#region styles
 
 const styles = StyleSheet.create({
     screen: {
@@ -741,7 +1240,6 @@ const styles = StyleSheet.create({
     dashboard: {
         height: '100%',
         width: '100%',
-        justifyContent: 'center',
         alignItems: 'center'
     },
     text: {
@@ -761,15 +1259,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginHorizontal: 12,
-        marginTop: 15
+        marginHorizontal: 29 * ratio,
+        marginTop: 36 * ratio
     },
     cm_card:{
-        marginHorizontal: 12,
-        marginTop: 10,
-        borderRadius: 10,
+        marginHorizontal: 29 * ratio,
+        marginTop: 25 * ratio,
+        borderRadius: 25 * ratio,
         borderWidth: 3,
-        minHeight: 170 * ratio ,
+        minHeight: 175 * ratio ,
         borderColor: DeepBlue.primary,
         overflow: 'hidden',
         backgroundColor: DeepBlue.primary,
@@ -789,9 +1287,9 @@ const styles = StyleSheet.create({
     },
     send_scores: {
         backgroundColor: DeepBlue.primary_light,
-        borderRadius: 10,
+        borderRadius: 25 * ratio,
         alignItems: 'center',
-        marginRight: 8,
+        marginRight: 19 * ratio,
         padding: 3
     },
     pending_rounds_text: {
@@ -804,7 +1302,7 @@ const styles = StyleSheet.create({
     },
     forecast_inner: {
         alignItems: 'center', 
-        marginHorizontal: 20,
+        marginHorizontal: 47 * ratio,
         minHeight: 620 * ratio
     },
     forecast_text: {
@@ -812,8 +1310,8 @@ const styles = StyleSheet.create({
         fontSize: 50 * ratio,
         color: DeepBlue.primary_light,
         textAlign: 'center',
-        paddingHorizontal: 15,
-        paddingTop: 4,
+        paddingHorizontal: 36 * ratio,
+        paddingTop: 10 * ratio,
         borderRadius: 50 * ratio,
         borderWidth: 3,
         borderColor: DeepBlue.primary,
@@ -822,24 +1320,24 @@ const styles = StyleSheet.create({
     forecast_border: {
         minHeight: 600 * ratio ,
         width: '95%',
-        marginHorizontal: 12, 
+        marginHorizontal: 29 * ratio, 
         alignItems: 'center',
         position: 'absolute',
         borderWidth: 3,
         borderColor: DeepBlue.primary,
-        borderRadius: 30,
+        borderRadius: 72 * ratio,
         top: 40 * ratio
     },
     winlose_forecast: {
         alignItems: 'center',
         minHeight: 440 * ratio,
-        marginHorizontal: 5,
-        marginTop: 10,
-        borderRadius: 20,
+        marginHorizontal: 12 * ratio,
+        marginTop: 25 * ratio,
+        borderRadius: 47 * ratio,
     },
     grand_finals_reset: {
         alignItems: 'center', 
-        padding: 5, 
+        padding: 12 * ratio, 
         marginTop: 35 * ratio
     },
     forecast_banners: {
@@ -854,8 +1352,21 @@ const styles = StyleSheet.create({
         alignItems: 'stretch', 
         flex: 1, 
         width: '100%'
+    },
+    eliminatedtext: {
+        fontFamily: 'prototype',
+        color: DeepBlue.text_primary,
+        textAlign: 'center'
+    },
+    tc_dashboard: {
+        flex: 1,
+        padding: 29 * ratio,
+        maxHeight: 1700 * ratio,
+        width: '100%'
     }
 });
+
+//#endregion
 
 
 export default DashboardScreen;
