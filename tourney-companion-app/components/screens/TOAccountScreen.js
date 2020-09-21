@@ -1,14 +1,16 @@
-import React from 'react';
-import { Text, StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useEffect } from 'react';
+import { Text, StyleSheet, View, TouchableOpacity, Dimensions, FlatList } from 'react-native';
+import { useSelector } from 'react-redux';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { DeepBlue } from '../../constants/Colors';
-import { fetchAllUserData } from '../../misc/db';
 
 const dims = Dimensions.get('window');
 const ratio = dims.width / 1000;
 
 const TOAccountScreen = props => {
+
+    const userDatas = useSelector(state => state.userdata.userDatas);
 
     const UserAccountItem = props => {
         
@@ -17,11 +19,12 @@ const TOAccountScreen = props => {
         );
     }
 
-    // this has to be done during app initialization, not here --> see Udemy course 202
-    const fetchAllUserDataHandler = async () => {
-        const dbResult = await fetchAllUserData();
-        console.log(dbResult.rows._array);
-    }
+    useEffect(() => {
+        console.log("userdata store loaded");
+        // do stuff here??
+    }, [userDatas])
+        
+    
 
 
     return(
@@ -33,10 +36,18 @@ const TOAccountScreen = props => {
             }}>
                 <Text style={{color: DeepBlue.primary_light}}>[navigate to TOLoginScreen]</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={fetchAllUserDataHandler}>
-                <Text style={{color: DeepBlue.primary_light}}>[fetch local user data]</Text>
-            </TouchableOpacity>
+            {userDatas.length > 0 && <FlatList
+                data={userDatas}
+                keyExtractor={ud => ud.apikey}
+                renderItem={itemData => 
+                    <View style={{marginTop: 10}}>
+                        <Text style={{color: DeepBlue.primary_light}}>{itemData.item.name}</Text>
+                        <Text style={{color: DeepBlue.primary_light}}>{itemData.item.apikey}</Text> 
+                    </View>
+                }
+            />}
         </View>
+        
     );
 
 }

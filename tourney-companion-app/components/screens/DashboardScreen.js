@@ -8,10 +8,10 @@ import { Notifications } from 'expo';
 import { DeepBlue } from '../../constants/Colors';
 import DashboardHeader from '../UI/DashboardHeader';
 import Banner from '../UI/Banner';
-import RectangleIconButton from '../UI/RectangleIconButton';
 import PopUp from '../UI/PopUp';
 import { API } from '../../misc/apiCalls';
 import * as tourneyActions from '../../store/actions/tournaments';
+import * as UDActions from '../../store/actions/userdata';
 
 
 const dims = Dimensions.get('window');
@@ -85,6 +85,38 @@ const DashboardScreen = props => {
 
     //#region hooks
 
+    // runs only first time dashboard is loaded
+    // sets up permissions for push notifications
+    useEffect(() => {
+        Permissions.getAsync(Permissions.NOTIFICATIONS).then(statusObj => {
+            if(statusObj.status !== 'granted'){
+                return Permissions.askAsync(Permissions.NOTIFICATIONS);
+            }
+            return statusObj;
+        }).then(statusObj => {
+            if(statusObj.status !== 'granted') {
+                //TODO alert user that there will be no notifications shown...
+                throw new Error('Permission not granted');
+            }
+        }).then(() => {
+            //sign up with expo's push servers
+            console.log("getting token...")
+            return Notifications.getExpoPushTokenAsync();
+        }).then(response => {
+            console.log(response);
+            const token = response.data;
+        }).catch((err) => {
+            console.log(err);
+            return null;
+        });
+    }, []);
+
+    // this goes to whichever is the first screen loaded to the user
+    // loads userData from local storage
+    useEffect(() => {
+        dispatch(UDActions.setUserData());
+    }, [dispatch])
+
     // runs only the first time the dashboard is loaded, and when switching dashboards
     useEffect(() => {
 
@@ -115,8 +147,7 @@ const DashboardScreen = props => {
         
     }, [tourney]);
 
-    useEffect(() => {}, [currentMatchState]);
-
+    
     //#endregion
 
     //#region components
@@ -1228,23 +1259,6 @@ const DashboardScreen = props => {
     );
 }
 
-
-
-/* temp info stuff
-
-<View style={styles.tempinfo}>
-    <Text style={{...styles.text, color: DeepBlue.text_secondary}}>Player: {tourney.userPlayer.participant.name}</Text>
-    <Text style={{...styles.text, color: DeepBlue.primary}}>{tourney.players.length} players</Text>
-    <Text style={{...styles.text, color: DeepBlue.primary}}>URL: {tourney.url}</Text>
-    <Text style={{...styles.text, color: DeepBlue.accent}}>{tourney.tid}</Text>
-    {!isLoading ? 
-        <Text style={{...styles.text, color: DeepBlue.text_primary}}>Size: {matches.length} sets</Text>
-        : 
-        <Text style={styles.loadingtext}>loading...</Text>
-    }
-</View>
-
-*/
 
 //#region styles
 

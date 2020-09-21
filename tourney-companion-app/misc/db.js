@@ -9,9 +9,8 @@ export const init = () => {
             `CREATE TABLE IF NOT EXISTS 
                 userData 
                     (
-                        id INTEGER PRIMARY KEY NOT NULL, 
-                        name TEXT NOT NULL,
-                        apikey TEXT
+                        apikey TEXT PRIMARY KEY NOT NULL,
+                        name TEXT NOT NULL
                     )`, 
             [], // dynamic arguments if necessary
             () => { // success function
@@ -31,8 +30,8 @@ export const insertUserData = (apikey, name) => {
         db.transaction(tx => {
             tx.executeSql(
             `INSERT INTO 
-                userData (apikey, name) 
-                VALUES (?,?)`, 
+                userData(apikey, name)
+                VALUES(?,?)`, 
             [apikey, name], // dynamic arguments if necessary
             (_, result) => { // success function
                 resolve(result);

@@ -1,6 +1,7 @@
 import UserData from '../../models/userdata';
 import { CREATE_UD } from '../actions/userdata';
 import { DELETE_UD } from '../actions/userdata';
+import { SET_UD } from '../actions/userdata';
 
 const initialState = {
     userDatas: [],
@@ -8,19 +9,15 @@ const initialState = {
 
 export default (state = initialState, action) => {
 
-    console.log(action.type);
-
     switch (action.type) {
         case CREATE_UD:
 
             const addedUD = action.userData;
 
-            const createUDId = addedUD.id;
             const createUDName = addedUD.name;
             const createUDKey = addedUD.key;
 
             const newOrUpdatedUD = new UserData(
-                createUDId,
                 createUDName,
                 createUDKey
             );
@@ -50,6 +47,12 @@ export default (state = initialState, action) => {
             return {
                 ...state,
                 userDatas: state.userDatas.filter(ud => ud.key !== action.key)
+            };
+
+        case SET_UD:
+
+            return {
+                userDatas: action.userDatas
             };
 
         default:

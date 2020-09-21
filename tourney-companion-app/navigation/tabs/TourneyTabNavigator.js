@@ -13,24 +13,30 @@ const dims = Dimensions.get('window');
 const ratio = dims.width / 1000;
 
 const tabScreenConfig = {
-    ScoreFeed: {screen: ScoreFeedScreen, navigationOptions: {
-        tabBarIcon: tabInfo => {
-            return (<MaterialCommunityIcons name='message-text' size={60 * ratio} color='white' />);
+    ScoreFeed: {
+        screen: ScoreFeedScreen, 
+        navigationOptions: {
+            tabBarIcon: tabInfo => {
+                return (<MaterialCommunityIcons name='message-text' size={60 * ratio} color='white' />);
+            }
         }
-
-    }},
-    Dashboard: {screen: DashboardScreen, navigationOptions: {
-        tabBarIcon: tabInfo => {
-            return (<MaterialCommunityIcons name='bulletin-board' size={60 * ratio} color='white' />);
+    },
+    Dashboard: {
+        screen: DashboardScreen, 
+        navigationOptions: {
+            tabBarIcon: tabInfo => {
+                return (<MaterialCommunityIcons name='bulletin-board' size={60 * ratio} color='white' />);
+            }
         }
-        
-    }},
-    TourneyInfo: {screen: TourneyInfoScreen, navigationOptions: {
-        tabBarIcon: tabInfo => {
-            return (<MaterialCommunityIcons name='information' size={60 * ratio} color='white' />);
+    },
+    TourneyInfo: {
+        screen: TourneyInfoScreen, 
+        navigationOptions: {
+            tabBarIcon: tabInfo => {
+                return (<MaterialCommunityIcons name='information' size={60 * ratio} color='white' />);
+            }
         }
-
-    }}
+    }
     /**  TODO: add the rest of my content (in this order) 
      *      -> TourneyDetails, ScoreFeed, (Dashboard), ManageStations, BracketViewer
     
@@ -48,6 +54,7 @@ const tabScreenConfig = {
 const TourneyTabNavigator = createMaterialBottomTabNavigator(
     tabScreenConfig,
     {
+        initialRouteName: 'Dashboard',
         activeTintColor: 'white',
         labeled: false,
         shifting: false,

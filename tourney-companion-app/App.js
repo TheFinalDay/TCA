@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { StyleSheet, View, StatusBar, ActivityIndicator } from 'react-native';
 import { Provider } from 'react-redux';
 import * as Font from 'expo-font';
@@ -8,7 +8,8 @@ import TopPaddingBar from './components/UI/TopPaddingBar';
 import store from './store/store';
 import { init, dropUserData } from './misc/db';
 
-/* 
+
+/*
 // UNCOMMENT IF NECESSARY (TESTING)
 
 dropUserData()
@@ -19,8 +20,8 @@ dropUserData()
     console.log('Dropping userData failed');
     console.log(err);
   });
-
 */
+
 
 init()
   .then(() => {
@@ -42,10 +43,9 @@ export default class App extends React.Component {
     await Font.loadAsync({
       'prototype': require('./assets/fonts/Prototype.ttf')
     });
-    
+
     this.setState({ assetsLoaded: true });
   }
-
 
   render() {
 

@@ -1,8 +1,7 @@
 class UserData {
-    constructor(udid, name, key){
-        this.id = id;
+    constructor(name, key){
         this.name = name;
-        this.key = key;
+        this.key = key; //serves as primary key (haha get it?)
     }
 }
 

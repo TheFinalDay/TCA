@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Text, TextInput, TouchableOpacity, StyleSheet, View, Dimensions } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useDispatch } from 'react-redux';
 
 import { DeepBlue } from '../../constants/Colors';
 import SimpleButton from '../UI/SimpleButton';
@@ -14,12 +15,15 @@ const ratio = dims.width / 1000;
 
 const TOLoginScreen = props => {
 
+    const dispatch = useDispatch();
+
     const [nameText, onChangeNameText] = useState('');
     const [keyText, onChangeKeyText] = useState('');
     const [nameModalVisible, setNameModalVisible] = useState(false);
     const [keyModalVisible, setKeyModalVisible] = useState(false);
     const [fieldEmptyError, setFieldEmptyError] = useState([false, false]);
     const [keyInvalidModalVisible, setKeyInvalidModalVisible] = useState(false);
+    const [keyExistingModalVisible, setKeyExistingModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const insertUserDataHandler = () => {
@@ -36,16 +40,20 @@ const TOLoginScreen = props => {
                     setIsLoading(false);
                     let status = result.payloadData.status;
                     if(status==200){
-                        console.log("key is validated")
+                        console.log("key is validated");
                         insertUserData(keyText, nameText)
                             .then(dbResult => {
                                 console.log(dbResult);
-                                UDActions.createUserData(dbResult.insertId, nameText, keyText);
+                                dispatch(UDActions.createUserData(dbResult.insertId, nameText, keyText));
                                 props.navigation.goBack();
                             })
                             .catch(err => {
                                 console.log("problem when adding to db");
-                                throw err;
+                                if(err.toString().includes("UNIQUE constraint")){
+                                    setKeyExistingModalVisible(true);
+                                } else {
+                                    throw err;
+                                }
                             })
                         
                     } else {
@@ -77,6 +85,18 @@ const TOLoginScreen = props => {
                     <Text style={{color: DeepBlue.text_primary, fontFamily: 'prototype', fontSize: 36 * ratio}}>
                         The API Key you've entered doesn't match any existing Challonge account.{"\n\n"}
                         Make sure that you've entered it correctly, that there's no missing characters or that you haven't accidentally generated a new API Key.
+                    </Text>
+            </PopUp>
+            <PopUp 
+                visible={keyExistingModalVisible} 
+                onClose={() => {setKeyExistingModalVisible(false)}}
+                onPress={() => {setKeyExistingModalVisible(false)}}
+                topFlex={1}
+                contentFlex={2}
+                bottomFlex={3}
+                title={"Existing API Key"}>
+                    <Text style={{color: DeepBlue.text_primary, fontFamily: 'prototype', fontSize: 36 * ratio}}>
+                        The API Key you've entered is already saved onto this device's local memory.
                     </Text>
             </PopUp>
             <PopUp 
