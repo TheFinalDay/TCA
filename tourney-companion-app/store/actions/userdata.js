@@ -4,15 +4,14 @@ export const SET_UD = 'SET_UD';
 
 import { fetchAllUserData, dropUserDataRow } from '../../misc/db';
 
-export const createUserData = (newId, newName, newKey) => {
+export const createUserData = (newName, newKey) => {
     return async dispatch => {
-    
+
         return dispatch({
             type: CREATE_UD,
             userData: {
-                id: newId,
                 name: newName,
-                key: newKey
+                apikey: newKey
             }
         });
     };

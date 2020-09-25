@@ -42,9 +42,8 @@ const TOLoginScreen = props => {
                     if(status==200){
                         console.log("key is validated");
                         insertUserData(keyText, nameText)
-                            .then(dbResult => {
-                                console.log(dbResult);
-                                dispatch(UDActions.createUserData(dbResult.insertId, nameText, keyText));
+                            .then(() => {
+                                dispatch(UDActions.createUserData(nameText, keyText));
                                 props.navigation.goBack();
                             })
                             .catch(err => {

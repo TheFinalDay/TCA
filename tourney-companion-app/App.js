@@ -6,29 +6,50 @@ import * as Font from 'expo-font';
 import MainNavigator from './navigation/drawers/MainNavigator';
 import TopPaddingBar from './components/UI/TopPaddingBar';
 import store from './store/store';
-import { init, dropUserData } from './misc/db';
+import { initUserData, initTourneyCard, dropUserData, dropTourneyCard } from './misc/db';
 
 
-/*
+
 // UNCOMMENT IF NECESSARY (TESTING)
 
+/*
 dropUserData()
   .then(result => {
     console.log("Dropped userData");
   })
   .catch(err => {
-    console.log('Dropping userData failed');
+    console.log('!! Dropping userData failed');
+    console.log(err);
+  });
+*/
+
+/*
+dropTourneyCard()
+  .then(result => {
+    console.log("Dropped tourneyCard");
+  })
+  .catch(err => {
+    console.log('!! Dropping tourneyCard failed');
     console.log(err);
   });
 */
 
 
-init()
+initUserData()
   .then(() => {
-    console.log('Initialized db');
+    console.log('Initialized userData table');
   })
   .catch(err => {
-    console.log('Initializing db failed');
+    console.log('!! Initializing userData table failed');
+    console.log(err);
+  });
+
+initTourneyCard()
+  .then(() => {
+    console.log('Initialized tourneyCard table');
+  })
+  .catch(err => {
+    console.log('!! Initializing tourneyCard table failed');
     console.log(err);
   });
 

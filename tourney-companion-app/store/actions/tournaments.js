@@ -8,7 +8,7 @@ export const ACTIVATE_TOURNEY = 'ACTIVATE_TOURNEY';
 export const createTourney = (url, players, userPlayer) => {
     return async dispatch => {
 
-        let result = await API._getTournamentInfo(url);
+        let result = await API._getTournamentInfo(url)
 
         dispatch({
             type: CREATE_TOURNEY,

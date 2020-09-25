@@ -2,7 +2,6 @@ import UserData from '../../models/userdata';
 import { CREATE_UD } from '../actions/userdata';
 import { DELETE_UD } from '../actions/userdata';
 import { SET_UD } from '../actions/userdata';
-import { dropUserDataRow } from '../../misc/db';
 
 const initialState = {
     userDatas: [],

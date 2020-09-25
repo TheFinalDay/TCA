@@ -7,6 +7,7 @@ import { DeepBlue } from '../../constants/Colors';
 import SimpleButton from '../UI/SimpleButton';
 import Header from '../UI/Header';
 import * as tourneyActions from '../../store/actions/tournaments';
+import * as TCActions from '../../store/actions/tourneycards';
 
 const dims = Dimensions.get('window');
 const ratio = dims.width / 1000;
@@ -26,6 +27,7 @@ const ImportTourneyScreen = props => {
     useEffect(() => {
         
         if(selectedPlayer){
+            dispatch(TCActions.createTourneyCard(tourneys.find(t => t.url === urlText).tourneyData, urlText, selectedPlayer));
             props.navigation.navigate('TourneyList');
             onChangeUrlText('');
             setPlayers([]);
