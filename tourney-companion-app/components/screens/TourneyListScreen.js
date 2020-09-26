@@ -7,6 +7,7 @@ import TourneyCard from '../UI/TourneyCard';
 import SimpleButton from '../UI/SimpleButton';
 import Header from '../UI/Header';
 import * as tourneyActions from '../../store/actions/tournaments';
+import * as TCActions from '../../store/actions/tourneycards';
 
 const dims = Dimensions.get('window');
 const ratio = dims.width / 1000;
@@ -15,31 +16,43 @@ const TourneyListScreen = props => {
 
     const dispatch = useDispatch();
 
-    const [showTourneys, setShowTourneys] = useState(false);
-    const [showErrorMessage, setShowErrorMessage] = useState(true);
+    const [showCards, setShowCards] = useState(false);
 
     const tourneys = useSelector(state => state.tournaments.userTournaments);
+    const cards = useSelector(state => state.tourneycards.tourneyCards);
 
     useEffect(() => {
 
-        setShowTourneys(tourneys.length > 0 ? true : false);
-        setShowErrorMessage(tourneys.length > 0 ? false : true);
+        
 
     },[tourneys]);
+
+    useEffect(() => {
+
+        setShowCards(cards.length > 0 ? true : false);
+
+    }, [cards])
 
     
 
     return (
         <View style={styles.screen}>
             <Header openDrawer={props.navigation.openDrawer}>My Tourneys</Header>
-            {showTourneys && <View style={styles.tourneyListView}>
+            {showCards && <View style={styles.tourneyListView}>
                 <FlatList
-                    data={tourneys}
-                    keyExtractor={tourney => tourney.tid.toString()}
+                    data={cards}
+                    keyExtractor={card => card.tid.toString()}
                     renderItem={itemData => 
                         <TourneyCard 
                             onRemove={() => {
-                                dispatch(tourneyActions.deleteTourney(itemData.item.tourneyData.tournament.id));
+                                console.log("Deleting "+itemData.item.tname);
+                                dispatch(TCActions.deleteTourneyCard(itemData.item.tid))
+                                    .then(() => {
+                                        dispatch(tourneyActions.deleteTourney(itemData.item.tid));
+                                    }).catch(err => {
+                                        console.log("!! tourneyCard deletion failed");
+                                        throw err;
+                                    });
                             }} 
                             tourney={itemData.item} 
                             navigation={props.navigation}
@@ -47,7 +60,7 @@ const TourneyListScreen = props => {
                     }
                 />
             </View>}
-            {showErrorMessage && <View style={styles.emptySection}>
+            {!showCards && <View style={styles.emptySection}>
                 <Text style={styles.errorMessage}>Your list of tournaments is empty...</Text>
                 <SimpleButton 
                     style={styles.joinTourneyButton}

@@ -115,14 +115,15 @@ export const initTourneyCard = () => {
             `CREATE TABLE IF NOT EXISTS
                 tourneyCard
                     (
-                        tid TEXT PRIMARY KEY NOT NULL,
+                        tid INTEGER PRIMARY KEY NOT NULL,
                         url TEXT NOT NULL,
                         tname TEXT NOT NULL,
                         tgame TEXT NOT NULL,
                         tplayers INTEGER NOT NULL,
                         ttype TEXT,
                         tdate TEXT NOT NULL,
-                        pname TEXT NOT NULL
+                        pname TEXT NOT NULL,
+                        pid INTEGER NOT NULL
                     );`, 
             [], // dynamic arguments if necessary
             () => { // success function
@@ -137,14 +138,15 @@ export const initTourneyCard = () => {
     return promise;
 };
 
-export const updateTCPlayerName = (tid, pname) => {
+export const updateTCPlayerName = (tid, pname, pid) => {
     const promise = new Promise((resolve, reject) => {
         db.transaction(tx => {
             tx.executeSql(
             `UPDATE tourneyCard
-            SET pname = ?
+            SET pname = ?,
+                pid = ?
             WHERE tid = ?`, 
-            [pname, tid], // dynamic arguments if necessary
+            [pname, pid, tid], // dynamic arguments if necessary
             () => { // success function
                 resolve();
             },
@@ -157,14 +159,14 @@ export const updateTCPlayerName = (tid, pname) => {
     return promise;
 };
 
-export const insertTourneyCard = (tid, url, tname, tgame, tplayers, ttype, tdate, pname) => {
+export const insertTourneyCard = (tid, url, tname, tgame, tplayers, ttype, tdate, pname, pid) => {
     const promise = new Promise((resolve, reject) => {
         db.transaction(tx => {
             tx.executeSql(
             `INSERT INTO 
-                tourneyCard(tid, url, tname, tgame, tplayers, ttype, tdate, pname)
-                VALUES(?,?,?,?,?,?,?,?)`, 
-            [tid, url, tname, tgame, tplayers, ttype, tdate, pname], // dynamic arguments if necessary
+                tourneyCard(tid, url, tname, tgame, tplayers, ttype, tdate, pname, pid)
+                VALUES(?,?,?,?,?,?,?,?,?)`, 
+            [tid, url, tname, tgame, tplayers, ttype, tdate, pname, pid], // dynamic arguments if necessary
             (_, result) => { // success function
                 resolve(result);
             },
@@ -203,7 +205,7 @@ export const dropTourneyCardRow = (tid) => {
                 tourneyCard 
             WHERE 
                 tid = ?`, 
-            [apikey], // dynamic arguments if necessary
+            [tid], // dynamic arguments if necessary
             (_, result) => { // success function
                 resolve(result);
             },

@@ -24,13 +24,49 @@ export const createTourney = (url, players, userPlayer) => {
 };
 
 export const deleteTourney = (tourneyId) => {
-    console.log('deleting: ' + tourneyId);
-    return { type: DELETE_TOURNEY, tid: tourneyId}
+    return async dispatch => {
+        console.log('deleting: ' + tourneyId);
+        dispatch({
+            type: DELETE_TOURNEY,
+            tid: tourneyId
+        });
+    };
 };
 
-export const activateTourney = (tourneyId) => {
-    console.log('activating: ' + tourneyId);
-    return { type: ACTIVATE_TOURNEY, tid: tourneyId}
+export const activateTourney = (tourneyId, tourneyUrl, playerId) => {
+
+    return async (dispatch, getState) => {
+
+        // check if store already has the tourney
+        let tournaments = getState().tournaments.userTournaments;
+        
+        if(!tournaments.some(t => t.tid == tourneyId)){
+            //if not, api get the tourney info
+            let tresult = await API._getTournamentInfo(tourneyUrl);
+            let presult = await API._getPlayerList(tourneyUrl);
+            let userPlayer = presult.payloadData.players.find(p => p.participant.id == playerId);
+
+            console.log('activating & getting info: ' + tourneyId);
+            dispatch({
+                type: ACTIVATE_TOURNEY,
+                tid: tourneyId,
+                tourneyData: {
+                    tid: tresult.payloadData.tournamentInfo.tournament.id,
+                    url: tourneyUrl,
+                    players: presult.payloadData.players,
+                    tourneyData: tresult.payloadData.tournamentInfo,
+                    userPlayer: userPlayer
+                }
+            });
+        }
+        
+        console.log('activating: ' + tourneyId);
+        dispatch({
+            type: ACTIVATE_TOURNEY,
+            tid: tourneyId,
+            tourneyData: null
+        });
+    };
 };
 
 export const refreshTourney = (url, players, userPlayer) => {

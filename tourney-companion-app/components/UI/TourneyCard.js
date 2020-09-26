@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import { useDispatch } from 'react-redux';
 
@@ -16,24 +16,25 @@ const TourneyCard = props => {
 
     const dispatch = useDispatch();
 
-    const { tournament } = props.tourney.tourneyData;
-    const { participant } = props.tourney.userPlayer;
+    const [isLoading, setIsLoading] = useState(false);
 
-    const tourneyNameUppercase = (tournament.name + "").toLocaleUpperCase();
+    const { tourney } = props;
+
+    const tourneyNameUppercase = (tourney.tname + "").toLocaleUpperCase();
 
     return (
         <View style={styles.card}>
             <View style={styles.info}>
                 <View style={{backgroundColor: DeepBlue.primary}}><Text style={styles.textTitle}>{tourneyNameUppercase}</Text></View>
                 <View style={{...styles.categoryAndCount, backgroundColor: DeepBlue.bg_tertiary}}>
-                    <Text style={{...styles.textPrimary, flex: 4}}>{tournament.game_name || tournament.category || "Miscellaneous"}</Text>
-                    <Text style={{...styles.textSecondary, flex: 2, textAlign: 'right'}}>{tournament.participants_count} participants</Text>
+                    <Text style={{...styles.textPrimary, flex: 4}}>{tourney.tgame}</Text>
+                    <Text style={{...styles.textSecondary, flex: 2, textAlign: 'right'}}>{tourney.tplayers} participants</Text>
                 </View>
                 <View style={styles.typeAndDate}>
-                    <Text style={{...styles.textPrimary, flex: 1}}>{tournament.tournament_type}</Text>
-                    <Text style={{...styles.textSecondary, flex: 1,  textAlign: 'right'}}>{new Date(tournament.started_at).toDateString()}</Text>
+                    <Text style={{...styles.textPrimary, flex: 1}}>{tourney.ttype}</Text>
+                    <Text style={{...styles.textSecondary, flex: 1,  textAlign: 'right'}}>{tourney.tdate}</Text>
                 </View>
-                <Text style={styles.textPrimary}>Player: <Text  style={styles.accentText}>{participant.name}</Text></Text>
+                <Text style={styles.textPrimary}>Player: <Text  style={styles.accentText}>{tourney.pname}</Text></Text>
             </View>
             <View style={styles.buttons}>
                 <RectangleIconButton
@@ -47,16 +48,19 @@ const TourneyCard = props => {
                 <View style={{...styles.dashboardButton, borderLeftWidth: 3, borderColor: DeepBlue.primary}}>
                     <RectangleIconButton
                     onPress={() => {
-                        dispatch(tourneyActions.activateTourney(props.tourney.tid));
-                        props.navigation.navigate('CurrentTourney');
+                        setIsLoading(true);
+                        dispatch(tourneyActions.activateTourney(tourney.tid, tourney.url, tourney.pid)).then(() => {
+                            props.navigation.navigate('CurrentTourney');
+                            setIsLoading(false);
+                        });
                     }}
                     iconName='arrow-right-drop-circle-outline'
                     iconSize={85 * ratio}
                     fontSize={47 * ratio}
                     textColor={DeepBlue.text_primary}
                     iconColor={DeepBlue.text_primary}
-                    backgroundColor={DeepBlue.accent}>
-                    View Dashboard
+                    backgroundColor={isLoading ? DeepBlue.text_secondary : DeepBlue.accent}>
+                    {isLoading ? "Loading...   " : "View Dashboard"}
                 </RectangleIconButton>
                 </View>
             </View>

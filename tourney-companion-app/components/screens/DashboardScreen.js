@@ -12,6 +12,7 @@ import PopUp from '../UI/PopUp';
 import { API } from '../../misc/apiCalls';
 import * as tourneyActions from '../../store/actions/tournaments';
 import * as UDActions from '../../store/actions/userdata';
+import * as TCActions from '../../store/actions/tourneycards';
 
 
 const dims = Dimensions.get('window');
@@ -44,7 +45,7 @@ const DashboardScreen = props => {
     [reportedScores, setReportedScores] = useState([0, 0]);
     [selectedPlayerRow, setSelectedPlayerRow] = useState([false, false]);
     [isWrongSelection, setIsWrongSelection] = useState(false);
-    [isScoreSent, setIsScoreSent] = useState(false);
+    [isScoreSent, setIsScoreSent] = useState(false); //TODO should be stored in local db AND tournament store
 
     [playerId, setPlayerId] = useState(null);
     
@@ -84,6 +85,7 @@ const DashboardScreen = props => {
     // loads userData from local storage
     useEffect(() => {
         dispatch(UDActions.setUserData());
+        dispatch(TCActions.setTourneyCards());
     }, [dispatch])
 
     // runs only the first time the dashboard is loaded, and when switching dashboards

@@ -17,8 +17,9 @@ export const createTourneyCard = (tourneyInfo, tourneyUrl, userPlayer) => {
         let ttype = tourneyInfo.tournament.tournament_type;
         let tdate = new Date(tourneyInfo.tournament.started_at).toDateString();
         let pname = userPlayer.participant.name;
+        let pid = userPlayer.participant.id;
 
-        insertTourneyCard(tid, url, tname, tgame, tplayers, ttype, tdate, pname)
+        insertTourneyCard(tid, url, tname, tgame, tplayers, ttype, tdate, pname, pid)
             .then(() => {
                 console.log('Inserted '+ url +' tourneyCard row');
                 return dispatch({
@@ -31,13 +32,14 @@ export const createTourneyCard = (tourneyInfo, tourneyUrl, userPlayer) => {
                         tplayers: tplayers,
                         ttype: ttype,
                         tdate: tdate,
-                        pname: pname
+                        pname: pname,
+                        pid: pid
                     }
                 });
             })
             .catch(err => {
                 if(err.toString().includes("UNIQUE constraint")){
-                    updateTCPlayerName(tid, pname)
+                    updateTCPlayerName(tid, pname, pid)
                         .then(() => {
                             return dispatch({
                                 type: UPDATE_TC,
@@ -49,7 +51,8 @@ export const createTourneyCard = (tourneyInfo, tourneyUrl, userPlayer) => {
                                     tplayers: tplayers,
                                     ttype: ttype,
                                     tdate: tdate,
-                                    pname: pname
+                                    pname: pname,
+                                    pid: pid
                                 }
                             });
                         }).catch(err => {

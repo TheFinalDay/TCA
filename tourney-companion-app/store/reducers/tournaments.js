@@ -17,13 +17,11 @@ export default (state = initialState, action) => {
     switch (action.type) {
         case CREATE_TOURNEY: case REFRESH_TOURNEY:
 
-            const addedTourney = action.tourneyData;
-
-            const createTourneyId = addedTourney.tid;
-            const createTourneyUrl = addedTourney.url;
-            const createTourneyPlayers = addedTourney.players;
-            const createTourneyData = addedTourney.tourneyData;
-            const createTourneyUser = addedTourney.userPlayer;
+            const createTourneyId = action.tourneyData.tid;
+            const createTourneyUrl = action.tourneyData.url;
+            const createTourneyPlayers = action.tourneyData.players;
+            const createTourneyData = action.tourneyData.tourneyData;
+            const createTourneyUser = action.tourneyData.userPlayer;
 
             const newOrUpdatedTourney = new Tournament(
                 createTourneyId,
@@ -35,7 +33,7 @@ export default (state = initialState, action) => {
 
             if(state.userTournaments.find(tourney => tourney.tid === createTourneyId)){
                 // tourney already exists in array
-                console.log("tourney update...")
+                console.log("tourney update...");
                 let filteredArray = state.userTournaments.filter(tourney => tourney.tid != createTourneyId);
                 if(action.type == REFRESH_TOURNEY){
                     return {
@@ -50,8 +48,8 @@ export default (state = initialState, action) => {
                 };
 
             } else {
-                console.log("new tourney added...")
                 // first time tourney is added
+                console.log("new tourney added...");
                 return {
                     ...state,
                     userTournaments: [ ...state.userTournaments, newOrUpdatedTourney]
@@ -77,12 +75,36 @@ export default (state = initialState, action) => {
 
         case ACTIVATE_TOURNEY:
 
-            let toActivate = state.userTournaments.find(tourney => tourney.tid == action.tid);
+            if(action.tourneyData){
 
-            return {
-                ...state,
-                activeTournament: toActivate
-            };
+                const activateTourneyId = action.tourneyData.tid; 
+                const activateTourneyUrl = action.tourneyData.url;
+                const activateTourneyPlayers = action.tourneyData.players;
+                const activateTourneyData = action.tourneyData.tourneyData;
+                const activateTourneyUser = action.tourneyData.userPlayer;
+
+                const newActivatedTourney = new Tournament(
+                    activateTourneyId,
+                    activateTourneyUrl,
+                    activateTourneyPlayers,
+                    activateTourneyData,
+                    activateTourneyUser
+                );
+
+                return {
+                    ...state,
+                    userTournaments: [ ...state.userTournaments, newActivatedTourney],
+                    activeTournament: newActivatedTourney
+                };
+
+            } else {
+
+                let toActivate = state.userTournaments.find(tourney => tourney.tid == action.tid);
+                return {
+                    ...state,
+                    activeTournament: toActivate
+                };
+            }
 
         default:
             return state;
