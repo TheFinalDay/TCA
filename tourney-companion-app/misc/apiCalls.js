@@ -29,7 +29,6 @@ const _getPlayerList = async (url) => {
         
     } catch (e) { throw e; }
 
-
     return {
         payloadData: {
             players: resData

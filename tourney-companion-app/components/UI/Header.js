@@ -10,10 +10,16 @@ const ratio = dims.width / 1000;
 const Header = props => {
     return(
         <View style={styles.header}>
-            <TouchableOpacity style={styles.drawericonButton} onPress={props.openDrawer}>
+            <TouchableOpacity style={styles.drawerIconButton} onPress={props.openDrawer}>
                 <MaterialCommunityIcons name={props.iconName || 'forwardburger'} size={props.iconSize || 85 * ratio} color={props.iconColor || 'white'} />
             </TouchableOpacity>
-            <Text style={styles.headerText}>{props.children}</Text>
+            <View style={{flex: 5}}>
+                <Text style={styles.headerText}>{props.children}</Text>
+            </View>
+            <View style={{flex: 3, ...styles.rightButtons}}>
+                {props.headerRight}
+            </View>
+            
         </View>
     );
 }
@@ -26,7 +32,8 @@ const styles = StyleSheet.create({
         backgroundColor: DeepBlue.bg_secondary,
         height:  dims.height * 0.07,
         flexDirection: 'row', 
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'flex-start'
     },
     headerText: {
         fontFamily: 'prototype',
@@ -35,9 +42,14 @@ const styles = StyleSheet.create({
         marginLeft: 36 * ratio,
         marginVertical: 36 * ratio
     },
-    drawericonButton: {
+    drawerIconButton: {
         marginLeft: 36 * ratio
+    },
+    rightButtons:{
+        flexDirection: 'row',
+        justifyContent: 'flex-end'
     }
+    
 });
 
 export default Header;

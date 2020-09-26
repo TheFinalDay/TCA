@@ -8,7 +8,6 @@ import TourneyTabNavigator from '../tabs/TourneyTabNavigator';
 import TOScreensNavigator from '../stacks/TOScreensNavigator';
 import ImportTourneyScreen from '../../components/screens/ImportTourneyScreen';
 import TourneyListScreen from '../../components/screens/TourneyListScreen';
-import TOAccountScreen from '../../components/screens/TOAccountScreen';
 import { DeepBlue } from '../../constants/Colors';
 
 const MainNavigator = createDrawerNavigator({
