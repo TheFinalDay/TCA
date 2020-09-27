@@ -27,8 +27,8 @@ const RectangleIconButton = props => {
 
     return (
         <TouchableOpacity onPress={props.onPress} style={{...props.style, ...styles.buttonContainer}}>
-            <View style={{...styles.button, backgroundColor: props.backgroundColor || 'white', borderWidth: props.borderWidth || 0, borderColor: props.borderColor || 'black'}}>
-                {isText && <Text style={{...styles.buttonText, color: props.textColor || 'black', fontSize: props.fontSize || 39 * ratio}}>{props.children}</Text>}
+            <View style={{...styles.button, backgroundColor: props.backgroundColor || 'white', borderWidth: props.borderWidth || 0, borderColor: props.borderColor || 'black', opacity: props.opacity || 1}}>
+                {isText && <Text numberOfLines={2} style={{...styles.buttonText, color: props.textColor || 'black', fontSize: props.fontSize || 39 * ratio}}>{props.children}</Text>}
                 <View>
                     <MaterialCommunityIcons name={props.iconName} size={props.iconSize || 47 * ratio} color={props.iconColor || 'black'} />
                 </View>

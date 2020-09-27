@@ -22,16 +22,8 @@ const TourneyListScreen = props => {
     const [showCards, setShowCards] = useState(false);
     const [joinTourneyModalVisible, setJoinTourneyModalVisible] = useState(false);
 
-    
-
     const tourneys = useSelector(state => state.tournaments.userTournaments);
     const cards = useSelector(state => state.tourneycards.tourneyCards);
-
-    useEffect(() => {
-
-        
-
-    },[tourneys]);
 
     useEffect(() => {
 
@@ -51,7 +43,7 @@ const TourneyListScreen = props => {
 
         const itc_styles = StyleSheet.create({
             textInputView: {
-                alignItems: 'center',
+                alignItems: 'stretch',
                 width: '100%'
             },
             textinput: {
@@ -59,114 +51,62 @@ const TourneyListScreen = props => {
                 color: DeepBlue.text_primary,
                 borderColor: DeepBlue.bg_tertiary,
                 borderBottomWidth: 3,
-                marginBottom: 10 * ratio,
             },
             loadTourneyButton: {
-                marginTop: 10 * ratio,
-                marginBottom: 14 * ratio,
+                marginTop: 25 * ratio,
             },
             playerListView: {
-                height: dims.height * 0.65,
-                width: '100%'
+                padding: 25 * ratio,
+                marginTop: 25 * ratio,
+                height: '70%',
+                width: '100%',
+                alignItems: 'stretch',
+                borderRadius: 25 * ratio,
+                backgroundColor: DeepBlue.bg_secondary
             },
             listHeaderText: {
                 fontFamily: 'prototype',
                 color: DeepBlue.text_secondary,
-                marginVertical: 10 * ratio,
-                marginLeft: 25 * ratio
+                marginVertical: 10 * ratio
             },
             separator: {
-                height: 1,
-                width: "90%",
-                backgroundColor: DeepBlue.text_secondary,
-                marginLeft: 36 * ratio
+                height: 2,
+                backgroundColor: DeepBlue.primary
             },
             listItem: {
-                marginLeft: 36 * ratio,
                 marginVertical: 25 * ratio
             },
             selectedItem: {
-                backgroundColor: DeepBlue.bg_secondary,
-                width: '90%',
-                marginLeft: 36 * ratio
+                backgroundColor: DeepBlue.primary,
             }
         });
 
         return (
-            <View style={{flex: 1, alignItems: 'flex-start', justifyContent: 'flex-start'}}>
-                <View style={itc_styles.textInputView}>
-                    <TextInput
-                        style={itc_styles.textinput}
-                        placeholder="i.e.: challonge.com/example123"
-                        placeholderTextColor={DeepBlue.text_secondary}
-                        onChangeText={text => onChangeUrlText(text)}
-                        value={urlText}
-                    />
-                    <SimpleButton 
-                        style={itc_styles.loadTourneyButton}
-                        backgroundColor={DeepBlue.primary}
-                        onPress={async () => {
-                            setShowPlayers(false);
-                            let result = await API._getPlayerList(urlText);
-                                
-                                console.log(result.payloadData);
-                                if(result){
-                                    setSelectedPlayer(null);
-                                    setShowErrorMessage(false);
-                                    setPlayers(result.payloadData.players);
-                                    setShowPlayers(true);
-                                }else{
-                                    setSelectedPlayer(null);
-                                    setShowErrorMessage(true);
-                                    setPlayers([]);
-                                }
-                            }
-                        }>
-                        Load Players
-                    </SimpleButton>
-                </View>
-                
-                <View style={itc_styles.playerListView}>
-                    {showPlayers && <View>
-                        <FlatList
-                            ListHeaderComponent={<Text style={itc_styles.listHeaderText}>Found {players.length} players:</Text>}
-                            ItemSeparatorComponent={() => <View style={itc_styles.separator}/>}
-                            data={players}
-                            extraData={selectedPlayer}
-                            keyExtractor={player => player.participant.id.toString()}
-                            renderItem={itemData => 
-                                <TouchableOpacity 
-                                    onPress={() => {
-                                        setSelectedPlayer(itemData.item);
-                                    }}
-                                    style={itemData.item === selectedPlayer ? itc_styles.selectedItem : null}>
-                                    <View style={itc_styles.listItem}>
-                                        <Text style={{fontFamily: 'prototype', color: DeepBlue.text_primary}}>
-                                            {itemData.item.participant.name}
-                                        </Text>
-                                    </View>
-                                </TouchableOpacity>
-                            }
-                        />
-                    </View>}
-                </View>
-                
-            </View>
-        );
-    }
-
-    
-
-    return (
-        <View style={{flex: 1, justifyContent: 'center'}}>
             <PopUp
                 visible={joinTourneyModalVisible} 
                 isSecondaryButton={true}
                 isSubtitle={true}
                 onClose={() => {setJoinTourneyModalVisible(false)}}
-                buttonText={"Join"}
-                buttonColor={DeepBlue.primary}
-                onPress={() => {}}
+                buttonText={selectedPlayer ? "Join as " + selectedPlayer.participant.name : "Join"}
+                buttonColor={DeepBlue.accent}
+                buttonOpacity={selectedPlayer ? 1 : 0.2}
+                onPress={selectedPlayer ? 
+                    () => {
+                        dispatch(tourneyActions.createTourney(urlText, players, selectedPlayer))
+                        .then(res => {
+                            console.log(res)
+                            dispatch(TCActions.createTourneyCard(res, urlText, selectedPlayer)).then(() => {
+                                setJoinTourneyModalVisible(false);
+                            }).catch(err => {
+                                console.log("!! My Tourneys - tourney card creation failed")
+                                throw err;
+                            });
+                        }).catch(err => {
+                            console.log("!! My Tourneys - tourney creation failed")
+                            throw err;
+                        });
+                    } : 
+                    () => {}}
                 secondaryButtonText={"Cancel"}
                 secondaryOnPress={() => {setJoinTourneyModalVisible(false)}}
                 topFlex={0.1}
@@ -174,9 +114,71 @@ const TourneyListScreen = props => {
                 bottomFlex={0.1}
                 title={"Join as Player"}
                 subtitle={"Enter a Challonge URL below:"}>
-                    <ImportTourneyContent/>
+                <View style={{flex: 1, alignItems: 'stretch', justifyContent: 'flex-start', width: dims.width * 0.7}}>
+                    <View style={itc_styles.textInputView}>
+                        <TextInput
+                            style={itc_styles.textinput}
+                            placeholder="i.e.: challonge.com/example123"
+                            placeholderTextColor={DeepBlue.text_secondary}
+                            onChangeText={text => onChangeUrlText(text)}
+                            value={urlText}
+                        />
+                        <SimpleButton 
+                            style={itc_styles.loadTourneyButton}
+                            backgroundColor={DeepBlue.primary}
+                            onPress={async () => {
+                                setShowPlayers(false);
+                                let result = await API._getPlayerList(urlText);
+                                    if(result){
+                                        setSelectedPlayer(null);
+                                        setShowErrorMessage(false);
+                                        setPlayers(result.payloadData.players);
+                                        setShowPlayers(true);
+                                    }else{
+                                        setSelectedPlayer(null)
+                                        setShowErrorMessage(true);
+                                    }
+                                }
+                            }>
+                            Load Players
+                        </SimpleButton>
+                    </View>
                     
+                    <View style={itc_styles.playerListView}>
+                        {showPlayers && <View>
+                            <FlatList
+                                ListHeaderComponent={<Text style={itc_styles.listHeaderText}>Found {players.length} players:</Text>}
+                                ItemSeparatorComponent={() => <View style={itc_styles.separator}/>}
+                                data={players}
+                                extraData={selectedPlayer}
+                                keyExtractor={player => player.participant.id.toString()}
+                                renderItem={itemData => 
+                                    <TouchableOpacity 
+                                        onPress={() => {
+                                            setSelectedPlayer(itemData.item);
+                                        }}
+                                        style={itemData.item === selectedPlayer ? itc_styles.selectedItem : null}>
+                                        <View style={itc_styles.listItem}>
+                                            <Text style={{fontFamily: 'prototype', color: itemData.item === selectedPlayer ? DeepBlue.bg_primary : DeepBlue.text_primary, marginLeft: (itemData.item === selectedPlayer ?  72 : 36) * ratio}}>
+                                                {itemData.item.participant.name}
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                }
+                            />
+                        </View>}
+                        {showErrorMessage && <Text style={itc_styles.listHeaderText}>No results!</Text>}
+                    </View>
+                </View>
             </PopUp>
+        );
+    }
+
+    
+
+    return (
+        <View style={{flex: 1, justifyContent: 'center'}}>
+            <ImportTourneyContent/>
             <View style={styles.screen}>
                 <Header 
                     openDrawer={props.navigation.openDrawer} 

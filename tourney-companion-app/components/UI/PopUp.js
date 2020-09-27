@@ -38,6 +38,7 @@ const PopUp = props => {
                                     onPress={isSecondaryButton ? props.secondaryOnPress : props.onPress}
                                     style={{flex: 1, height: '100%'}}
                                     fontSize={44 * ratio}
+                                    opacity={isSecondaryButton ? 1 : props.buttonOpacity}
                                     backgroundColor={isSecondaryButton ? (props.secondaryButtonColor || DeepBlue.red) : (props.buttonColor || DeepBlue.primary)}
                                     textColor={isSecondaryButton ? (props.secondaryButtonTextColor || DeepBlue.text_primary) : (props.buttonTextColor || DeepBlue.text_primary)}>
                                     {isSecondaryButton ? (props.secondaryButtonText || "Cancel") : (props.buttonText || "OK")}
@@ -47,6 +48,7 @@ const PopUp = props => {
                                         onPress={props.onPress}
                                         style={{height: '100%'}}
                                         fontSize={44 * ratio}
+                                        opacity={props.buttonOpacity || 1}
                                         backgroundColor={props.buttonColor || DeepBlue.primary}
                                         textColor={props.buttonTextColor || DeepBlue.text_primary}>
                                         {props.buttonText || "Submit"}

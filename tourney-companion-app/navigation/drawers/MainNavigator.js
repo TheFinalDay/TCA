@@ -23,12 +23,6 @@ const MainNavigator = createDrawerNavigator({
             drawerLabel: 'My Tourneys'
         }
     },
-    Import: {
-        screen: ImportTourneyScreen,
-        navigationOptions: {
-            drawerLabel: 'Join as Player'
-        }
-    },
     TOScreens: {
         screen: TOScreensNavigator,
         navigationOptions: {

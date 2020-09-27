@@ -12,6 +12,11 @@ import * as TCActions from '../../store/actions/tourneycards';
 const dims = Dimensions.get('window');
 const ratio = dims.width / 1000;
 
+
+/**
+ * THIS IS DEPRECATED
+ */
+
 const ImportTourneyScreen = props => {
 
     const dispatch = useDispatch();

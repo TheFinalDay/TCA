@@ -5,23 +5,27 @@ export const REFRESH_TOURNEY= 'REFRESH_TOURNEY';
 export const DELETE_TOURNEY = 'DELETE_TOURNEY';
 export const ACTIVATE_TOURNEY = 'ACTIVATE_TOURNEY';
 
-export const createTourney = (url, players, userPlayer) => {
-    return async dispatch => {
+export const createTourney = (url, players, userPlayer) => (dispatch) => 
+    new Promise((resolve, reject) => {
 
-        let result = await API._getTournamentInfo(url)
-
-        dispatch({
-            type: CREATE_TOURNEY,
-            tourneyData: {
-                tid: result.payloadData.tournamentInfo.tournament.id,
-                url,
-                players: players,
-                tourneyData: result.payloadData.tournamentInfo,
-                userPlayer: userPlayer
-            }
+        API._getTournamentInfo(url).then(result => {
+            dispatch({
+                type: CREATE_TOURNEY,
+                tourneyData: {
+                    tid: result.payloadData.tournamentInfo.tournament.id,
+                    url,
+                    players: players,
+                    tourneyData: result.payloadData.tournamentInfo,
+                    userPlayer: userPlayer
+                }
+            });
+            resolve(result.payloadData.tournamentInfo);
+        }).catch(err => {
+            console.log("createTourney2 failed");
+            reject(err);
         });
-    };
-};
+        
+});
 
 export const deleteTourney = (tourneyId) => {
     return async dispatch => {
