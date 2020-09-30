@@ -5,8 +5,7 @@ export const REFRESH_TOURNEY= 'REFRESH_TOURNEY';
 export const DELETE_TOURNEY = 'DELETE_TOURNEY';
 export const ACTIVATE_TOURNEY = 'ACTIVATE_TOURNEY';
 
-export const createTourney = (url, players, userPlayer) => (dispatch) => 
-    new Promise((resolve, reject) => {
+export const createTourney = (url, players, userPlayer) => (dispatch) => new Promise((resolve, reject) => {
 
         API._getTournamentInfo(url).then(result => {
             dispatch({
@@ -21,7 +20,7 @@ export const createTourney = (url, players, userPlayer) => (dispatch) =>
             });
             resolve(result.payloadData.tournamentInfo);
         }).catch(err => {
-            console.log("createTourney2 failed");
+            console.log("createTourney failed");
             reject(err);
         });
         

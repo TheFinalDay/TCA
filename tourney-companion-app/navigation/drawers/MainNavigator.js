@@ -11,16 +11,16 @@ import TourneyListScreen from '../../components/screens/TourneyListScreen';
 import { DeepBlue } from '../../constants/Colors';
 
 const MainNavigator = createDrawerNavigator({
-    CurrentTourney: {
-        screen: TourneyTabNavigator,
-        navigationOptions: {
-            drawerLabel: 'Active Dashboard'
-        }
-    },
     TourneyList: {
         screen: TourneyListScreen,
         navigationOptions: {
             drawerLabel: 'My Tourneys'
+        }
+    },
+    CurrentTourney: {
+        screen: TourneyTabNavigator,
+        navigationOptions: {
+            drawerLabel: 'Active Dashboard'
         }
     },
     TOScreens: {

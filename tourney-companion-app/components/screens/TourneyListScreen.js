@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import {View, Text, TextInput, StyleSheet, FlatList, Dimensions, TouchableOpacity} from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Permissions from 'expo-permissions';
+import { Notifications } from 'expo';
 
 import { API } from '../../misc/apiCalls';
 import { DeepBlue } from '../../constants/Colors';
@@ -11,6 +13,7 @@ import Header from '../UI/Header';
 import PopUp from '../UI/PopUp';
 import * as tourneyActions from '../../store/actions/tournaments';
 import * as TCActions from '../../store/actions/tourneycards';
+import * as UDActions from '../../store/actions/userdata';
 
 const dims = Dimensions.get('window');
 const ratio = dims.width / 1000;
@@ -25,11 +28,53 @@ const TourneyListScreen = props => {
     const tourneys = useSelector(state => state.tournaments.userTournaments);
     const cards = useSelector(state => state.tourneycards.tourneyCards);
 
+    // runs only first time dashboard is loaded
+    // sets up permissions for push notifications
+    useEffect(() => {
+        Permissions.getAsync(Permissions.NOTIFICATIONS).then(statusObj => {
+            if(statusObj.status !== 'granted'){
+                return Permissions.askAsync(Permissions.NOTIFICATIONS);
+            }
+            return statusObj;
+        }).then(statusObj => {
+            if(statusObj.status !== 'granted') {
+                //TODO alert user that there will be no notifications shown...
+                throw new Error('Permission not granted');
+            }
+        }).then(() => {
+            //sign up with expo's push servers
+            console.log("getting token...")
+            return Notifications.getExpoPushTokenAsync();
+        }).then(response => {
+            console.log(response);
+            const token = response.data;
+        }).catch((err) => {
+            console.log(err);
+            return null;
+        });
+    }, []);
+
+    // this goes to whichever is the first screen loaded to the user
+    // loads userData and sets up tourney cards (local db)
+    useEffect(() => {
+        //TODO chain these actions, have a loading animation until it's complete
+
+        dispatch(UDActions.setUserData()); // fetching userData (apikeys)
+        
+        //TODO FOR all userData apikeys -> search for user owned tournaments
+        //TODO IF these user owned tournaments are not already in tourney cards -> INSERT new tourneycard rows in local db
+
+        dispatch(TCActions.setTourneyCards()); // fetching tourney cards from local db
+
+        //TODO stop loading animation
+    }, [dispatch])
+
     useEffect(() => {
 
         setShowCards(cards.length > 0 ? true : false);
 
     }, [cards])
+
 
     const ImportTourneyContent = props => {
 
@@ -175,7 +220,6 @@ const TourneyListScreen = props => {
     }
 
     
-
     return (
         <View style={{flex: 1, justifyContent: 'center'}}>
             <ImportTourneyContent/>
@@ -217,11 +261,9 @@ const TourneyListScreen = props => {
                     <SimpleButton 
                         style={styles.joinTourneyButton}
                         backgroundColor={DeepBlue.bg_tertiary}
-                        onPress={() => {
-                                props.navigation.navigate("Import");
-                            }
+                        onPress={() => {setJoinTourneyModalVisible(true)}
                         }>
-                        Go join some!
+                        Add a tournament!
                     </SimpleButton>
                 </View>}
                 

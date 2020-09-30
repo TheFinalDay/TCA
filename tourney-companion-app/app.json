@@ -10,11 +10,11 @@
     ],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon_test.png",
+    "icon": "./assets/icon-mascot.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash-mascot.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#4734b3"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -28,13 +28,13 @@
     "android": {
       "softwareKeyboardLayoutMode": "pan",
       "useNextNotificationsApi": true,
-      "icon": "./assets/icon_test.png",
+      "icon": "./assets/icon-mascot.png",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon_test.png",
-        "backgroundColor": "#000000"
+        "foregroundImage": "./assets/icon-mascot.png",
+        "backgroundColor": "#4734b3"
       }
     },
-    "description": "A quality of life & tournament management app for players and TOs respectively\nfeatures: \n- Tournament Dashboard & Forecast View\n- API Key Storage",
+    "description": "A quality of life & tournament management app for players and TOs respectively",
     "githubUrl": "https://github.com/TheFinalDay/TCA"
   }
 }
